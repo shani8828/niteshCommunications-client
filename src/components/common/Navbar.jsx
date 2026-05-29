@@ -199,7 +199,7 @@ const Navbar = () => {
 
       {/* Mobile Drawer Overlay */}
       {mobileMenuOpen && (
-        <div className="absolute top-[68px] left-4 right-4 z-[90] flex flex-col gap-3 p-6 bg-white border border-slate-100 shadow-xl rounded-2xl md:hidden">
+        <div className="absolute top-[60px] left-0 right-0 z-[90] flex flex-col gap-3 p-6 bg-white border border-slate-100 shadow-xl rounded-b-2xl md:hidden">
           <NavLink
             to="/"
             onClick={() => setMobileMenuOpen(false)}
