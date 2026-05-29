@@ -1,0 +1,23 @@
+{
+  "title": "Mobile Repair Booking",
+  "book_repair": "Book a Repair & Pickup",
+  "device_brand": "Device Brand",
+  "placeholder_brand": "e.g. Redmi Note 10 Pro, iPhone 11",
+  "device_category": "Device Category",
+  "select_category": "Select Category",
+  "problem_desc": "Problem Description",
+  "placeholder_desc": "e.g. Broken screen, not charging, fell in water, microphone not working...",
+  "pickup_address": "Full Pickup Address",
+  "placeholder_address": "Enter your full address with nearby landmark",
+  "contact_number": "Contact Phone Number",
+  "btn_book": "Submit Repair Request",
+  "booking_success": "Repair Request Submitted!",
+  "booking_success_desc": "Our team will contact you shortly for pickup. Your Request ID is: ",
+  "estimated_pricing": "Estimated Repair Pricing Catalog",
+  "faq_title": "Frequently Asked Questions (FAQ)",
+  "cat_folder": "Photo Skin / Lamination",
+  "cat_display": "Folder / Display Replacement",
+  "cat_battery": "Original Battery Replacement",
+  "cat_charging": "Charging Port / Mic Repair",
+  "cat_software": "Software Flashing / Unlocking"
+}

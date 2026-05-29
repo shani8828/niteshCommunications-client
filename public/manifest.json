@@ -1,0 +1,23 @@
+{
+  "short_name": "Nitesh Comm",
+  "name": "Nitesh Communications - Mobile Shop & repairing",
+  "icons": [
+    {
+      "src": "/branding/app-icon.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/branding/logo-dark.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "display": "standalone",
+  "orientation": "portrait"
+}

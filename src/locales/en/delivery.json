@@ -1,0 +1,21 @@
+{
+  "dashboard_title": "Delivery Partner Dashboard",
+  "availability": "Available for Delivery",
+  "active_deliveries": "Active Deliveries",
+  "assigned_shipments": "Assigned Shipments",
+  "order_id": "Order ID",
+  "customer_name": "Customer Name",
+  "phone": "Phone Number",
+  "address": "Delivery Address",
+  "amount_to_collect": "Amount to Collect",
+  "cod_badge": "Cash on Delivery",
+  "paid_badge": "Paid Online",
+  "update_status_btn": "Update Delivery Status",
+  "no_shipments": "No shipments currently assigned to you.",
+  "delivery_history": "Delivery History Log",
+  "status_updated": "Delivery status updated successfully",
+  "mark_picked_up": "Mark as Picked Up",
+  "mark_on_the_way": "Mark Out for Delivery",
+  "mark_delivered": "Mark as Delivered (Success)",
+  "cancel_delivery": "Cancel/Mark Failed"
+}

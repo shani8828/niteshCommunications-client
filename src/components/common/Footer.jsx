@@ -1,0 +1,106 @@
+import React from "react";
+import { useTranslation } from "react-i18next";
+import { Phone, MapPin, Mail, ShieldCheck } from "lucide-react";
+
+const Footer = () => {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language;
+  return (
+    <footer className="bg-slate-50 border-t border-slate-200 pt-16 pb-8 px-6 text-slate-600 mt-16">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+        {/* Brand Column */}
+        <div className="flex flex-col gap-4">
+          <h3 className="font-heading font-extrabold text-xl text-blue-600">
+            {t("brand")}
+          </h3>
+          <p className="text-xs text-slate-500">{t("tagline")}</p>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            {t("desc_banner_1")}
+          </p>
+          <div className="flex items-center gap-2 mt-2">
+            <ShieldCheck size={18} className="text-blue-600" />
+            <span className="text-xs text-blue-600 font-semibold">
+              {currentLang == "hi"
+                ? "100% विश्वास और गारंटी"
+                : "100% Trust & Guarantee"}
+            </span>
+          </div>
+        </div>
+
+        {/* Quick Contacts */}
+        <div className="flex flex-col gap-4">
+          <h4 className="font-heading font-bold text-base text-slate-800 mb-2">
+            {t("contact_us")}
+          </h4>
+          <a
+            href="tel:+919125949456"
+            className="flex items-center gap-3 text-sm"
+          >
+            <Phone size={16} className="text-blue-600 flex-shrink-0" />
+            <span>+91 9125949456</span>
+          </a>
+          <a
+            href="https://maps.app.goo.gl/N6m15mD81X427f9B9"
+            className="flex items-start gap-3 text-sm"
+          >
+            <MapPin size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
+            <span className="leading-relaxed">
+              {currentLang == "hi"
+                ? "करमडांडा मोड़, पटखौली चौराहा, अयोध्या"
+                : "Karamdanda Mod, Patkhauli Chauraha, Ayodhya"}
+            </span>
+          </a>
+          <a
+            href="mailto:[EMAIL_ADDRESS]"
+            className="flex items-center gap-3 text-sm"
+          >
+            <Mail size={16} className="text-blue-600 flex-shrink-0" />
+            <span>info@niteshcommunications.in</span>
+          </a>
+          <p className="mt-2 text-sm font-semibold text-blue-600">
+            {t("owner")}
+          </p>
+        </div>
+
+        {/* Embed Google Map */}
+        <div className="flex flex-col gap-4">
+          <h4 className="font-heading font-bold text-base text-slate-800 mb-2">
+            Our Location
+          </h4>
+          <div className="rounded-lg overflow-hidden shadow-sm border border-slate-200 h-[150px]">
+            <iframe
+              title="Google Map Location"
+              src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d1782.6317102954813!2d82.01132835120666!3d26.672056459941167!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1779988602573!5m2!1sen!2sin"
+              width="100%"
+              height="100%"
+              className="border-0"
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+
+      <hr className="max-w-6xl mx-auto my-8 border-t border-slate-200" />
+
+      {/* Developer Credits */}
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+        <p className="margin-0">
+          &copy; {new Date().getFullYear()} Nitesh Communications. All Rights
+          Reserved.
+        </p>
+        <a
+          href="https://ayodhyaserenity.vercel.app/services/website"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="margin-0 text-blue-600 hover:underline"
+        >
+          {t("credit")}
+        </a>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;

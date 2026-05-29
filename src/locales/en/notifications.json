@@ -1,0 +1,17 @@
+{
+  "login_success": "Login successful!",
+  "login_failed": "Login failed! Please check your mobile number and password.",
+  "logout_success": "Logged out successfully.",
+  "registration_success": "Registration successful! Verification OTP sent.",
+  "registration_failed": "Registration failed! Please try again.",
+  "otp_verified": "Account successfully verified and logged in!",
+  "otp_failed": "Invalid or expired OTP code.",
+  "cart_added": "Product added to cart!",
+  "cart_removed": "Product removed from cart.",
+  "payment_success": "Payment verified! Order confirmed.",
+  "payment_failed": "Payment failed or cancelled.",
+  "server_error": "Connection error. Please try again.",
+  "csc_submitted": "CSC inquiry submitted successfully.",
+  "repair_submitted": "Repair booking registered successfully.",
+  "status_updated": "Delivery status updated successfully."
+}
