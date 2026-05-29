@@ -21,6 +21,7 @@ import RepairService from './pages/RepairService';
 import CscService from './pages/CscService';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import NotFound from './pages/NotFound';
 
 // Role Login Pages
 import AdminLogin from './pages/AdminLogin';
@@ -98,8 +99,8 @@ function App() {
                     }
                   />
 
-                  {/* Wildcard 404 Redirection */}
-                  <Route path="*" element={<Home />} />
+                  {/* Wildcard 404 Route */}
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
 
