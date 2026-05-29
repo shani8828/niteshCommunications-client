@@ -109,7 +109,7 @@ const OrderTracking = () => {
 
   const currentLang = i18n.language || 'hi';
 
-  if (loading) return <Loader fullPage />;
+  if (loading && !order) return <Loader fullPage />;
 
   // User Order History redirection fallback
   if (id === 'history' || !order) {
@@ -127,7 +127,8 @@ const OrderTracking = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white">
+    <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white relative">
+      {loading && <Loader fullPage />}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <span className="bg-blue-50 text-blue-600 border border-blue-100 text-[10px] uppercase font-bold px-2 py-0.5 rounded tracking-wider">

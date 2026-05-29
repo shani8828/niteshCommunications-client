@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { showToast } from '../utils/toast';
 import Loader from '../components/common/Loader';
 import api from '../utils/api';
-import { BarChart3, Plus, Edit, Trash2, Package, Wrench, FileText, Settings, X, Upload, RefreshCw } from 'lucide-react';
+import { BarChart3, Plus, Edit, Trash2, Package, Wrench, FileText, Settings, X, Upload, RefreshCw, ShoppingBag } from 'lucide-react';
 
 const AdminDashboard = () => {
   const { t } = useTranslation();
@@ -70,10 +71,33 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchOrders = async () => {
+    try {
+      const response = await api.get('/orders');
+      setOrders(response.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const loadAllData = async () => {
     setLoading(true);
-    await Promise.all([fetchAnalytics(), fetchInventory(), fetchRepairsAndCsc()]);
+    await Promise.all([fetchAnalytics(), fetchInventory(), fetchRepairsAndCsc(), fetchOrders()]);
     setLoading(false);
+  };
+
+  const handleUpdateOrderStatus = async (id, status) => {
+    setLoading(true);
+    try {
+      await api.put(`/orders/${id}/status`, { status });
+      showToast.success(t('admin:success_status_update', 'Status updated successfully'));
+      await fetchOrders();
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || t('admin:error_status_update', 'Update failed');
+      showToast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -213,10 +237,11 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading && !analytics) return <Loader fullPage />;
+  if (!analytics) return <Loader fullPage />;
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 pb-20">
+      {loading && <Loader fullPage />}
       <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
         <h2 className="font-heading text-2xl font-extrabold text-slate-900">
           {t('admin:dashboard_title')}
@@ -263,6 +288,14 @@ const AdminDashboard = () => {
             }`}
           >
             <BarChart3 size={16} /> {t('admin:nav_overview', 'Overview')}
+          </button>
+          <button
+            onClick={() => setActiveTab('orders')}
+            className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+              activeTab === 'orders' ? 'bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10' : 'hover:bg-slate-100 text-slate-600'
+            }`}
+          >
+            <ShoppingBag size={16} /> {t('admin:nav_orders', 'Orders')}
           </button>
           <button
             onClick={() => setActiveTab('products')}
@@ -358,6 +391,90 @@ const AdminDashboard = () => {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tab: Orders Panel */}
+          {activeTab === 'orders' && (
+            <div className="flex flex-col gap-6 w-full animate-fadeIn">
+              <h3 className="font-heading text-lg font-bold text-slate-900">{t('admin:nav_orders', 'Orders')}</h3>
+              <div className="w-full overflow-x-auto rounded-xl border border-slate-100">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-500 font-semibold text-xs border-b border-slate-200">
+                      <th className="px-4 py-3 text-left">{t('admin:order_id', 'Order ID')}</th>
+                      <th className="px-4 py-3 text-left">{t('admin:customer', 'Customer')}</th>
+                      <th className="px-4 py-3 text-left">{t('common:phone', 'Phone')}</th>
+                      <th className="px-4 py-3 text-left">{t('admin:amount', 'Amount')}</th>
+                      <th className="px-4 py-3 text-left">{t('cart:select_payment', 'Payment')}</th>
+                      <th className="px-4 py-3 text-left">{t('admin:status', 'Status')}</th>
+                      <th className="px-4 py-3 text-left">{t('admin:actions', 'Actions')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map((ord) => (
+                      <tr key={ord._id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs font-semibold text-blue-600">
+                          <Link to={`/order-tracking/${ord._id}`} className="hover:underline">
+                            NC-{ord.orderId}
+                          </Link>
+                        </td>
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700 font-semibold">{ord.user?.name || 'Guest'}</td>
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">{ord.customerPhone}</td>
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-900 font-bold">₹{ord.totalAmount}</td>
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="font-semibold text-slate-800">{ord.paymentType}</span>
+                            <span className={`text-[10px] font-bold ${ord.paymentStatus === 'Paid' ? 'text-emerald-600' : ord.paymentStatus === 'Failed' ? 'text-rose-600' : 'text-amber-600'}`}>
+                              {ord.paymentStatus}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              ord.deliveryStatus === 'Delivered'
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : ord.deliveryStatus === 'Cancelled'
+                                ? 'bg-rose-100 text-rose-700'
+                                : ord.deliveryStatus === 'Order Placed'
+                                ? 'bg-amber-100 text-amber-700'
+                                : 'bg-blue-100 text-blue-700'
+                            }`}
+                          >
+                            {ord.deliveryStatus}
+                          </span>
+                        </td>
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
+                          <select
+                            value={ord.deliveryStatus}
+                            onChange={(e) => handleUpdateOrderStatus(ord._id, e.target.value)}
+                            className="px-2 py-1 bg-white border border-slate-200 rounded text-slate-700 outline-none cursor-pointer text-xs focus:border-brand-cyan"
+                          >
+                            <option value="Order Placed">Order Placed</option>
+                            <option value="Confirmed">Confirmed</option>
+                            <option value="Packed">Packed</option>
+                            <option value="Waiting Pickup">Waiting Pickup</option>
+                            <option value="Picked Up">Picked Up</option>
+                            <option value="On The Way">On The Way</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Returned">Returned</option>
+                            <option value="Replaced">Replaced</option>
+                            <option value="Cancelled">Cancelled</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                    {orders.length === 0 && (
+                      <tr>
+                        <td colSpan="7" className="border-b border-slate-100 px-4 py-6 text-xs text-slate-500 text-center font-semibold">
+                          {t('admin:no_data')}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
@@ -717,6 +834,7 @@ const AdminDashboard = () => {
                 <input
                   type="file"
                   multiple
+                  accept="image/*"
                   className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 outline-none text-xs focus:border-brand-cyan"
                   onChange={(e) => setProdImages(e.target.files)}
                   required={!editingProduct}
@@ -726,8 +844,12 @@ const AdminDashboard = () => {
                 </span>
               </div>
 
-              <button type="submit" className="w-full py-3 mt-4 font-heading font-bold text-sm bg-gradient-to-r from-brand-cyan to-brand-blue text-white rounded-full hover:brightness-110 shadow-lg cursor-pointer transition-all">
-                {t('admin:save_changes')}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 mt-4 font-heading font-bold text-sm bg-gradient-to-r from-brand-cyan to-brand-blue text-white rounded-full hover:brightness-110 shadow-lg cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? t('common:submitting', 'Submitting...') : t('admin:save_changes')}
               </button>
             </form>
           </div>
@@ -776,13 +898,18 @@ const AdminDashboard = () => {
                 </label>
                 <input
                   type="file"
+                  accept="image/*"
                   className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 outline-none text-xs focus:border-brand-cyan"
                   onChange={(e) => setCatImage(e.target.files[0])}
                 />
               </div>
 
-              <button type="submit" className="w-full py-3 mt-4 font-heading font-bold text-sm bg-gradient-to-r from-brand-cyan to-brand-blue text-white rounded-full hover:brightness-110 shadow-lg cursor-pointer transition-all">
-                {t('admin:add_category', 'Create Category')}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 mt-4 font-heading font-bold text-sm bg-gradient-to-r from-brand-cyan to-brand-blue text-white rounded-full hover:brightness-110 shadow-lg cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? t('common:submitting', 'Submitting...') : t('admin:add_category', 'Create Category')}
               </button>
             </form>
           </div>

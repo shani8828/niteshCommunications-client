@@ -161,6 +161,7 @@ export const AuthProvider = ({ children }) => {
         resetPassword,
         logout,
         getHeaders,
+        updateUserProfile: (updatedData) => setUser(updatedData),
       }}
     >
       {children}

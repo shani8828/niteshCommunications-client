@@ -22,8 +22,14 @@ import CscService from './pages/CscService';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
+import TermsConditions from './pages/TermsConditions';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import RefundPolicy from './pages/RefundPolicy';
+import ShippingPolicy from './pages/ShippingPolicy';
+import Profile from './pages/Profile';
 
 import AdminLogin from './pages/AdminLogin';
+import CookieConsent from './components/common/CookieConsent';
 
 // Dashboards
 import AdminDashboard from './pages/AdminDashboard';
@@ -35,7 +41,7 @@ function App() {
       <AuthProvider>
         <CartProvider>
             {/* Global Styled Toaster Alerts */}
-            <Toaster position="top-right" richColors expand={false} />
+            <Toaster position="top-right" richColors expand={false} theme="light" />
             
             <div className="app-container">
               {/* Header Multilingual navigation */}
@@ -53,6 +59,10 @@ function App() {
                   <Route path="/csc" element={<CscService />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/terms-conditions" element={<TermsConditions />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/refund-policy" element={<RefundPolicy />} />
+                  <Route path="/shipping-policy" element={<ShippingPolicy />} />
 
                   {/* Separate logins for Admin & Partner */}
                   <Route path="/admin/admin_login" element={<AdminLogin />} />
@@ -71,6 +81,22 @@ function App() {
                     element={
                       <ProtectedRoute allowedRoles={['user']}>
                         <OrderTracking />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute allowedRoles={['user']}>
+                        <Profile />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/order-tracking/history"
+                    element={
+                      <ProtectedRoute allowedRoles={['user']}>
+                        <Profile />
                       </ProtectedRoute>
                     }
                   />
@@ -94,6 +120,9 @@ function App() {
 
               {/* Footer Contacts & Maps info */}
               <Footer />
+
+              {/* Cookie & Terms Consent Banner */}
+              <CookieConsent />
             </div>
         </CartProvider>
       </AuthProvider>

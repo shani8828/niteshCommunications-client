@@ -1,9 +1,9 @@
 {
   "brand": "NITESH COMMUNICATIONS",
-  "tagline": "Mobile Shop, Repairing and Common Service Centre",
+  "tagline": "E-Commerce, Repairing and Common Service Centre",
   "owner": "Owner: Nitesh Maurya",
   "credit": "Developed by Ayodhya Serenity",
-  "desc_banner_1": "We repair all kinds of mobile phones and sell brand new phones too. Financing and easy installment options are also available.",
+  "desc_banner_1": "We repair all kinds of mobile phones, activities related to Common Service Centre, E-Commerce and sell brand new phones too. Financing and easy installment options are also available.",
   "desc_banner_2": "We apply custom photo skins on all smartphones using precision machine cutting.",
   "cta_seva": "Give us an opportunity to serve you once.",
   "home": "Home",
@@ -36,5 +36,10 @@
   "waiting_pickup": "Waiting Pickup",
   "picked_up": "Picked Up",
   "on_the_way": "On The Way",
-  "delivered": "Delivered"
+  "delivered": "Delivered",
+  "terms_conditions": "Terms & Conditions",
+  "privacy_policy": "Privacy Policy",
+  "refund_policy": "Refund & Cancellation",
+  "shipping_policy": "Shipping & Delivery",
+  "order_summary": "My Orders"
 }

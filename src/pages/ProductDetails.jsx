@@ -293,10 +293,10 @@ const ProductDetails = () => {
 
                 <button
                   type="submit"
-                  className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-0"
                   disabled={submittingReview}
+                  className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Send size={12} /> {t('common:submit')}
+                  <Send size={12} /> {submittingReview ? t('common:submitting', 'Submitting...') : t('common:submit')}
                 </button>
               </form>
             </div>

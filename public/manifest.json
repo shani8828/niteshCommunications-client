@@ -1,15 +1,15 @@
 {
   "short_name": "Nitesh Comm",
-  "name": "Nitesh Communications - Mobile Shop & repairing",
+  "name": "Nitesh Communications - E-Commerce, Repairing & CSC",
   "icons": [
     {
-      "src": "/branding/app-icon.png",
+      "src": "/branding/logo.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "/branding/logo-dark.png",
+      "src": "/branding/logo.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any"

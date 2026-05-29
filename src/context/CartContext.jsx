@@ -41,28 +41,36 @@ export const CartProvider = ({ children }) => {
       return;
     }
 
+    let toastType = 'success';
+    let toastMessage = 'Added to Cart!';
+
     setCartItems((prev) => {
       const exists = prev.find((item) => item.product._id === product._id);
       if (exists) {
         const newQty = exists.quantity + quantity;
         if (newQty > product.stock) {
-          showToast.warning(`Only ${product.stock} units available in stock.`);
+          toastType = 'warning';
+          toastMessage = `Only ${product.stock} units available in stock.`;
           return prev.map((item) =>
             item.product._id === product._id
               ? { ...item, quantity: product.stock }
               : item
           );
         }
-        showToast.success('Cart updated successfully!');
+        toastType = 'success';
+        toastMessage = 'Cart updated successfully!';
         return prev.map((item) =>
           item.product._id === product._id
             ? { ...item, quantity: newQty }
             : item
         );
       }
-      showToast.success('Added to Cart!');
+      toastType = 'success';
+      toastMessage = 'Added to Cart!';
       return [...prev, { product, quantity }];
     });
+
+    showToast[toastType](toastMessage);
   };
 
   /**
@@ -77,11 +85,12 @@ export const CartProvider = ({ children }) => {
    * Update quantity of cart item
    */
   const updateQuantity = (productId, qty) => {
+    let warningMsg = null;
     setCartItems((prev) =>
       prev.map((item) => {
         if (item.product._id === productId) {
           if (qty > item.product.stock) {
-            showToast.warning(`Only ${item.product.stock} units available.`);
+            warningMsg = `Only ${item.product.stock} units available.`;
             return { ...item, quantity: item.product.stock };
           }
           return { ...item, quantity: Math.max(1, qty) };
@@ -89,6 +98,9 @@ export const CartProvider = ({ children }) => {
         return item;
       })
     );
+    if (warningMsg) {
+      showToast.warning(warningMsg);
+    }
   };
 
   /**
@@ -102,16 +114,22 @@ export const CartProvider = ({ children }) => {
    * Toggle product in wishlist
    */
   const toggleWishlist = (product) => {
+    let exists = false;
     setWishlist((prev) => {
-      const exists = prev.find((p) => p._id === product._id);
-      if (exists) {
-        showToast.info('Removed from Wishlist');
+      const found = prev.find((p) => p._id === product._id);
+      exists = !!found;
+      if (found) {
         return prev.filter((p) => p._id !== product._id);
       } else {
-        showToast.success('Added to Wishlist!');
         return [...prev, product];
       }
     });
+
+    if (exists) {
+      showToast.info('Removed from Wishlist');
+    } else {
+      showToast.success('Added to Wishlist!');
+    }
   };
 
   /**

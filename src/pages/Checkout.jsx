@@ -177,10 +177,9 @@ const Checkout = () => {
 
   const currentLang = i18n.language || 'hi';
 
-  if (loading) return <Loader fullPage />;
-
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white">
+    <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white relative">
+      {loading && <Loader fullPage />}
       <h2 className="font-heading text-3xl font-extrabold text-slate-800 mb-6">
         Checkout
       </h2>
@@ -287,8 +286,12 @@ const Checkout = () => {
             </div>
           </div>
 
-          <button type="submit" className="w-full py-3.5 mt-2 font-heading font-bold text-base bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer border-0">
-            {t('cart:place_order')} (₹{cartSubtotal})
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 mt-2 font-heading font-bold text-base bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? t('common:submitting', 'Submitting...') : `${t('cart:place_order')} (₹${cartSubtotal})`}
           </button>
         </form>
 

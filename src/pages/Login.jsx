@@ -56,10 +56,9 @@ const Login = () => {
     }
   };
 
-  if (loading) return <Loader fullPage />;
-
   return (
-    <div className="flex flex-col justify-center items-center min-h-[80vh] px-4 py-12 bg-slate-50">
+    <div className="flex flex-col justify-center items-center min-h-[80vh] px-4 py-12 bg-slate-50 relative">
+      {loading && <Loader fullPage />}
       <div className="w-full max-w-[420px] bg-white border border-slate-200/80 p-8 shadow-md rounded-2xl">
         {/* Standard User Login Form */}
         {!showForgotPassword && (
@@ -121,9 +120,10 @@ const Login = () => {
 
               <button
                 type="submit"
-                className="w-full py-3 mt-2 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-600/10 transition-all cursor-pointer border-0"
+                disabled={loading}
+                className="w-full py-3 mt-2 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-600/10 transition-all cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t('common:login')}
+                {loading ? t('common:submitting', 'Submitting...') : t('common:login')}
               </button>
             </form>
 
@@ -209,9 +209,10 @@ const Login = () => {
 
               <button
                 type="submit"
-                className="w-full py-3 mt-2 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-600/10 transition-all cursor-pointer border-0"
+                disabled={loading}
+                className="w-full py-3 mt-2 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-600/10 transition-all cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t('auth:confirm_reset')}
+                {loading ? t('common:submitting', 'Submitting...') : t('auth:confirm_reset')}
               </button>
             </form>
 

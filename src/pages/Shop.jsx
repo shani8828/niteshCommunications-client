@@ -22,7 +22,7 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [maxPrice, setMaxPrice] = useState(10000);
+  const [maxPrice, setMaxPrice] = useState(100000);
   const [minPrice, setMinPrice] = useState(0);
   const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
@@ -80,7 +80,7 @@ const Shop = () => {
     setSearchText("");
     setSelectedCategory("");
     setMinPrice(0);
-    setMaxPrice(10000);
+    setMaxPrice(100000);
     setSort("newest");
     setPage(1);
   };
@@ -186,20 +186,37 @@ const Shop = () => {
           {/* Price Range Slider */}
           <div className="flex flex-col gap-3">
             <p className="font-heading font-semibold text-xs text-slate-700 uppercase tracking-wider">
-              {t("product:price_range")}: ₹{maxPrice}
+              {t("product:price_range")}: ₹{maxPrice.toLocaleString('en-IN')}
             </p>
             <input
               type="range"
               min="0"
-              max="15000"
-              step="100"
-              value={maxPrice}
+              max="100000"
+              step="1000"
+              value={maxPrice > 100000 ? 100000 : maxPrice}
               onChange={(e) => setMaxPrice(Number(e.target.value))}
               className="w-full accent-blue-600 cursor-pointer"
             />
-            <div className="flex justify-between text-[10px] text-slate-400 font-semibold">
+            <div className="flex justify-between text-[10px] text-slate-400 font-semibold mb-1">
               <span>₹0</span>
-              <span>₹15,000+</span>
+              <span>₹1,00,000+</span>
+            </div>
+
+            {/* Manual Max Price Input */}
+            <div className="flex items-center justify-between gap-2 mt-1">
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                {currentLang === 'hi' ? 'अधिकतम मूल्य' : 'Max Price'}:
+              </span>
+              <div className="relative w-28">
+                <span className="absolute left-2.5 top-1.5 text-xs text-slate-400 font-bold">₹</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  className="w-full pl-6 pr-2 py-1 bg-white border border-slate-200 rounded-lg text-slate-700 text-xs outline-none focus:border-blue-600 transition-all font-semibold"
+                />
+              </div>
             </div>
           </div>
         </aside>

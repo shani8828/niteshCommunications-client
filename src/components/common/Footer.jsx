@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { Phone, MapPin, Mail, ShieldCheck } from "lucide-react";
 
 const Footer = () => {
@@ -40,7 +41,7 @@ const Footer = () => {
             <span>+91 9125949456</span>
           </a>
           <a
-            href="https://maps.app.goo.gl/N6m15mD81X427f9B9"
+            href="https://maps.app.goo.gl/EFMXBm2RCEf9YNa88"
             className="flex items-start gap-3 text-sm"
           >
             <MapPin size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
@@ -51,11 +52,11 @@ const Footer = () => {
             </span>
           </a>
           <a
-            href="mailto:[EMAIL_ADDRESS]"
+            href="mailto:info.niteshcommunications@gmail.com"
             className="flex items-center gap-3 text-sm"
           >
             <Mail size={16} className="text-blue-600 flex-shrink-0" />
-            <span>info@niteshcommunications.in</span>
+            <span>info.niteshcommunications@gmail.com</span>
           </a>
           <p className="mt-2 text-sm font-semibold text-blue-600">
             {t("owner")}
@@ -70,7 +71,7 @@ const Footer = () => {
           <div className="rounded-lg overflow-hidden shadow-sm border border-slate-200 h-[150px]">
             <iframe
               title="Google Map Location"
-              src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d1782.6317102954813!2d82.01132835120666!3d26.672056459941167!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1779988602573!5m2!1sen!2sin"
+              src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d861.1373126817563!2d82.01133610182212!3d26.67255803920822!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sin!4v1780092263975!5m2!1sen!2sin"
               width="100%"
               height="100%"
               className="border-0"
@@ -80,6 +81,34 @@ const Footer = () => {
             ></iframe>
           </div>
         </div>
+      </div>
+
+      {/* Legal Policies Links Row */}
+      <div className="max-w-6xl mx-auto flex flex-wrap gap-x-8 gap-y-3 justify-center md:justify-start items-center text-[11px] text-slate-400 font-semibold border-t border-slate-200/50 pt-8 mt-12 w-full">
+        <Link
+          to="/terms-conditions"
+          className="hover:text-blue-600 transition-colors"
+        >
+          {t("terms_conditions")}
+        </Link>
+        <Link
+          to="/privacy-policy"
+          className="hover:text-blue-600 transition-colors"
+        >
+          {t("privacy_policy")}
+        </Link>
+        <Link
+          to="/refund-policy"
+          className="hover:text-blue-600 transition-colors"
+        >
+          {t("refund_policy")}
+        </Link>
+        <Link
+          to="/shipping-policy"
+          className="hover:text-blue-600 transition-colors"
+        >
+          {t("shipping_policy")}
+        </Link>
       </div>
 
       <hr className="max-w-6xl mx-auto my-8 border-t border-slate-200" />

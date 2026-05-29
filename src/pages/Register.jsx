@@ -147,7 +147,7 @@ const Register = () => {
     printWindow.document.close();
   };
 
-  if (loading) return <Loader fullPage />;
+
 
   if (generatedCodes.length > 0) {
     return (
@@ -218,7 +218,8 @@ const Register = () => {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-[85vh] px-4 py-12 bg-slate-50">
+    <div className="flex justify-center items-center min-h-[85vh] px-4 py-12 bg-slate-50 relative">
+      {loading && <Loader fullPage />}
       <div className="w-full max-w-[450px] p-8 bg-white border border-slate-200/80 shadow-md rounded-2xl">
         <h2 className="text-2xl font-heading font-extrabold text-center text-blue-600 mb-1">
           {t('common:register')}
@@ -324,7 +325,7 @@ const Register = () => {
             <input
               type="email"
               className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-              placeholder="e.g. contact@niteshcommunications.in"
+              placeholder="e.g. info.niteshcommunications@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -332,9 +333,10 @@ const Register = () => {
 
           <button
             type="submit"
-            className="w-full py-3 mt-4 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-600/10 transition-all border-0 cursor-pointer"
+            disabled={loading}
+            className="w-full py-3 mt-4 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-600/10 transition-all border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {t('auth:register_button')}
+            {loading ? t('common:submitting', 'Submitting...') : t('auth:register_button')}
           </button>
         </form>
 

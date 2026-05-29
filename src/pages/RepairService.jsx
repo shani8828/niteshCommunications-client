@@ -3,10 +3,11 @@ import { useTranslation } from "react-i18next";
 import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
 import api from "../utils/api";
-import { Wrench, MapPin } from "lucide-react";
+import { Wrench, MapPin, Smartphone, Battery, Zap, Cpu, Camera, Volume2, Shield } from "lucide-react";
 
 const RepairService = () => {
-  const { t } = useTranslation(["repair", "common", "notifications"]);
+  const { t, i18n } = useTranslation(["repair", "common", "notifications"]);
+  const currentLang = i18n.language || "hi";
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -99,7 +100,7 @@ const RepairService = () => {
       showToast.success(
         t("notifications:repair_submitted") +
           " ID: " +
-          (data.repairRequest?.requestId || ""),
+          (data.repair?.requestId || data.repairRequest?.requestId || ""),
       );
       setName("");
       setPhone("");
@@ -115,20 +116,101 @@ const RepairService = () => {
       setLoading(false);
     }
   };
-  const { i18n } = useTranslation();
-  const currentLang = i18n.language;
-  const pricingEstimates = [
-    { cat: t("repair:cat_software"), price: "₹299", time: "1-2 hours" },
-    { cat: t("repair:cat_charging"), price: "₹349", time: "2-3 hours" },
-    { cat: t("repair:cat_battery"), price: "₹799", time: "1 hour" },
-    { cat: t("repair:cat_display"), price: "₹1499", time: "1-2 hours" },
-    { cat: t("repair:cat_folder"), price: "₹199", time: "30 mins" },
+
+  const servicesList = [
+    {
+      title: { en: "Screen / Folder Replacement", hi: "स्क्रीन और फोल्डर रिप्लेसमेंट" },
+      desc: { en: "Fix broken, flickering, color bleeding, or non-responsive touchscreen folders.", hi: "टूटे हुए, टिमटिमाते, रंग बदलने वाले, या काम न करने वाले टचस्क्रीन फोल्डर को बदलें।" },
+      fee: { en: "₹1,499 onwards", hi: "₹1,499 से शुरू" },
+      time: { en: "1 - 2 Hours", hi: "1 - 2 घंटे" },
+      bullets: {
+        en: ["High-quality LCD/OLED panels", "90-day warranty included", "Tempered glass protection free"],
+        hi: ["उच्च गुणवत्ता वाले LCD/OLED पैनल", "90 दिनों की वारंटी शामिल", "टेम्पर्ड ग्लास सुरक्षा मुफ्त"]
+      },
+      icon: Smartphone
+    },
+    {
+      title: { en: "Battery Replacement", hi: "मोबाइल बैटरी बदलना" },
+      desc: { en: "Replace old, bloated, draining, or heating phone batteries with fresh cells.", hi: "पुरानी, सूजी हुई, जल्दी डिस्चार्ज होने वाली या गर्म होने वाली मोबाइल बैटरी को नई सेल से बदलें।" },
+      fee: { en: "₹799 onwards", hi: "₹799 से शुरू" },
+      time: { en: "30 - 60 Minutes", hi: "30 - 60 मिनट" },
+      bullets: {
+        en: ["OEM-quality high capacity batteries", "Strict testing & power safety", "Safe disposal of old cell"],
+        hi: ["OEM-गुणवत्ता वाली उच्च क्षमता वाली बैटरी", "सख्त परीक्षण और बिजली सुरक्षा", "पुरानी सेल का सुरक्षित निपटान"]
+      },
+      icon: Battery
+    },
+    {
+      title: { en: "Charging Port Jack Repair", hi: "चार्जिंग जैक और पोर्ट मरम्मत" },
+      desc: { en: "Fix loose connection, slow charging, or unrecognised USB connection issues.", hi: "ढीले कनेक्शन, धीमी चार्जिंग, या न पहचानी जाने वाली यूएसबी कनेक्शन समस्याओं को ठीक करें।" },
+      fee: { en: "₹349 onwards", hi: "₹349 से शुरू" },
+      time: { en: "1 - 2 Hours", hi: "1 - 2 घंटे" },
+      bullets: {
+        en: ["Type-C & Micro-USB jacks replacement", "Mic/audio pathway checking", "Proper solder joint reinforcement"],
+        hi: ["टाइप-सी और माइक्रो-यूएसबी जैक रिप्लेसमेंट", "माइक/ऑडियो पाथवे चेकिंग", "सोल्डर जोड़ का सुदृढ़ीकरण"]
+      },
+      icon: Zap
+    },
+    {
+      title: { en: "Motherboard Chip-Level Repair", hi: "मदरबोर्ड और आईसी चिप-लेवल रिपेयर" },
+      desc: { en: "Micro-soldering, water damage recovery, network IC, and CPU reballing.", hi: "माइक्रो-सोल्डरिंग, पानी से खराब हुए फोन की रिकवरी, नेटवर्क आईसी और सीपीयू रीबॉलिंग।" },
+      fee: { en: "₹999 onwards", hi: "₹999 से शुरू" },
+      time: { en: "1 - 2 Days", hi: "1 - 2 दिन" },
+      bullets: {
+        en: ["Expert chip-level micro-soldering", "Short circuit tracing on board", "Dead phone boot recovery"],
+        hi: ["विशेषज्ञ चिप-लेवल माइक्रो-सोल्डरिंग", "बोर्ड पर शॉर्ट सर्किट की ट्रेसिंग", "डेड फोन बूट रिकवरी"]
+      },
+      icon: Cpu
+    },
+    {
+      title: { en: "Speaker, Mic & Audio Fix", hi: "स्पीकर, माइक और ऑडियो फिक्स" },
+      desc: { en: "Repair crackling ear speaker, low volume, silent main speaker, or faulty mic.", hi: "फटने वाली आवाज, कम वॉल्यूम, बंद मुख्य स्पीकर, या दोषपूर्ण माइक को ठीक करें।" },
+      fee: { en: "₹249 onwards", hi: "₹249 से शुरू" },
+      time: { en: "1 - 2 Hours", hi: "1 - 2 घंटे" },
+      bullets: {
+        en: ["Original replacement buzzer/mic", "Dust mesh cleaning included", "Pre-delivery call quality check"],
+        hi: ["मूल रिप्लेसमेंट बजर/माइक", "धूल की जाली की सफाई शामिल", "वितरण से पहले कॉल गुणवत्ता की जांच"]
+      },
+      icon: Volume2
+    },
+    {
+      title: { en: "Camera Lens & Module Repair", hi: "कैमरा लेंस और सेंसर मरम्मत" },
+      desc: { en: "Replace blurry camera glass, broken external lens, or vibration issues.", hi: "धुंधले कैमरे के कांच, टूटे हुए बाहरी लेंस, या वाइब्रेशन की समस्या को बदलें।" },
+      fee: { en: "₹399 onwards", hi: "₹399 से शुरू" },
+      time: { en: "1 - 2 Hours", hi: "1 - 2 घंटे" },
+      bullets: {
+        en: ["OEM glass lens replacements", "Autofocus sensor realignment", "Dust removal from camera lens"],
+        hi: ["OEM ग्लास लेंस रिप्लेसमेंट", "ऑटोफोकस सेंसर रीलाइनमेंट", "कैमरा लेंस से धूल हटाना"]
+      },
+      icon: Camera
+    },
+    {
+      title: { en: "Software Flash & OS Boot", hi: "सॉफ्टवेयर फ्लैश और ओएस बूट" },
+      desc: { en: "Bypass boot loops, logo stuck, pattern lock, FRP Google lock bypass.", hi: "बूट लूप, लोगो पर अटकना, पैटर्न लॉक, एफआरपी गूगल लॉक बाईपास।" },
+      fee: { en: "₹299 onwards", hi: "₹299 से शुरू" },
+      time: { en: "1 - 2 Hours", hi: "1 - 2 घंटे" },
+      bullets: {
+        en: ["Official stock firmware flash", "Safe and secure data handling", "Latest security patch installations"],
+        hi: ["आधिकारिक स्टॉक फर्मवेयर फ्लैश", "सुरक्षित डेटा हैंडलिंग", "नवीनतम सुरक्षा पैच इंस्टॉलेशन"]
+      },
+      icon: Wrench
+    },
+    {
+      title: { en: "Custom Back Skins & Glass", hi: "कस्टम बैक स्किन और पैनल" },
+      desc: { en: "Precision machine cut designer skins and mobile back panel glass replacement.", hi: "सटीक मशीन कट डिजाइनर स्किन और मोबाइल बैक पैनल ग्लास रिप्लेसमेंट।" },
+      fee: { en: "₹199 onwards", hi: "₹199 से शुरू" },
+      time: { en: "15 - 30 Minutes", hi: "15 - 30 मिनट" },
+      bullets: {
+        en: ["3M quality scratch-proof skins", "Precision cutting for all brands", "Premium color match back glass"],
+        hi: ["3M गुणवत्ता वाली स्क्रैच-प्रूफ स्किन", "सभी ब्रांडों के लिए सटीक कटिंग", "प्रीमियम रंग मिलान बैक ग्लास"]
+      },
+      icon: Shield
+    }
   ];
 
-  if (loading) return <Loader fullPage />;
-
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white">
+    <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white relative">
+      {loading && <Loader fullPage />}
       <div className="text-center mb-12 flex flex-col items-center gap-2">
         <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-800 mt-1">
           {t("common:repair")}
@@ -140,9 +222,91 @@ const RepairService = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1fr] gap-10">
-        {/* Left Column: Form & Info */}
-        <div className="flex flex-col">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1.1fr] gap-10">
+        {/* Left Column: Repair Service Offerings Showcase */}
+        <div className="flex flex-col gap-6">
+          <h3 className="font-heading text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
+            {currentLang === 'hi' ? 'सभी रिपेयर सेवाएं और अनुमानित दरें' : 'All Repair Services & Estimated Pricing'}
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {servicesList.map((item, idx) => {
+              const IconComponent = item.icon;
+              return (
+                <div
+                  key={idx}
+                  className="flex flex-col p-6 bg-white border border-slate-200/80 rounded-2xl transition-all hover:shadow-md hover:border-blue-200/80 gap-3 relative group"
+                >
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="bg-blue-50 border border-blue-100 p-2.5 rounded-xl flex justify-center items-center">
+                      <IconComponent size={20} className="text-blue-600" />
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className="text-[10px] bg-blue-50 text-blue-600 font-bold px-2.5 py-1 rounded-full border border-blue-100 uppercase tracking-wide">
+                        {item.fee[currentLang]}
+                      </span>
+                      <span className="text-[9px] text-slate-400 font-semibold">
+                        {currentLang === 'hi' ? 'समय: ' : 'Time: '}{item.time[currentLang]}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <h4 className="font-heading text-base font-bold text-slate-800">
+                      {item.title[currentLang]}
+                    </h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      {item.desc[currentLang]}
+                    </p>
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-3 mt-1 flex flex-col gap-1.5">
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                      {currentLang === 'hi' ? 'सेवा हाइलाइट्स:' : 'Service Highlights:'}
+                    </p>
+                    <ul className="list-none p-0 m-0 flex flex-col gap-1">
+                      {item.bullets[currentLang].map((bullet, bIdx) => (
+                        <li key={bIdx} className="text-xs text-slate-700 flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-blue-500 flex-shrink-0" />
+                          <span>{bullet}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right Column: Booking Form, WhatsApp CTA & FAQs */}
+        <div className="flex flex-col gap-6 w-full">
+          {/* WhatsApp CTA Button */}
+          <div className="p-6 bg-white border border-slate-200 border-l-4 border-l-emerald-500 rounded-r-2xl flex flex-col gap-3 shadow-sm">
+            <h4 className="font-heading font-bold text-sm text-emerald-600">
+              {currentLang == "hi"
+                ? "तुरंत मरम्मत मूल्य निर्धारण चाहिए?"
+                : "Need Instant Repair Quote?"}
+            </h4>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              {currentLang == "hi"
+                ? "मूल्य निर्धारण या नैदानिक प्रश्नों पर चर्चा करने के लिए सीधे नितेश कम्युनिकेशंस टीम से व्हाट्सएप पर चैट करें।"
+                : "Chat directly with Nitesh Communications Team on WhatsApp to discuss pricing or diagnostic questions."}
+            </p>
+            <div>
+              <a
+                href="https://wa.me/919125949456?text=Hello%20Nitesh%20Communications,%20I%20have%20a%20repair%20query."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm inline-block cursor-pointer transition-colors border-0"
+              >
+                {currentLang == "hi"
+                  ? "व्हाट्सएप पर चैट करें"
+                  : "Chat on WhatsApp"}
+              </a>
+            </div>
+          </div>
+
+          {/* Booking Form Card */}
           <div className="p-6 md:p-8 bg-white border border-slate-200 rounded-2xl flex flex-col gap-4 shadow-sm">
             <h3 className="font-heading text-base font-bold text-slate-800 mb-2">
               {t("repair:book_repair")}
@@ -214,7 +378,7 @@ const RepairService = () => {
                   {t("repair:device_category")} *
                 </label>
                 <select
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none cursor-pointer text-sm"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none cursor-pointer text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
@@ -296,71 +460,15 @@ const RepairService = () => {
 
               <button
                 type="submit"
-                className="w-full py-3.5 mt-2 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer border-0"
+                disabled={loading}
+                className="w-full py-3.5 mt-2 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {t("repair:btn_book")}
+                <span>{loading ? t("common:submitting", "Submitting...") : t("repair:btn_book")}</span>
               </button>
             </form>
           </div>
-        </div>
 
-        {/* Right Column: Pricing Estimates & FAQ */}
-        <div className="flex flex-col gap-6 w-full">
-          {/* WhatsApp CTA Button */}
-          <div className="p-6 bg-white border border-slate-200 border-l-4 border-l-emerald-500 rounded-r-2xl flex flex-col gap-3 shadow-sm">
-            <h4 className="font-heading font-bold text-sm text-emerald-600">
-              {currentLang == "hi"
-                ? "तुरंत मरम्मत मूल्य निर्धारण चाहिए?"
-                : "Need Instant Repair Quote?"}
-            </h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              {currentLang == "hi"
-                ? "मूल्य निर्धारण या नैदानिक प्रश्नों पर चर्चा करने के लिए सीधे नितेश कम्युनिकेशंस टीम से व्हाट्सएप पर चैट करें।"
-                : "Chat directly with Nitesh Communications Team on WhatsApp to discuss pricing or diagnostic questions."}
-            </p>
-            <div>
-              <a
-                href="https://wa.me/919125949456?text=Hello%20Nitesh%20Communications,%20I%20have%20a%20repair%20query."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm inline-block"
-              >
-                {currentLang == "hi"
-                  ? "व्हाट्सएप पर चैट करें"
-                  : "Chat on WhatsApp"}
-              </a>
-            </div>
-          </div>
-
-          {/* Pricing list */}
-          <div className="p-6 md:p-8 bg-white border border-slate-200 rounded-2xl flex flex-col gap-4 shadow-sm">
-            <h3 className="font-heading text-base font-bold text-blue-600 mb-2">
-              {t("repair:estimated_pricing")}
-            </h3>
-            <div className="flex flex-col gap-4">
-              {pricingEstimates.map((est, idx) => (
-                <div
-                  key={idx}
-                  className="flex justify-between items-center py-2.5 border-b border-slate-100 last:border-b-0"
-                >
-                  <div>
-                    <p className="font-heading text-sm font-semibold text-slate-800">
-                      {est.cat}
-                    </p>
-                    <span className="text-[10px] text-slate-400 font-semibold">
-                      {currentLang == "hi" ? "अनुमानित समय" : "Est. Time"}:{" "}
-                      {est.time}
-                    </span>
-                  </div>
-                  <span className="text-sm text-blue-600 font-bold">
-                    {est.price} {currentLang == "hi" ? "से शुरू" : "onwards"}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* FAQs */}
+          {/* FAQs Card */}
           <div className="p-6 md:p-8 bg-white border border-slate-200 rounded-2xl flex flex-col gap-4 shadow-sm">
             <h3 className="font-heading text-base font-bold text-blue-600 mb-2">
               {t("repair:faq_title")}

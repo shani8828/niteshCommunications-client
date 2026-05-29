@@ -10,6 +10,9 @@ import {
   User as UserIcon,
   Globe,
   LogOut,
+  Heart,
+  ShoppingBag,
+  Settings,
 } from "lucide-react";
 
 const Navbar = () => {
@@ -145,11 +148,28 @@ const Navbar = () => {
                     </Link>
                   )}
                   <Link
+                    to="/profile"
+                    state={{ tab: "profile" }}
+                    onClick={() => setUserDropdownOpen(false)}
+                    className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
+                  >
+                    {t("profile")}
+                  </Link>
+                  <Link
                     to="/order-tracking/history"
+                    state={{ tab: "orders" }}
                     onClick={() => setUserDropdownOpen(false)}
                     className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
                   >
                     {t("order_summary")}
+                  </Link>
+                  <Link
+                    to="/profile"
+                    state={{ tab: "wishlist" }}
+                    onClick={() => setUserDropdownOpen(false)}
+                    className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
+                  >
+                    {t("wishlist")}
                   </Link>
                   <button
                     onClick={handleLogout}
@@ -219,6 +239,67 @@ const Navbar = () => {
           >
             {t("csc")}
           </NavLink>
+
+          {user && (
+            <>
+              <hr className="border-t border-slate-100" />
+              {user.role === "admin" && (
+                <NavLink
+                  to="/admin/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={getMobileLinkClass}
+                >
+                  <Settings size={18} className="mr-2" />
+                  {t("admin_panel")}
+                </NavLink>
+              )}
+              <NavLink
+                to="/profile"
+                state={{ tab: "profile" }}
+                onClick={() => setMobileMenuOpen(false)}
+                className={getMobileLinkClass}
+              >
+                <UserIcon size={18} className="mr-2" />
+                {t("profile")}
+              </NavLink>
+              <NavLink
+                to="/order-tracking/history"
+                state={{ tab: "orders" }}
+                onClick={() => setMobileMenuOpen(false)}
+                className={getMobileLinkClass}
+              >
+                <ShoppingBag size={18} className="mr-2" />
+                {t("order_summary")}
+              </NavLink>
+              <NavLink
+                to="/profile"
+                state={{ tab: "wishlist" }}
+                onClick={() => setMobileMenuOpen(false)}
+                className={getMobileLinkClass}
+              >
+                <Heart size={18} className="mr-2" />
+                {t("wishlist")}
+              </NavLink>
+              <NavLink
+                to="/cart"
+                onClick={() => setMobileMenuOpen(false)}
+                className={getMobileLinkClass}
+              >
+                <ShoppingCart size={18} className="mr-2" />
+                {t("cart")} {cartCount > 0 && `(${cartCount})`}
+              </NavLink>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="mt-2 text-rose-600 bg-rose-50 hover:bg-rose-100 font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 border-0 cursor-pointer transition-all w-full text-sm"
+              >
+                <LogOut size={16} />
+                {t("logout")}
+              </button>
+            </>
+          )}
 
           {!user && (
             <>
