@@ -79,25 +79,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  /**
-   * Log into account (Partner)
-   */
-  const partnerLogin = async (mobile, password) => {
-    try {
-      const response = await api.post('/auth/partner-login', { mobile, password });
-      const data = response.data;
 
-      localStorage.setItem('token', data.accessToken);
-      setToken(data.accessToken);
-      setUser(data.user);
-      showToast.success('Partner Login Successful!');
-      return { success: true, user: data.user };
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Server error during partner login';
-      showToast.error(errorMessage);
-      return { success: false, error: errorMessage };
-    }
-  };
 
   /**
    * Register customer account
@@ -174,7 +156,6 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         adminLogin,
-        partnerLogin,
         register,
         forgotPassword,
         resetPassword,

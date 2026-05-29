@@ -144,15 +144,6 @@ const Navbar = () => {
                       {t("admin_panel")}
                     </Link>
                   )}
-                  {user.role === "partner" && (
-                    <Link
-                      to="/partner/dashboard"
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
-                    >
-                      {t("partner_panel")}
-                    </Link>
-                  )}
                   <Link
                     to="/order-tracking/history"
                     onClick={() => setUserDropdownOpen(false)}

@@ -23,12 +23,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 
-// Role Login Pages
 import AdminLogin from './pages/AdminLogin';
-import PartnerLogin from './pages/PartnerLogin';
 
 // Dashboards
-import PartnerDashboard from './pages/PartnerDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
@@ -59,7 +56,6 @@ function App() {
 
                   {/* Separate logins for Admin & Partner */}
                   <Route path="/admin/admin_login" element={<AdminLogin />} />
-                  <Route path="/partner/partner_login" element={<PartnerLogin />} />
 
                   {/* Customer-only protected routes */}
                   <Route
@@ -79,15 +75,7 @@ function App() {
                     }
                   />
 
-                  {/* Delivery Partner Dashboard */}
-                  <Route
-                    path="/partner/dashboard"
-                    element={
-                      <ProtectedRoute allowedRoles={['partner']}>
-                        <PartnerDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
+
 
                   {/* Administrator Control Panel */}
                   <Route
