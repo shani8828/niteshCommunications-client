@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { showToast } from '../utils/toast';
 import Loader from '../components/common/Loader';
+import api from '../utils/api';
 import { BarChart3, Plus, Edit, Trash2, Package, Wrench, FileText, Settings, X, Upload, RefreshCw } from 'lucide-react';
 
 const AdminDashboard = () => {
   const { t } = useTranslation();
-  const { getHeaders } = useAuth();
 
   const [activeTab, setActiveTab] = useState('overview');
   const [analytics, setAnalytics] = useState(null);
@@ -39,11 +39,8 @@ const AdminDashboard = () => {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await fetch('/api/dashboard/admin', { headers: getHeaders() });
-      const data = await response.json();
-      if (response.ok) {
-        setAnalytics(data);
-      }
+      const response = await api.get('/dashboard/admin');
+      setAnalytics(response.data);
     } catch (err) {
       console.error(err);
     }
@@ -51,13 +48,11 @@ const AdminDashboard = () => {
 
   const fetchInventory = async () => {
     try {
-      const pRes = await fetch('/api/products?limit=100');
-      const pData = await pRes.json();
-      if (pRes.ok) setProducts(pData.products || []);
+      const pRes = await api.get('/products?limit=100');
+      setProducts(pRes.data.products || []);
 
-      const cRes = await fetch('/api/products/categories');
-      const cData = await cRes.json();
-      if (cRes.ok) setCategories(cData || []);
+      const cRes = await api.get('/products/categories');
+      setCategories(cRes.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -65,13 +60,11 @@ const AdminDashboard = () => {
 
   const fetchRepairsAndCsc = async () => {
     try {
-      const repRes = await fetch('/api/repairs', { headers: getHeaders() });
-      const repData = await repRes.json();
-      if (repRes.ok) setRepairs(repData || []);
+      const repRes = await api.get('/repairs');
+      setRepairs(repRes.data || []);
 
-      const cscRes = await fetch('/api/csc', { headers: getHeaders() });
-      const cscData = await cscRes.json();
-      if (cscRes.ok) setCscQueries(cscData || []);
+      const cscRes = await api.get('/csc');
+      setCscQueries(cscRes.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -98,23 +91,19 @@ const AdminDashboard = () => {
     if (catImage) formData.append('image', catImage);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/products/categories', {
-        method: 'POST',
-        headers: { Authorization: token ? `Bearer ${token}` : '' },
-        body: formData,
+      await api.post('/products/categories', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      if (response.ok) {
-        showToast.success(t('admin:success_category_create', 'Category created successfully!'));
-        setCatNameHi('');
-        setCatNameEn('');
-        setCatImage(null);
-        setShowCategoryModal(false);
-        fetchInventory();
-      }
+      showToast.success(t('admin:success_category_create', 'Category created successfully!'));
+      setCatNameHi('');
+      setCatNameEn('');
+      setCatImage(null);
+      setShowCategoryModal(false);
+      fetchInventory();
     } catch (err) {
-      showToast.error(t('admin:error_category_create', 'Category creation failed'));
+      const errorMessage = err.response?.data?.message || t('admin:error_category_create', 'Category creation failed');
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -142,36 +131,32 @@ const AdminDashboard = () => {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const url = editingProduct ? `/api/products/${editingProduct._id}` : '/api/products';
-      const method = editingProduct ? 'PUT' : 'POST';
+      const url = editingProduct ? `/products/${editingProduct._id}` : '/products';
+      const method = editingProduct ? 'put' : 'post';
 
-      const response = await fetch(url, {
+      await api({
         method,
-        headers: { Authorization: token ? `Bearer ${token}` : '' },
-        body: formData,
+        url,
+        data: formData,
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      if (response.ok) {
-        showToast.success(t('admin:success_product_save', 'Product saved successfully!'));
-        setShowProductModal(false);
-        setEditingProduct(null);
-        setProdNameEn('');
-        setProdNameHi('');
-        setProdDescEn('');
-        setProdDescHi('');
-        setProdPrice('');
-        setProdOriginalPrice('');
-        setProdCategory('');
-        setProdStock('');
-        setProdImages([]);
-        fetchInventory();
-      } else {
-        const errorData = await response.json();
-        showToast.error(errorData.message);
-      }
+      showToast.success(t('admin:success_product_save', 'Product saved successfully!'));
+      setShowProductModal(false);
+      setEditingProduct(null);
+      setProdNameEn('');
+      setProdNameHi('');
+      setProdDescEn('');
+      setProdDescHi('');
+      setProdPrice('');
+      setProdOriginalPrice('');
+      setProdCategory('');
+      setProdStock('');
+      setProdImages([]);
+      fetchInventory();
     } catch (err) {
-      showToast.error(t('admin:error_product_save', 'Product save failed'));
+      const errorMessage = err.response?.data?.message || t('admin:error_product_save', 'Product save failed');
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -195,16 +180,12 @@ const AdminDashboard = () => {
     if (!window.confirm(t('admin:confirm_delete_product', 'Are you sure you want to delete this product?'))) return;
     setLoading(true);
     try {
-      const response = await fetch(`/api/products/${id}`, {
-        method: 'DELETE',
-        headers: getHeaders(),
-      });
-      if (response.ok) {
-        showToast.success(t('admin:success_product_delete', 'Product deleted successfully'));
-        fetchInventory();
-      }
+      await api.delete(`/products/${id}`);
+      showToast.success(t('admin:success_product_delete', 'Product deleted successfully'));
+      fetchInventory();
     } catch (err) {
-      showToast.error(t('admin:error_product_delete', 'Delete failed'));
+      const errorMessage = err.response?.data?.message || t('admin:error_product_delete', 'Delete failed');
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -212,33 +193,23 @@ const AdminDashboard = () => {
 
   const handleUpdateRepairStatus = async (id, status) => {
     try {
-      const response = await fetch(`/api/repairs/${id}`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify({ status }),
-      });
-      if (response.ok) {
-        showToast.success(t('admin:success_status_update', 'Status updated successfully'));
-        fetchRepairsAndCsc();
-      }
+      await api.put(`/repairs/${id}`, { status });
+      showToast.success(t('admin:success_status_update', 'Status updated successfully'));
+      fetchRepairsAndCsc();
     } catch (err) {
-      showToast.error(t('admin:error_status_update', 'Update failed'));
+      const errorMessage = err.response?.data?.message || t('admin:error_status_update', 'Update failed');
+      showToast.error(errorMessage);
     }
   };
 
   const handleUpdateCscStatus = async (id, status) => {
     try {
-      const response = await fetch(`/api/csc/${id}`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify({ status }),
-      });
-      if (response.ok) {
-        showToast.success(t('admin:success_status_update', 'Status updated successfully'));
-        fetchRepairsAndCsc();
-      }
+      await api.put(`/csc/${id}`, { status });
+      showToast.success(t('admin:success_status_update', 'Status updated successfully'));
+      fetchRepairsAndCsc();
     } catch (err) {
-      showToast.error(t('admin:error_status_update', 'Update failed'));
+      const errorMessage = err.response?.data?.message || t('admin:error_status_update', 'Update failed');
+      showToast.error(errorMessage);
     }
   };
 

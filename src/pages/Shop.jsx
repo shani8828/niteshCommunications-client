@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCart } from "../context/CartContext";
 import Loader from "../components/common/Loader";
+import api from "../utils/api";
 import {
   Search,
   ShoppingCart,
@@ -33,11 +34,8 @@ const Shop = () => {
   useEffect(() => {
     const fetchCats = async () => {
       try {
-        const response = await fetch("/api/products/categories");
-        const data = await response.json();
-        if (response.ok) {
-          setCategories(data);
-        }
+        const response = await api.get("/products/categories");
+        setCategories(response.data);
       } catch (err) {
         console.error(err);
       }
@@ -57,16 +55,13 @@ const Shop = () => {
     const fetchProds = async () => {
       setLoading(true);
       try {
-        let url = `/api/products?page=${page}&sort=${sort}&minPrice=${minPrice}&maxPrice=${maxPrice}`;
+        let url = `/products?page=${page}&sort=${sort}&minPrice=${minPrice}&maxPrice=${maxPrice}`;
         if (search) url += `&keyword=${search}`;
         if (selectedCategory) url += `&category=${selectedCategory}`;
 
-        const response = await fetch(url);
-        const data = await response.json();
-        if (response.ok) {
-          setProducts(data.products);
-          setTotalPages(data.pages);
-        }
+        const response = await api.get(url);
+        setProducts(response.data.products);
+        setTotalPages(response.data.pages);
       } catch (err) {
         console.error(err);
       } finally {

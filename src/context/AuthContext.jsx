@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { showToast } from '../utils/toast';
+import api from '../utils/api';
 
 const AuthContext = createContext();
 
@@ -8,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [loading, setLoading] = useState(true);
 
-  // Set auth header helper
+  // Set auth header helper (kept for backward compatibility if referenced elsewhere)
   const getHeaders = (customToken = token) => {
     return {
       'Content-Type': 'application/json',
@@ -24,18 +25,12 @@ export const AuthProvider = ({ children }) => {
         return;
       }
       try {
-        const response = await fetch('/api/auth/me', {
-          headers: getHeaders(),
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setUser(data.user);
-        } else {
-          // Token expired or invalid
-          logout();
-        }
+        const response = await api.get('/auth/me');
+        setUser(response.data.user);
       } catch (error) {
         console.error('Error fetching profile:', error);
+        // Token expired or invalid
+        logout();
       } finally {
         setLoading(false);
       }
@@ -49,17 +44,8 @@ export const AuthProvider = ({ children }) => {
    */
   const login = async (mobile, password) => {
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile, password }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        showToast.error(data.message || 'Login failed');
-        return { success: false, error: data.message };
-      }
+      const response = await api.post('/auth/login', { mobile, password });
+      const data = response.data;
 
       localStorage.setItem('token', data.accessToken);
       setToken(data.accessToken);
@@ -67,8 +53,9 @@ export const AuthProvider = ({ children }) => {
       showToast.success('Login Successful!');
       return { success: true, user: data.user };
     } catch (error) {
-      showToast.error('Server error during login');
-      return { success: false, error: error.message };
+      const errorMessage = error.response?.data?.message || 'Server error during login';
+      showToast.error(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -77,17 +64,8 @@ export const AuthProvider = ({ children }) => {
    */
   const adminLogin = async (mobile, password) => {
     try {
-      const response = await fetch('/api/auth/admin-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile, password }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        showToast.error(data.message || 'Admin login failed');
-        return { success: false, error: data.message };
-      }
+      const response = await api.post('/auth/admin-login', { mobile, password });
+      const data = response.data;
 
       localStorage.setItem('token', data.accessToken);
       setToken(data.accessToken);
@@ -95,8 +73,9 @@ export const AuthProvider = ({ children }) => {
       showToast.success('Admin Login Successful!');
       return { success: true, user: data.user };
     } catch (error) {
-      showToast.error('Server error during admin login');
-      return { success: false, error: error.message };
+      const errorMessage = error.response?.data?.message || 'Server error during admin login';
+      showToast.error(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -105,17 +84,8 @@ export const AuthProvider = ({ children }) => {
    */
   const partnerLogin = async (mobile, password) => {
     try {
-      const response = await fetch('/api/auth/partner-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile, password }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        showToast.error(data.message || 'Partner login failed');
-        return { success: false, error: data.message };
-      }
+      const response = await api.post('/auth/partner-login', { mobile, password });
+      const data = response.data;
 
       localStorage.setItem('token', data.accessToken);
       setToken(data.accessToken);
@@ -123,8 +93,9 @@ export const AuthProvider = ({ children }) => {
       showToast.success('Partner Login Successful!');
       return { success: true, user: data.user };
     } catch (error) {
-      showToast.error('Server error during partner login');
-      return { success: false, error: error.message };
+      const errorMessage = error.response?.data?.message || 'Server error during partner login';
+      showToast.error(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -133,17 +104,8 @@ export const AuthProvider = ({ children }) => {
    */
   const register = async (name, mobile, password, address, email, coordinates) => {
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, mobile, password, address, email, coordinates }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        showToast.error(data.message || 'Registration failed');
-        return { success: false, error: data.message };
-      }
+      const response = await api.post('/auth/register', { name, mobile, password, address, email, coordinates });
+      const data = response.data;
 
       // Auto login on registration success
       localStorage.setItem('token', data.accessToken);
@@ -153,8 +115,9 @@ export const AuthProvider = ({ children }) => {
       showToast.success('Registration and login successful!');
       return { success: true, recoveryCodes: data.recoveryCodes };
     } catch (error) {
-      showToast.error('Server error during registration');
-      return { success: false, error: error.message };
+      const errorMessage = error.response?.data?.message || 'Server error during registration';
+      showToast.error(errorMessage);
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -163,20 +126,12 @@ export const AuthProvider = ({ children }) => {
    */
   const forgotPassword = async (mobile) => {
     try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        showToast.error(data.message);
-        return false;
-      }
-      showToast.success(data.message);
+      const response = await api.post('/auth/forgot-password', { mobile });
+      showToast.success(response.data.message);
       return true;
     } catch (error) {
-      showToast.error('Failed to request reset OTP');
+      const errorMessage = error.response?.data?.message || 'Failed to request reset OTP';
+      showToast.error(errorMessage);
       return false;
     }
   };
@@ -186,20 +141,12 @@ export const AuthProvider = ({ children }) => {
    */
   const resetPassword = async (mobile, code, newPassword) => {
     try {
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mobile, code, newPassword }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        showToast.error(data.message);
-        return false;
-      }
-      showToast.success(data.message);
+      const response = await api.post('/auth/reset-password', { mobile, code, newPassword });
+      showToast.success(response.data.message);
       return true;
     } catch (error) {
-      showToast.error('Failed to reset password');
+      const errorMessage = error.response?.data?.message || 'Failed to reset password';
+      showToast.error(errorMessage);
       return false;
     }
   };
@@ -209,7 +156,7 @@ export const AuthProvider = ({ children }) => {
    */
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await api.post('/auth/logout');
     } catch (error) {
       console.error('Logout error:', error);
     }

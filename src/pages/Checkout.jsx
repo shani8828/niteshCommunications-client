@@ -5,12 +5,13 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { showToast } from '../utils/toast';
 import Loader from '../components/common/Loader';
+import api from '../utils/api';
 import { CreditCard, Truck, MapPin } from 'lucide-react';
 
 const Checkout = () => {
   const { t, i18n } = useTranslation(['cart', 'common', 'notifications']);
   const navigate = useNavigate();
-  const { user, getHeaders } = useAuth();
+  const { user } = useAuth();
   const { cartItems, cartSubtotal, clearCart } = useCart();
 
   const [address, setAddress] = useState('');
@@ -102,18 +103,8 @@ const Checkout = () => {
         coordinates,
       };
 
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(orderPayload),
-      });
-
-      const data = await response.json();
-      if (!response.ok) {
-        showToast.error(data.message || t('notifications:server_error'));
-        setLoading(false);
-        return;
-      }
+      const response = await api.post('/orders', orderPayload);
+      const data = response.data;
 
       if (paymentType === 'COD') {
         clearCart();
@@ -148,27 +139,19 @@ const Checkout = () => {
           handler: async (response) => {
             setLoading(true);
             try {
-              const verifyResponse = await fetch('/api/orders/verify', {
-                method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify({
-                  orderId: data.order._id,
-                  razorpayPaymentId: response.razorpay_payment_id,
-                  razorpayOrderId: response.razorpay_order_id,
-                  razorpaySignature: response.razorpay_signature,
-                }),
+              await api.post('/orders/verify', {
+                orderId: data.order._id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpaySignature: response.razorpay_signature,
               });
 
-              const verifyData = await verifyResponse.json();
-              if (verifyResponse.ok) {
-                clearCart();
-                showToast.success(t('notifications:payment_success'));
-                navigate(`/order-tracking/${data.order._id}`);
-              } else {
-                showToast.error(verifyData.message || 'Signature verification failed');
-              }
+              clearCart();
+              showToast.success(t('notifications:payment_success'));
+              navigate(`/order-tracking/${data.order._id}`);
             } catch (err) {
-              showToast.error('Error during signature verification');
+              const verifyErrorMessage = err.response?.data?.message || 'Signature verification failed';
+              showToast.error(verifyErrorMessage);
             } finally {
               setLoading(false);
             }
@@ -186,7 +169,8 @@ const Checkout = () => {
         setLoading(false);
       }
     } catch (error) {
-      showToast.error(t('notifications:server_error'));
+      const errorMessage = error.response?.data?.message || t('notifications:server_error');
+      showToast.error(errorMessage);
       setLoading(false);
     }
   };

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import Loader from '../components/common/Loader';
+import api from '../utils/api';
 import { showToast } from '../utils/toast';
 import { Star, Heart, ShoppingCart, ShieldAlert, ArrowLeft, Send } from 'lucide-react';
 
@@ -11,7 +12,7 @@ const ProductDetails = () => {
   const { id } = useParams();
   const { t, i18n } = useTranslation(['product', 'common', 'notifications']);
   const navigate = useNavigate();
-  const { user, getHeaders } = useAuth();
+  const { user } = useAuth();
   const { addToCart, toggleWishlist, wishlist, addRecentlyViewed } = useCart();
 
   const [product, setProduct] = useState(null);
@@ -29,22 +30,19 @@ const ProductDetails = () => {
     const fetchDetail = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/products/${id}`);
-        const data = await response.json();
+        const response = await api.get(`/products/${id}`);
+        const data = response.data;
         
-        if (response.ok) {
-          setProduct(data.product);
-          setRelated(data.related || []);
-          setReviews(data.reviews || []);
-          setActiveImage(data.product.images[0]);
-          
-          addRecentlyViewed(data.product);
-        } else {
-          showToast.error('Product not found');
-          navigate('/shop');
-        }
+        setProduct(data.product);
+        setRelated(data.related || []);
+        setReviews(data.reviews || []);
+        setActiveImage(data.product.images[0]);
+        
+        addRecentlyViewed(data.product);
       } catch (err) {
         console.error(err);
+        showToast.error('Product not found');
+        navigate('/shop');
       } finally {
         setLoading(false);
       }
@@ -60,26 +58,19 @@ const ProductDetails = () => {
     }
     setSubmittingReview(true);
     try {
-      const response = await fetch(`/api/products/${id}/reviews`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({ rating: reviewRating, comment: reviewComment }),
+      await api.post(`/products/${id}/reviews`, {
+        rating: reviewRating,
+        comment: reviewComment,
       });
-      const data = await response.json();
 
-      if (response.ok) {
-        showToast.success('Review added successfully!');
-        setReviewComment('');
-        const refreshResponse = await fetch(`/api/products/${id}`);
-        const refreshData = await refreshResponse.json();
-        if (refreshResponse.ok) {
-          setReviews(refreshData.reviews || []);
-        }
-      } else {
-        showToast.error(data.message);
-      }
+      showToast.success('Review added successfully!');
+      setReviewComment('');
+      
+      const refreshResponse = await api.get(`/products/${id}`);
+      setReviews(refreshResponse.data.reviews || []);
     } catch (err) {
-      showToast.error('Failed to submit review');
+      const errorMessage = err.response?.data?.message || 'Failed to submit review';
+      showToast.error(errorMessage);
     } finally {
       setSubmittingReview(false);
     }

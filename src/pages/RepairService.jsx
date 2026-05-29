@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
+import api from "../utils/api";
 import { Wrench, MapPin } from "lucide-react";
 
 const RepairService = () => {
@@ -83,40 +84,33 @@ const RepairService = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/repairs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerName: name,
-          customerPhone: phone,
-          deviceBrand: brand,
-          deviceModel: model,
-          problemDescription: problem,
-          serviceCategory: category,
-          pickupAddress: address,
-          coordinates,
-        }),
+      const response = await api.post("/repairs", {
+        customerName: name,
+        customerPhone: phone,
+        deviceBrand: brand,
+        deviceModel: model,
+        problemDescription: problem,
+        serviceCategory: category,
+        pickupAddress: address,
+        coordinates,
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        showToast.success(
-          t("notifications:repair_submitted") +
-            " ID: " +
-            (data.repairRequest?.requestId || ""),
-        );
-        setName("");
-        setPhone("");
-        setBrand("");
-        setModel("");
-        setProblem("");
-        setAddress("");
-        setCoordinates(null);
-      } else {
-        showToast.error(data.message || t("notifications:server_error"));
-      }
+      const data = response.data;
+      showToast.success(
+        t("notifications:repair_submitted") +
+          " ID: " +
+          (data.repairRequest?.requestId || ""),
+      );
+      setName("");
+      setPhone("");
+      setBrand("");
+      setModel("");
+      setProblem("");
+      setAddress("");
+      setCoordinates(null);
     } catch (err) {
-      showToast.error(t("notifications:server_error"));
+      const errorMessage = err.response?.data?.message || t("notifications:server_error");
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }

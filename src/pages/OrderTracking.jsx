@@ -5,12 +5,13 @@ import { useAuth } from '../context/AuthContext';
 import Loader from '../components/common/Loader';
 import OrderTimeline from '../components/common/OrderTimeline';
 import { showToast } from '../utils/toast';
+import api from '../utils/api';
 import { ShoppingBag, CreditCard, User, Phone, MapPin, RefreshCw } from 'lucide-react';
 
 const OrderTracking = () => {
   const { id } = useParams();
   const { t, i18n } = useTranslation(['cart', 'common', 'notifications']);
-  const { getHeaders, user } = useAuth();
+  const { user } = useAuth();
   
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,16 +19,11 @@ const OrderTracking = () => {
 
   const fetchOrderDetails = async () => {
     try {
-      const response = await fetch(`/api/orders/${id}`, {
-        headers: getHeaders(),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setOrder(data);
-      } else {
-        showToast.error(data.message || 'Failed to fetch order details');
-      }
+      const response = await api.get(`/orders/${id}`);
+      setOrder(response.data);
     } catch (err) {
+      const errorMessage = err.response?.data?.message || 'Failed to fetch order details';
+      showToast.error(errorMessage);
       console.error(err);
     } finally {
       setLoading(false);
@@ -55,17 +51,8 @@ const OrderTracking = () => {
   const handleRetryPayment = async () => {
     setRetrying(true);
     try {
-      const response = await fetch(`/api/orders/retry-payment/${id}`, {
-        method: 'POST',
-        headers: getHeaders(),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        showToast.error(data.message || 'Retry payment failed');
-        setRetrying(false);
-        return;
-      }
+      const response = await api.post(`/orders/retry-payment/${id}`);
+      const data = response.data;
 
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
@@ -92,25 +79,18 @@ const OrderTracking = () => {
         handler: async (response) => {
           setLoading(true);
           try {
-            const verifyResponse = await fetch('/api/orders/verify', {
-              method: 'POST',
-              headers: getHeaders(),
-              body: JSON.stringify({
-                orderId: order._id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpayOrderId: response.razorpay_order_id,
-                razorpaySignature: response.razorpay_signature,
-              }),
+            await api.post('/orders/verify', {
+              orderId: order._id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpayOrderId: response.razorpay_order_id,
+              razorpaySignature: response.razorpay_signature,
             });
 
-            if (verifyResponse.ok) {
-              showToast.success('Payment Verified! Order confirmed.');
-              fetchOrderDetails();
-            } else {
-              showToast.error('Signature verification failed');
-            }
+            showToast.success('Payment Verified! Order confirmed.');
+            fetchOrderDetails();
           } catch (err) {
-            showToast.error('Error during signature verification');
+            const errorMessage = err.response?.data?.message || 'Signature verification failed';
+            showToast.error(errorMessage);
           } finally {
             setLoading(false);
           }
@@ -120,7 +100,8 @@ const OrderTracking = () => {
       const rzpInstance = new window.Razorpay(options);
       rzpInstance.open();
     } catch (error) {
-      showToast.error('Failed to retry payment');
+      const errorMessage = error.response?.data?.message || 'Failed to retry payment';
+      showToast.error(errorMessage);
     } finally {
       setRetrying(false);
     }

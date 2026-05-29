@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
+import api from "../utils/api";
 import { FileText, Shield, CreditCard, Landmark, Printer } from "lucide-react";
 
 const CscService = () => {
@@ -27,38 +28,25 @@ const CscService = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/csc", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          phone,
-          serviceName: service,
-          queryDetails: details,
-        }),
+      await api.post("/csc", {
+        name,
+        phone,
+        serviceName: service,
+        queryDetails: details,
       });
 
-      const data = await response.json();
-      if (response.ok) {
-        showToast.success(
-          `${t("csc:success_alert")} - ${t("csc:success_desc")}`,
-        );
-        setName("");
-        setPhone("");
-        setDetails("");
-      } else {
-        showToast.error(
-          data.message ||
-            t(
-              "csc:error_failed",
-              "Failed to submit inquiry / पूछताछ सबमिट करने में विफल",
-            ),
-        );
-      }
-    } catch (err) {
-      showToast.error(
-        t("csc:error_occurred", "An error occurred / एक त्रुटि हुई"),
+      showToast.success(
+        `${t("csc:success_alert")} - ${t("csc:success_desc")}`,
       );
+      setName("");
+      setPhone("");
+      setDetails("");
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || t(
+        "csc:error_failed",
+        "Failed to submit inquiry / पूछताछ सबमिट करने में विफल",
+      );
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -133,7 +121,7 @@ const CscService = () => {
                 </label>
                 <input
                   type="text"
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
                   placeholder={t("csc:full_name")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -148,7 +136,7 @@ const CscService = () => {
                 <input
                   type="tel"
                   maxLength="10"
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
                   placeholder="e.g. 9125949456"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
@@ -161,7 +149,7 @@ const CscService = () => {
                   {t("csc:service_type")} *
                 </label>
                 <select
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 outline-none cursor-pointer text-sm focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 outline-none cursor-pointer text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
                   value={service}
                   onChange={(e) => setService(e.target.value)}
                 >
@@ -190,7 +178,7 @@ const CscService = () => {
                   {t("csc:details")} *
                 </label>
                 <textarea
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
                   rows="4"
                   placeholder={t("csc:placeholder_details")}
                   value={details}

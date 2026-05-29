@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { showToast } from '../utils/toast';
 import Loader from '../components/common/Loader';
+import api from '../utils/api';
 import { Truck, Clock, MapPin, ToggleLeft, ToggleRight, RefreshCw } from 'lucide-react';
 
 const PartnerDashboard = () => {
   const { t } = useTranslation();
-  const { getHeaders } = useAuth();
   
   const [activeDeliveries, setActiveDeliveries] = useState([]);
   const [history, setHistory] = useState([]);
@@ -18,15 +18,11 @@ const PartnerDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/dashboard/partner', {
-        headers: getHeaders(),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setActiveDeliveries(data.activeAssignments || []);
-        setHistory(data.deliveryHistory || []);
-        setProfile(data.partnerProfile);
-      }
+      const response = await api.get('/dashboard/partner');
+      const data = response.data;
+      setActiveDeliveries(data.activeAssignments || []);
+      setHistory(data.deliveryHistory || []);
+      setProfile(data.partnerProfile);
     } catch (err) {
       console.error(err);
     } finally {
@@ -40,16 +36,11 @@ const PartnerDashboard = () => {
 
   const handleToggleAvailability = async () => {
     try {
-      const response = await fetch('/api/dashboard/partner/availability', {
-        method: 'PUT',
-        headers: getHeaders(),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setProfile((prev) => ({ ...prev, isAvailable: data.isAvailable }));
-        const statusLabel = data.isAvailable ? t('delivery:available', 'AVAILABLE') : t('delivery:offline', 'OFFLINE');
-        showToast.success(`${t('delivery:status_updated', 'Status updated')}: ${statusLabel}`);
-      }
+      const response = await api.put('/dashboard/partner/availability');
+      const data = response.data;
+      setProfile((prev) => ({ ...prev, isAvailable: data.isAvailable }));
+      const statusLabel = data.isAvailable ? t('delivery:available', 'AVAILABLE') : t('delivery:offline', 'OFFLINE');
+      showToast.success(`${t('delivery:status_updated', 'Status updated')}: ${statusLabel}`);
     } catch (err) {
       showToast.error(t('delivery:error_status', 'Failed to change status'));
     }
@@ -58,22 +49,13 @@ const PartnerDashboard = () => {
   const handleUpdateStatus = async (orderId, newStatus) => {
     const note = statusNotes[orderId] || `Status updated to ${newStatus} by partner`;
     try {
-      const response = await fetch(`/api/orders/${orderId}/status`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify({ status: newStatus, note }),
-      });
-      
-      if (response.ok) {
-        showToast.success(t('delivery:status_updated'));
-        setStatusNotes((prev) => ({ ...prev, [orderId]: '' }));
-        fetchDashboardData();
-      } else {
-        const errorData = await response.json();
-        showToast.error(errorData.message);
-      }
+      await api.put(`/orders/${orderId}/status`, { status: newStatus, note });
+      showToast.success(t('delivery:status_updated'));
+      setStatusNotes((prev) => ({ ...prev, [orderId]: '' }));
+      fetchDashboardData();
     } catch (err) {
-      showToast.error(t('delivery:error_update_status', 'Failed to update status'));
+      const errorMessage = err.response?.data?.message || t('delivery:error_update_status', 'Failed to update status');
+      showToast.error(errorMessage);
     }
   };
 

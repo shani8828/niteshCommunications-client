@@ -14,6 +14,7 @@ import {
   Clock,
 } from "lucide-react";
 import Loader from "../components/common/Loader";
+import api from "../utils/api";
 
 const Home = () => {
   const { t, i18n } = useTranslation();
@@ -31,11 +32,8 @@ const Home = () => {
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        const response = await fetch("/api/products?limit=4");
-        const data = await response.json();
-        if (response.ok) {
-          setFeaturedProducts(data.products);
-        }
+        const response = await api.get("/products?limit=4");
+        setFeaturedProducts(response.data.products);
       } catch (err) {
         console.error("Failed to load featured products:", err);
       } finally {
