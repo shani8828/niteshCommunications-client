@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { showToast } from '../utils/toast';
 import Loader from '../components/common/Loader';
 import api from '../utils/api';
-import { BarChart3, Plus, Edit, Trash2, Package, Wrench, FileText, Settings, X, Upload, RefreshCw, ShoppingBag } from 'lucide-react';
+import { BarChart3, Plus, Edit, Trash2, Package, Wrench, FileText, Settings, X, Upload, RefreshCw, ShoppingBag, Users } from 'lucide-react';
 import { clearCache } from '../utils/cache';
 
 const AdminDashboard = () => {
@@ -18,6 +18,11 @@ const AdminDashboard = () => {
   const [orders, setOrders] = useState([]);
   const [repairs, setRepairs] = useState([]);
   const [cscQueries, setCscQueries] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [userSearchPhone, setUserSearchPhone] = useState('');
+  const [selectedUserForDetail, setSelectedUserForDetail] = useState(null);
+  const [showUserActivityModal, setShowUserActivityModal] = useState(false);
+  const [activeDetailTab, setActiveDetailTab] = useState('orders');
   const [loading, setLoading] = useState(true);
 
   const [showProductModal, setShowProductModal] = useState(false);
@@ -81,9 +86,23 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchUsers = async (searchVal = '') => {
+    try {
+      setLoading(true);
+      const url = searchVal.trim() !== '' ? `/dashboard/admin/users?phone=${searchVal.trim()}` : '/dashboard/admin/users';
+      const response = await api.get(url);
+      setUsers(response.data || []);
+    } catch (err) {
+      console.error(err);
+      showToast.error(t('admin:error_users_fetch', 'Failed to fetch users'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const loadAllData = async () => {
     setLoading(true);
-    await Promise.all([fetchAnalytics(), fetchInventory(), fetchRepairsAndCsc(), fetchOrders()]);
+    await Promise.all([fetchAnalytics(), fetchInventory(), fetchRepairsAndCsc(), fetchOrders(), fetchUsers()]);
     setLoading(false);
   };
 
@@ -341,6 +360,14 @@ const AdminDashboard = () => {
             }`}
           >
             <FileText size={16} /> {t('admin:nav_csc')}
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+              activeTab === 'users' ? 'bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10' : 'hover:bg-slate-100 text-slate-600'
+            }`}
+          >
+            <Users size={16} /> {t('admin:nav_users', 'Users')}
           </button>
         </aside>
 
@@ -710,6 +737,113 @@ const AdminDashboard = () => {
               </div>
             </div>
           )}
+
+          {/* Tab 6: Registered Users & Activities Panel */}
+          {activeTab === 'users' && (
+            <div className="flex flex-col gap-6 w-full animate-fadeIn">
+              <div className="flex justify-between items-center flex-wrap gap-4">
+                <h3 className="font-heading text-lg font-bold text-slate-900">{t('admin:nav_users', 'Registered Users')}</h3>
+                
+                {/* Phone Search form */}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    fetchUsers(userSearchPhone);
+                  }}
+                  className="flex items-center gap-2 w-full sm:w-auto"
+                >
+                  <input
+                    type="text"
+                    maxLength={10}
+                    className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan text-sm w-full sm:w-64"
+                    placeholder={t('admin:search_placeholder', 'Search 10-digit phone number...')}
+                    value={userSearchPhone}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      setUserSearchPhone(val);
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2.5 text-xs font-bold bg-brand-cyan hover:bg-brand-cyan/90 text-white rounded-xl shadow cursor-pointer transition-all"
+                  >
+                    {t('common:search', 'Search')}
+                  </button>
+                  {userSearchPhone && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUserSearchPhone('');
+                        fetchUsers('');
+                      }}
+                      className="px-3 py-2.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl cursor-pointer transition-all"
+                    >
+                      {t('common:clear', 'Clear')}
+                    </button>
+                  )}
+                </form>
+              </div>
+
+              <div className="w-full overflow-x-auto rounded-xl border border-slate-100">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50 text-slate-500 font-semibold text-xs border-b border-slate-200">
+                      <th className="px-4 py-3 text-left">{t('admin:customer', 'Name')}</th>
+                      <th className="px-4 py-3 text-left">{t('common:phone', 'Phone')}</th>
+                      <th className="px-4 py-3 text-left">{t('common:email', 'Email')}</th>
+                      <th className="px-4 py-3 text-left">{t('admin:registered_at', 'Registered On')}</th>
+                      <th className="px-4 py-3 text-left">{t('admin:activity_summary', 'Activity')}</th>
+                      <th className="px-4 py-3 text-left">{t('admin:actions', 'Actions')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((user) => (
+                      <tr key={user._id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700 font-semibold">{user.name}</td>
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700 font-mono">{user.mobile}</td>
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-600">{user.email || 'N/A'}</td>
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-600">
+                          {new Date(user.createdAt).toLocaleDateString()} {new Date(user.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
+                          <div className="flex gap-1.5 flex-wrap">
+                            <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium text-[10px]">
+                              {user.activity?.orders?.length || 0} Orders
+                            </span>
+                            <span className="px-2 py-0.5 rounded bg-orange-50 text-orange-700 font-medium text-[10px]">
+                              {user.activity?.repairs?.length || 0} Repairs
+                            </span>
+                            <span className="px-2 py-0.5 rounded bg-teal-50 text-teal-700 font-medium text-[10px]">
+                              {user.activity?.csc?.length || 0} CSC
+                            </span>
+                          </div>
+                        </td>
+                        <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
+                          <button
+                            onClick={() => {
+                              setSelectedUserForDetail(user);
+                              setShowUserActivityModal(true);
+                              setActiveDetailTab('orders');
+                            }}
+                            className="px-3 py-1.5 text-xs font-bold text-brand-cyan hover:text-brand-cyan/80 bg-brand-cyan/5 hover:bg-brand-cyan/10 rounded-lg cursor-pointer transition-all"
+                          >
+                            {t('admin:view_activity', 'View History')}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {users.length === 0 && (
+                      <tr>
+                        <td colSpan="6" className="border-b border-slate-100 px-4 py-8 text-xs text-slate-500 text-center font-semibold">
+                          {t('admin:no_data')}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </main>
       </div>
 
@@ -928,8 +1062,260 @@ const AdminDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* MODAL 3: Detailed Activity Logs for a single User */}
+      {showUserActivityModal && selectedUserForDetail && (
+        <div className="fixed top-0 left-0 w-screen h-screen bg-slate-950/80 flex justify-center items-center z-[500] backdrop-blur-md overflow-y-auto p-4 animate-fadeIn">
+          <div className="w-full max-w-[800px] p-6 md:p-8 max-h-[90vh] overflow-y-auto glass-card rounded-2xl shadow-2xl">
+            <div className="flex justify-between items-start mb-6 pb-4 border-b border-slate-200">
+              <div>
+                <h3 className="font-heading text-lg font-bold text-slate-900">
+                  {selectedUserForDetail.name}
+                </h3>
+                <p className="text-xs text-slate-500 flex gap-2.5 mt-1 font-semibold flex-wrap">
+                  <span>Phone: {selectedUserForDetail.mobile}</span>
+                  {selectedUserForDetail.email && <span>Email: {selectedUserForDetail.email}</span>}
+                  <span>Joined: {new Date(selectedUserForDetail.createdAt).toLocaleDateString()}</span>
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowUserActivityModal(false);
+                  setSelectedUserForDetail(null);
+                }}
+                className="bg-transparent border-0 text-slate-400 hover:text-slate-600 cursor-pointer flex transition-all p-1"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Internal Tabs */}
+            <div className="flex gap-2 border-b border-slate-100 pb-3 mb-6 flex-wrap">
+              <button
+                onClick={() => setActiveDetailTab('orders')}
+                className={`px-4 py-2 border-0 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeDetailTab === 'orders'
+                    ? 'bg-brand-cyan text-white shadow-md'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                }`}
+              >
+                Orders ({selectedUserForDetail.activity?.orders?.length || 0})
+              </button>
+              <button
+                onClick={() => setActiveDetailTab('repairs')}
+                className={`px-4 py-2 border-0 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeDetailTab === 'repairs'
+                    ? 'bg-brand-cyan text-white shadow-md'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                }`}
+              >
+                Repairs ({selectedUserForDetail.activity?.repairs?.length || 0})
+              </button>
+              <button
+                onClick={() => setActiveDetailTab('csc')}
+                className={`px-4 py-2 border-0 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeDetailTab === 'csc'
+                    ? 'bg-brand-cyan text-white shadow-md'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                }`}
+              >
+                CSC Inquiries ({selectedUserForDetail.activity?.csc?.length || 0})
+              </button>
+            </div>
+
+            {/* Tab content renders */}
+            <div className="w-full">
+              {activeDetailTab === 'orders' && (
+                <div className="flex flex-col gap-4">
+                  {selectedUserForDetail.activity?.orders?.length > 0 ? (
+                    <div className="w-full overflow-x-auto rounded-xl border border-slate-100">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 text-slate-500 font-semibold text-xs border-b border-slate-200">
+                            <th className="px-4 py-3 text-left">Order ID</th>
+                            <th className="px-4 py-3 text-left">Date</th>
+                            <th className="px-4 py-3 text-left">Items</th>
+                            <th className="px-4 py-3 text-left">Amount</th>
+                            <th className="px-4 py-3 text-left">Payment</th>
+                            <th className="px-4 py-3 text-left">Delivery</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedUserForDetail.activity.orders.map((ord) => (
+                            <tr key={ord._id} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs font-semibold text-blue-600">
+                                <Link to={`/order-tracking/${ord._id}`} className="hover:underline">
+                                  NC-{ord.orderId}
+                                </Link>
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-600">
+                                {new Date(ord.createdAt).toLocaleDateString()}
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700 max-w-[200px]">
+                                <div className="flex flex-col gap-1">
+                                  {ord.items?.map((item, i) => (
+                                    <div key={i} className="flex items-center gap-1.5">
+                                      {item.product?.images?.[0] && (
+                                        <img
+                                          src={item.product.images[0]}
+                                          alt={item.product.name?.en}
+                                          className="w-5 h-5 rounded object-contain bg-slate-100 border border-slate-200"
+                                        />
+                                      )}
+                                      <span className="truncate">
+                                        {item.product?.name?.en || 'Product'} (x{item.quantity})
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-900 font-bold">
+                                ₹{ord.totalAmount}
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
+                                <div className="flex flex-col">
+                                  <span className="font-semibold text-slate-800">{ord.paymentType}</span>
+                                  <span className={`text-[10px] font-bold ${ord.paymentStatus === 'Paid' ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                    {ord.paymentStatus}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    ord.deliveryStatus === 'Delivered'
+                                      ? 'bg-emerald-100 text-emerald-700'
+                                      : ord.deliveryStatus === 'Cancelled'
+                                      ? 'bg-rose-100 text-rose-700'
+                                      : 'bg-blue-100 text-blue-700'
+                                  }`}
+                                >
+                                  {ord.deliveryStatus}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-center py-8 text-xs text-slate-500 font-semibold">No orders found.</p>
+                  )}
+                </div>
+              )}
+
+              {activeDetailTab === 'repairs' && (
+                <div className="flex flex-col gap-4">
+                  {selectedUserForDetail.activity?.repairs?.length > 0 ? (
+                    <div className="w-full overflow-x-auto rounded-xl border border-slate-100">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 text-slate-500 font-semibold text-xs border-b border-slate-200">
+                            <th className="px-4 py-3 text-left">Device</th>
+                            <th className="px-4 py-3 text-left">Category</th>
+                            <th className="px-4 py-3 text-left">Problem</th>
+                            <th className="px-4 py-3 text-left">Estimate</th>
+                            <th className="px-4 py-3 text-left">Status</th>
+                            <th className="px-4 py-3 text-left">Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedUserForDetail.activity.repairs.map((rep) => (
+                            <tr key={rep._id} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700 font-semibold">
+                                {rep.deviceBrand} {rep.deviceModel}
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-600">
+                                {rep.serviceCategory}
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-600 max-w-[200px] truncate" title={rep.problemDescription}>
+                                {rep.problemDescription}
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs text-brand-cyan font-bold">
+                                ₹{rep.estimatedPrice}
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    rep.status === 'Delivered'
+                                      ? 'bg-emerald-100 text-emerald-700'
+                                      : rep.status === 'Pending'
+                                      ? 'bg-amber-100 text-amber-700'
+                                      : 'bg-blue-100 text-blue-700'
+                                  }`}
+                                >
+                                  {rep.status}
+                                </span>
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-500">
+                                {new Date(rep.createdAt).toLocaleDateString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-center py-8 text-xs text-slate-500 font-semibold">No repair requests found.</p>
+                  )}
+                </div>
+              )}
+
+              {activeDetailTab === 'csc' && (
+                <div className="flex flex-col gap-4">
+                  {selectedUserForDetail.activity?.csc?.length > 0 ? (
+                    <div className="w-full overflow-x-auto rounded-xl border border-slate-100">
+                      <table className="w-full border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 text-slate-500 font-semibold text-xs border-b border-slate-200">
+                            <th className="px-4 py-3 text-left">Service</th>
+                            <th className="px-4 py-3 text-left">Details</th>
+                            <th className="px-4 py-3 text-left">Status</th>
+                            <th className="px-4 py-3 text-left">Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedUserForDetail.activity.csc.map((query) => (
+                            <tr key={query._id} className="hover:bg-slate-50/50 transition-colors">
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700 font-semibold">
+                                {query.serviceName}
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-600 max-w-[300px] truncate" title={query.queryDetails}>
+                                {query.queryDetails}
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    query.status === 'Completed'
+                                      ? 'bg-emerald-100 text-emerald-700'
+                                      : query.status === 'Pending'
+                                      ? 'bg-amber-100 text-amber-700'
+                                      : 'bg-blue-100 text-blue-700'
+                                  }`}
+                                >
+                                  {query.status}
+                                </span>
+                              </td>
+                              <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-500">
+                                {new Date(query.createdAt).toLocaleDateString()}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-center py-8 text-xs text-slate-500 font-semibold">No CSC inquiries found.</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
 
 export default AdminDashboard;

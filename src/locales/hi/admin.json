@@ -28,5 +28,11 @@
   "recent_activity": "हाल की गतिविधियां",
   "no_data": "कोई डेटा उपलब्ध नहीं है",
   "save_changes": "बदलाव सहेजें",
-  "update_status": "स्थिति अपडेट करें"
+  "update_status": "स्थिति अपडेट करें",
+  "nav_users": "उपयोगकर्ता",
+  "search_users": "फ़ोन नंबर खोजें",
+  "registered_at": "पंजीकरण तिथि",
+  "activity_summary": "गतिविधि विवरण",
+  "view_activity": "इतिहास देखें",
+  "search_placeholder": "10-डिजिट फ़ोन नंबर दर्ज करें..."
 }

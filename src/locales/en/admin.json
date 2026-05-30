@@ -28,5 +28,11 @@
   "recent_activity": "Recent Activity",
   "no_data": "No data available",
   "save_changes": "Save Changes",
-  "update_status": "Update Status"
+  "update_status": "Update Status",
+  "nav_users": "Users",
+  "search_users": "Search phone number",
+  "registered_at": "Registered On",
+  "activity_summary": "Activity Summary",
+  "view_activity": "View History",
+  "search_placeholder": "Search 10-digit phone number..."
 }
