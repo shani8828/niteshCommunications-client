@@ -19,6 +19,7 @@ const Breadcrumbs = () => {
   const getTranslationKey = (segment) => {
     switch (segment.toLowerCase()) {
       case 'shop':
+      case 'products':
         return t('common:shop');
       case 'cart':
         return t('common:cart');

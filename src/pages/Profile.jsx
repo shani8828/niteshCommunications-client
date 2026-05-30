@@ -442,7 +442,7 @@ const Profile = () => {
                           <span className="text-[10px] text-blue-600 font-bold uppercase tracking-wider">
                             {typeof prod.category === 'object' ? (prod.category?.name[currentLang] || prod.category?.name?.en || 'N/A') : (prod.category || 'N/A')}
                           </span>
-                          <Link to={`/product/${prod._id}`}>
+                          <Link to={`/products/${prod.slug || prod._id}`}>
                             <h4 className="font-heading text-sm font-bold text-slate-800 hover:text-blue-600 line-clamp-1 transition-colors">
                               {prod.name[currentLang] || prod.name['en']}
                             </h4>

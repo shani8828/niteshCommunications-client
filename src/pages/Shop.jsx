@@ -287,7 +287,7 @@ const Shop = () => {
                     >
                       {/* Image Wrap */}
                       <Link
-                        to={`/product/${product._id}`}
+                        to={`/products/${product.slug || product._id}`}
                         className="bg-slate-50 rounded-xl h-[170px] flex justify-center items-center overflow-hidden border border-slate-100"
                       >
                         <img
@@ -318,7 +318,7 @@ const Shop = () => {
                           )}
                         </div>
 
-                        <Link to={`/product/${product._id}`}>
+                        <Link to={`/products/${product.slug || product._id}`}>
                           <h4 className="font-heading text-sm font-semibold text-slate-800 truncate hover:text-blue-600 transition-colors mt-1">
                             {product.name[currentLang]}
                           </h4>

@@ -10,7 +10,7 @@ import { showToast } from '../utils/toast';
 import { Star, Heart, ShoppingCart, ShieldAlert, ArrowLeft, Send } from 'lucide-react';
 
 const ProductDetails = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const { t, i18n } = useTranslation(['product', 'common', 'notifications']);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -32,7 +32,7 @@ const ProductDetails = () => {
     const fetchDetail = async () => {
       setLoading(true);
       try {
-        const response = await api.get(`/products/${id}`);
+        const response = await api.get(`/products/slug/${slug}`);
         const data = response.data;
         
         setProduct(data.product);
@@ -50,7 +50,7 @@ const ProductDetails = () => {
       }
     };
     fetchDetail();
-  }, [id]);
+  }, [slug]);
 
   useEffect(() => {
     if (product) {
@@ -70,7 +70,7 @@ const ProductDetails = () => {
     }
     setSubmittingReview(true);
     try {
-      await api.post(`/products/${id}/reviews`, {
+      await api.post(`/products/${product._id}/reviews`, {
         rating: reviewRating,
         comment: reviewComment,
       });
@@ -78,7 +78,7 @@ const ProductDetails = () => {
       showToast.success('Review added successfully!');
       setReviewComment('');
       
-      const refreshResponse = await api.get(`/products/${id}`);
+      const refreshResponse = await api.get(`/products/slug/${slug}`);
       setReviews(refreshResponse.data.reviews || []);
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Failed to submit review';
@@ -333,7 +333,7 @@ const ProductDetails = () => {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {related.map((item) => (
               <div key={item._id} className="p-3 text-center bg-white border border-slate-200 rounded-xl hover:shadow-sm">
-                <Link to={`/product/${item._id}`}>
+                <Link to={`/products/${item.slug || item._id}`}>
                   <div className="h-[110px] flex justify-center items-center overflow-hidden bg-slate-50 border border-slate-100 rounded-lg mb-2">
                     <img src={item.images[0]} alt={item.name.en} className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply" loading="lazy" />
                   </div>

@@ -291,7 +291,7 @@ const Home = () => {
                       )}
                     </div>
                     <Link
-                      to={`/product/${product._id}`}
+                      to={`/products/${product.slug || product._id}`}
                       className="w-full py-2 mt-4 font-heading font-semibold text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-center rounded-lg block transition-colors"
                     >
                       {currentLang == "hi" ? "देखें" : "View Product"}

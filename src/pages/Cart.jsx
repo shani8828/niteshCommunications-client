@@ -48,7 +48,7 @@ const Cart = () => {
 
               {/* Title & Price */}
               <div className="flex-1 min-w-[150px] flex flex-col">
-                <Link to={`/product/${item.product._id}`}>
+                <Link to={`/products/${item.product.slug || item.product._id}`}>
                   <h4 className="font-heading text-sm font-semibold text-slate-800 truncate hover:text-blue-600 transition-colors">{item.product.name[currentLang]}</h4>
                 </Link>
                 <span className="text-xs text-slate-500 mt-1 font-semibold">₹{item.product.price}</span>
