@@ -380,8 +380,8 @@ const Home = () => {
                     a: (
                       <span>
                         आम तौर पर, एक पहचान प्रमाण (वोटर आईडी/राशन कार्ड) और पते
-                        का प्रमाण आवश्यक होता है। विवरण के लिए हमसे संपर्क करें या
-                        हमारे{" "}
+                        का प्रमाण आवश्यक होता है। विवरण के लिए हमसे संपर्क करें
+                        या हमारे{" "}
                         <Link
                           to="/csc"
                           className="text-blue-600 hover:underline font-bold"
@@ -396,7 +396,8 @@ const Home = () => {
                     q: "क्या मैं अपने उत्पाद ऑर्डर की स्थिति ऑनलाइन ट्रैक कर सकता हूँ?",
                     a: (
                       <span>
-                        बिल्कुल! एक बार आपका ऑर्डर कन्फर्म हो जाने के बाद, आप अपने{" "}
+                        बिल्कुल! एक बार आपका ऑर्डर कन्फर्म हो जाने के बाद, आप
+                        अपने{" "}
                         <Link
                           to="/profile"
                           className="text-blue-600 hover:underline font-bold"
@@ -437,8 +438,8 @@ const Home = () => {
                     q: "Can I track my product order status online?",
                     a: (
                       <span>
-                        Absolutely! Once your order is confirmed, you can track it
-                        in your{" "}
+                        Absolutely! Once your order is confirmed, you can track
+                        it in your{" "}
                         <Link
                           to="/profile"
                           className="text-blue-600 hover:underline font-bold"
