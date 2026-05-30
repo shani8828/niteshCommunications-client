@@ -41,5 +41,16 @@
   "privacy_policy": "Privacy Policy",
   "refund_policy": "Refund & Cancellation",
   "shipping_policy": "Shipping & Delivery",
-  "order_summary": "My Orders"
+  "order_summary": "My Orders",
+  "checkout": "Checkout",
+  "order_tracking": "Order Tracking",
+  "admin": "Admin",
+  "dashboard": "Dashboard",
+  "admin_login": "Admin Login",
+  "promo_shop_title": "Explore Accessories & Men's Wear Store",
+  "promo_shop_desc": "Looking to buy original chargers, batteries, phone glass, stationery, or premium Men's Wear? Visit our E-Commerce store for premium deals!",
+  "promo_repair_title": "Need Expert Repair?",
+  "promo_repair_desc": "Broken screen, power issue, or want custom photo skins? Book professional mobile repair services now!",
+  "promo_csc_title": "CSC Digital Services",
+  "promo_csc_desc": "Need document printing, Aadhaar/PAN correction, or government scheme applications? Submit your online inquiry here!"
 }

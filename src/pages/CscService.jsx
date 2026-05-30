@@ -4,6 +4,7 @@ import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
 import api from "../utils/api";
 import { FileText, Shield, CreditCard, Landmark, Printer } from "lucide-react";
+import QuickLinksBanner from "../components/common/QuickLinksBanner";
 
 const CscService = () => {
   const { t, i18n } = useTranslation();
@@ -315,6 +316,7 @@ const CscService = () => {
           </div>
         </div>
       </div>
+      <QuickLinksBanner currentType="csc" />
     </div>
   );
 };

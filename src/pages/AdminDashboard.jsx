@@ -102,6 +102,15 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     loadAllData();
+
+    // Auto-poll dashboard data silently in the background every 30 seconds to fetch latest MongoDB status
+    const pollInterval = setInterval(() => {
+      Promise.all([fetchAnalytics(), fetchInventory(), fetchRepairsAndCsc(), fetchOrders()]).catch((err) =>
+        console.error('Silent background dashboard data refresh failed:', err)
+      );
+    }, 30000);
+
+    return () => clearInterval(pollInterval);
   }, []);
 
   const handleCreateCategory = async (e) => {

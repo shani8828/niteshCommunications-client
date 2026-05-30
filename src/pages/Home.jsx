@@ -357,11 +357,11 @@ const Home = () => {
                 },
                 {
                   q: "आधार/पैन सेवाओं के लिए कौन से दस्तावेज़ आवश्यक हैं?",
-                  a: "आम तौर पर, एक पहचान प्रमाण (वोटर आईडी/राशन कार्ड) और पते का प्रमाण आवश्यक होता है। विवरण के लिए हमसे संपर्क करें या हमारे CSC अनुभाग पर जाएँ।",
+                  a: <span>आम तौर पर, एक पहचान प्रमाण (वोटर आईडी/राशन कार्ड) और पते का प्रमाण आवश्यक होता है। विवरण के लिए हमसे संपर्क करें या हमारे <Link to="/csc" className="text-blue-600 hover:underline font-bold">जन सेवा केंद्र (CSC) अनुभाग</Link> पर जाएँ।</span>,
                 },
                 {
                   q: "क्या मैं अपने उत्पाद ऑर्डर की स्थिति ऑनलाइन ट्रैक कर सकता हूँ?",
-                  a: "बिल्कुल! एक बार आपका ऑर्डर कन्फर्म हो जाने के बाद, आपको वास्तविक समय में अपडेट देखने के लिए एक अद्वितीय ट्रैकिंग लिंक प्राप्त होगा।",
+                  a: <span>बिल्कुल! एक बार आपका ऑर्डर कन्फर्म हो जाने के बाद, आप अपने <Link to="/profile" className="text-blue-600 hover:underline font-bold">प्रोफाइल डैशबोर्ड</Link> में मेरे ऑर्डर्स के अंतर्गत इसे ट्रैक कर सकते हैं।</span>,
                 },
               ]
             : [
@@ -375,11 +375,11 @@ const Home = () => {
                 },
                 {
                   q: "Which documents are required for Aadhaar/PAN services?",
-                  a: "Generally, an identity proof (Voter ID/Rashan Card) and address proof are required. Contact us or visit our CSC section for details.",
+                  a: <span>Generally, an identity proof (Voter ID/Rashan Card) and address proof are required. Contact us or visit our <Link to="/csc" className="text-blue-600 hover:underline font-bold">CSC section</Link> for details.</span>,
                 },
                 {
                   q: "Can I track my product order status online?",
-                  a: "Absolutely! Once your order is confirmed, you will receive a unique tracking link to watch updates in real-time.",
+                  a: <span>Absolutely! Once your order is confirmed, you can track it in your <Link to="/profile" className="text-blue-600 hover:underline font-bold">Profile Dashboard</Link> under My Orders.</span>,
                 },
               ]
           ).map((faq, idx) => (

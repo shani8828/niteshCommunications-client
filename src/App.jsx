@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { BreadcrumbProvider } from './context/BreadcrumbContext';
 import { Toaster } from 'sonner';
 
 // Reusable Components
@@ -9,6 +10,7 @@ import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import ScrollToTop from './components/common/ScrollToTop';
+import Breadcrumbs from './components/common/Breadcrumbs';
 
 // Pages
 import Home from './pages/Home';
@@ -40,12 +42,16 @@ function App() {
       <ScrollToTop />
       <AuthProvider>
         <CartProvider>
+          <BreadcrumbProvider>
             {/* Global Styled Toaster Alerts */}
             <Toaster position="top-right" richColors expand={false} theme="light" />
             
             <div className="app-container">
               {/* Header Multilingual navigation */}
               <Navbar />
+
+              {/* Breadcrumbs Navigation */}
+              <Breadcrumbs />
 
               {/* Main Content Workspace */}
               <main className="main-content">
@@ -124,6 +130,7 @@ function App() {
               {/* Cookie & Terms Consent Banner */}
               <CookieConsent />
             </div>
+          </BreadcrumbProvider>
         </CartProvider>
       </AuthProvider>
     </Router>

@@ -67,6 +67,15 @@ const Profile = () => {
   useEffect(() => {
     if (user) {
       fetchMyOrders();
+
+      // Poll user orders silently in the background every 30 seconds to fetch latest MongoDB status
+      const pollInterval = setInterval(() => {
+        api.get('/orders/my-orders')
+          .then((response) => setOrders(response.data || []))
+          .catch((err) => console.error('Silent background orders refresh failed:', err));
+      }, 30000);
+
+      return () => clearInterval(pollInterval);
     }
   }, [user]);
 

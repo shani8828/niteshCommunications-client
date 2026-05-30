@@ -57,9 +57,9 @@ const Navbar = () => {
           <img
             src="/branding/logo.png"
             alt="Nitesh Communications"
-            className="h-10 w-10 object-contain rounded-lg shadow-sm"
+            className="h-10 w-10 object-contain"
             onError={(e) => {
-              e.target.src = "/branding/app-icon.png";
+              e.target.src = "/branding/logo-full.png";
             }}
           />
           <div className="hidden md:flex flex-col">

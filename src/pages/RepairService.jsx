@@ -4,6 +4,7 @@ import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
 import api from "../utils/api";
 import { Wrench, MapPin, Smartphone, Battery, Zap, Cpu, Camera, Volume2, Shield } from "lucide-react";
+import QuickLinksBanner from "../components/common/QuickLinksBanner";
 
 const RepairService = () => {
   const { t, i18n } = useTranslation(["repair", "common", "notifications"]);
@@ -530,6 +531,7 @@ const RepairService = () => {
           </div>
         </div>
       </div>
+      <QuickLinksBanner currentType="repair" />
     </div>
   );
 };

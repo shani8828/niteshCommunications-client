@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import { useBreadcrumbs } from '../context/BreadcrumbContext';
 import Loader from '../components/common/Loader';
 import OrderTimeline from '../components/common/OrderTimeline';
 import { showToast } from '../utils/toast';
@@ -12,6 +13,7 @@ const OrderTracking = () => {
   const { id } = useParams();
   const { t, i18n } = useTranslation(['cart', 'common', 'notifications']);
   const { user } = useAuth();
+  const { setCrumbs } = useBreadcrumbs();
   
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,10 +35,31 @@ const OrderTracking = () => {
   useEffect(() => {
     if (id && id !== 'history') {
       fetchOrderDetails();
+
+      // Poll order tracking details every 15 seconds to sync with MongoDB status
+      const pollInterval = setInterval(() => {
+        fetchOrderDetails();
+      }, 15000);
+
+      return () => clearInterval(pollInterval);
     } else {
       setLoading(false);
     }
   }, [id]);
+
+  useEffect(() => {
+    if (order) {
+      setCrumbs([
+        { label: t('common:order_summary'), link: '/order-tracking/history' },
+        { label: `${t('common:order_tracking') || 'Order Tracking'} #${order.orderId}` }
+      ]);
+    } else if (id && id !== 'history') {
+      setCrumbs([
+        { label: t('common:order_summary'), link: '/order-tracking/history' },
+        { label: `${t('common:order_tracking') || 'Order Tracking'} #${id}` }
+      ]);
+    }
+  }, [order, id, i18n.language, setCrumbs, t]);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {

@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useBreadcrumbs } from '../context/BreadcrumbContext';
 import Loader from '../components/common/Loader';
 import api from '../utils/api';
 import { showToast } from '../utils/toast';
@@ -14,6 +15,7 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addToCart, toggleWishlist, wishlist, addRecentlyViewed } = useCart();
+  const { setCrumbs } = useBreadcrumbs();
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
@@ -49,6 +51,16 @@ const ProductDetails = () => {
     };
     fetchDetail();
   }, [id]);
+
+  useEffect(() => {
+    if (product) {
+      const currentLang = i18n.language || 'hi';
+      setCrumbs([
+        { label: t('common:shop'), link: '/shop' },
+        { label: product.name[currentLang] || product.name.en }
+      ]);
+    }
+  }, [product, i18n.language, setCrumbs, t]);
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();

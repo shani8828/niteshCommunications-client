@@ -12,6 +12,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import QuickLinksBanner from "../components/common/QuickLinksBanner";
 
 const Shop = () => {
   const { t, i18n } = useTranslation(["product", "common"]);
@@ -356,6 +357,7 @@ const Shop = () => {
           )}
         </div>
       </div>
+      <QuickLinksBanner currentType="shop" />
     </div>
   );
 };
