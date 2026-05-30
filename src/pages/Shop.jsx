@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useCart } from "../context/CartContext";
 import Loader from "../components/common/Loader";
 import api from "../utils/api";
+import { getCachedData, setCachedData } from "../utils/cache";
 import {
   Search,
   ShoppingCart,
@@ -34,9 +35,16 @@ const Shop = () => {
 
   useEffect(() => {
     const fetchCats = async () => {
+      const cacheKey = "shop_categories";
+      const cached = getCachedData(cacheKey);
+      if (cached) {
+        setCategories(cached);
+        return;
+      }
       try {
         const response = await api.get("/products/categories");
         setCategories(response.data);
+        setCachedData(cacheKey, response.data, 10 * 60 * 1000); // Cache categories for 10 minutes
       } catch (err) {
         console.error(err);
       }
@@ -54,6 +62,14 @@ const Shop = () => {
 
   useEffect(() => {
     const fetchProds = async () => {
+      const cacheKey = `shop_products_p_${page}_s_${sort}_min_${minPrice}_max_${maxPrice}_k_${search}_c_${selectedCategory}`;
+      const cached = getCachedData(cacheKey);
+      if (cached) {
+        setProducts(cached.products);
+        setTotalPages(cached.pages);
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       try {
         let url = `/products?page=${page}&sort=${sort}&minPrice=${minPrice}&maxPrice=${maxPrice}`;
@@ -63,6 +79,7 @@ const Shop = () => {
         const response = await api.get(url);
         setProducts(response.data.products);
         setTotalPages(response.data.pages);
+        setCachedData(cacheKey, { products: response.data.products, pages: response.data.pages }, 5 * 60 * 1000); // Cache products for 5 minutes
       } catch (err) {
         console.error(err);
       } finally {
@@ -225,7 +242,27 @@ const Shop = () => {
         {/* Right Column Products Grid */}
         <div className="w-full">
           {loading ? (
-            <Loader />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 flex flex-col gap-3 bg-white border border-slate-200 rounded-2xl animate-pulse"
+                >
+                  {/* Image Skeleton */}
+                  <div className="bg-slate-100 rounded-xl h-[170px] w-full" />
+                  {/* Category */}
+                  <div className="flex justify-between items-center mt-1">
+                    <div className="h-3 bg-slate-200 rounded w-1/3" />
+                  </div>
+                  {/* Title */}
+                  <div className="h-4 bg-slate-200 rounded w-3/4 mt-1" />
+                  {/* Price */}
+                  <div className="h-5 bg-slate-200 rounded w-1/4 mt-1 mb-3" />
+                  {/* Button */}
+                  <div className="h-8 bg-slate-200 rounded-lg w-full" />
+                </div>
+              ))}
+            </div>
           ) : products.length === 0 ? (
             <div className="text-center py-16 text-slate-500">
               <p className="text-sm">No products match your filter options.</p>
@@ -257,6 +294,7 @@ const Shop = () => {
                           src={product.images[0]}
                           alt={product.name.en}
                           className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply"
+                          loading="lazy"
                         />
                       </Link>
 

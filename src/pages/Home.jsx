@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
+import { getCachedData, setCachedData } from "../utils/cache";
 import {
   ShoppingBag,
   Wrench,
@@ -31,9 +32,17 @@ const Home = () => {
 
   useEffect(() => {
     const fetchFeatured = async () => {
+      const cacheKey = "featured_products_limit_4";
+      const cached = getCachedData(cacheKey);
+      if (cached) {
+        setFeaturedProducts(cached);
+        setLoading(false);
+        return;
+      }
       try {
         const response = await api.get("/products?limit=4");
         setFeaturedProducts(response.data.products);
+        setCachedData(cacheKey, response.data.products, 3 * 60 * 1000);
       } catch (err) {
         console.error("Failed to load featured products:", err);
       } finally {
@@ -48,7 +57,7 @@ const Home = () => {
   return (
     <div className="w-full bg-white">
       {/* 1. Redesigned Premium Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100/30 py-20 px-6 sm:py-32">
+      <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/60 via-white to-white py-20 px-6 sm:py-28">
         {/* Subtle decorative background shapes */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-blue-400/10 blur-3xl" />
@@ -115,7 +124,7 @@ const Home = () => {
       </section>
 
       {/* 2. Three Major CTA Cards */}
-      <section className="bg-gradient-to-b from-blue-100/30 via-white to-white py-16 px-6">
+      <section className="bg-white pb-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Card 1: Shop */}
@@ -199,95 +208,105 @@ const Home = () => {
       </section>
 
       {/* 3. Promotional Special Banner */}
-      <section className="max-w-6xl mx-auto my-12 flex flex-col md:flex-row items-center justify-between gap-8 p-8 md:p-12 bg-slate-50 border border-slate-100 rounded-2xl">
-        <div className="flex-1 min-w-[280px] flex flex-col gap-4">
-          <span className="bg-blue-600 text-white px-2.5 py-1 rounded text-[10px] font-bold self-start uppercase">
-            {currentLang == "hi" ? "स्पेशल फ़ोन स्किन" : "Special Phone Skins"}
-          </span>
-          <h2 className="font-heading text-2xl font-bold text-slate-800">
-            {t("desc_banner_2")}
-          </h2>
-          <p className="text-sm text-slate-600">{t("cta_seva")}</p>
-          <div className="mt-4">
-            <Link
-              to="/repairs"
-              className="px-5 py-2.5 font-heading font-bold text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-500/10"
-            >
-              {currentLang == "hi"
-                ? "फोन स्किन बुक करें"
-                : "Book Skin Customization Now"}
-            </Link>
+      <section className="w-full bg-white py-12 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="p-8 md:p-12 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-blue-50/30 rounded-3xl border border-blue-100/40 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
+            <div className="flex-1 min-w-[280px] flex flex-col gap-4 pl-4 md:pl-0">
+              <span className="bg-blue-600 text-white px-2.5 py-1 rounded text-[10px] font-bold self-start uppercase">
+                {currentLang == "hi"
+                  ? "स्पेशल फ़ोन स्किन"
+                  : "Special Phone Skins"}
+              </span>
+              <h2 className="font-heading text-2xl font-bold text-slate-800">
+                {t("desc_banner_2")}
+              </h2>
+              <p className="text-sm text-slate-600">{t("cta_seva")}</p>
+              <div className="mt-4">
+                <Link
+                  to="/repairs"
+                  className="px-5 py-2.5 font-heading font-bold text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all shadow-md shadow-blue-500/10"
+                >
+                  {currentLang == "hi"
+                    ? "फोन स्किन बुक करें"
+                    : "Book Skin Customization Now"}
+                </Link>
+              </div>
+            </div>
+            <div className="flex-shrink-0 w-full md:w-[200px] h-[200px] flex justify-center items-center">
+              <img
+                src="/branding/logo-full.png"
+                alt="Promo Logo"
+                className="w-full h-full object-contain rounded-xl"
+                loading="lazy"
+                onError={(e) => {
+                  e.target.src = "/branding/app-icon.png";
+                }}
+              />
+            </div>
           </div>
-        </div>
-        <div className="flex-shrink-0 w-full md:w-[200px] h-[200px] flex justify-center items-center">
-          <img
-            src="/branding/logo-full.png"
-            alt="Promo Logo"
-            className="w-full h-full object-contain rounded-xl"
-            onError={(e) => {
-              e.target.src = "/branding/app-icon.png";
-            }}
-          />
         </div>
       </section>
 
       {/* 4. Featured Store Products */}
-      <section className="max-w-6xl mx-auto px-6 py-12">
-        <h2 className="font-heading text-3xl font-extrabold text-slate-900 mb-2 text-center md:text-left">
-          {currentLang == "hi" ? "हमारे प्रोडक्ट्स" : "Featured Products"}
-        </h2>
-        <p className="text-sm text-slate-500 mb-8 text-center md:text-left">
-          {currentLang == "hi"
-            ? "ओरिजिनल चार्जर, मोबाइल ग्लास, इयरफ़ोन, और भी सामान देखें..."
-            : "Explore original chargers, mobile glasses, earphones, and accessories..."}
-        </p>
+      <section className="w-full bg-gradient-to-b from-white to-slate-50/60 py-20 px-6 border-t border-slate-100">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="font-heading text-3xl font-extrabold text-slate-900 mb-2 text-center md:text-left">
+            {currentLang == "hi" ? "हमारे प्रोडक्ट्स" : "Featured Products"}
+          </h2>
+          <p className="text-sm text-slate-500 mb-8 text-center md:text-left">
+            {currentLang == "hi"
+              ? "ओरिजिनल चार्जर, मोबाइल ग्लास, इयरफ़ोन, और भी सामान देखें..."
+              : "Explore original chargers, mobile glasses, earphones, and accessories..."}
+          </p>
 
-        {loading ? (
-          <Loader />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {featuredProducts.map((product) => (
-              <div
-                key={product._id}
-                className="p-4 flex flex-col gap-3 glass-card rounded-2xl hover:shadow-md"
-              >
-                <div className="bg-slate-50 rounded-xl h-[180px] flex justify-center items-center overflow-hidden border border-slate-100">
-                  <img
-                    src={product.images[0]}
-                    alt={product.name.en}
-                    className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply"
-                  />
-                </div>
-                <div className="flex flex-col flex-grow">
-                  <h4 className="font-heading text-sm font-semibold text-slate-800 truncate">
-                    {product.name[currentLang]}
-                  </h4>
-                  <div className="flex gap-2 items-center mt-1">
-                    <span className="text-base font-extrabold text-blue-600">
-                      ₹{product.price}
-                    </span>
-                    {product.originalPrice > product.price && (
-                      <span className="text-xs text-slate-400 line-through">
-                        ₹{product.originalPrice}
-                      </span>
-                    )}
+          {loading ? (
+            <Loader />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+              {featuredProducts.map((product) => (
+                <div
+                  key={product._id}
+                  className="p-4 flex flex-col gap-3 glass-card rounded-2xl hover:shadow-md"
+                >
+                  <div className="bg-slate-50 rounded-xl h-[180px] flex justify-center items-center overflow-hidden border border-slate-100">
+                    <img
+                      src={product.images[0]}
+                      alt={product.name.en}
+                      className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply"
+                      loading="lazy"
+                    />
                   </div>
-                  <Link
-                    to={`/product/${product._id}`}
-                    className="w-full py-2 mt-4 font-heading font-semibold text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-center rounded-lg block transition-colors"
-                  >
-                    {currentLang == "hi" ? "देखें" : "View Product"}
-                  </Link>
+                  <div className="flex flex-col flex-grow">
+                    <h4 className="font-heading text-sm font-semibold text-slate-800 truncate">
+                      {product.name[currentLang]}
+                    </h4>
+                    <div className="flex gap-2 items-center mt-1">
+                      <span className="text-base font-extrabold text-blue-600">
+                        ₹{product.price}
+                      </span>
+                      {product.originalPrice > product.price && (
+                        <span className="text-xs text-slate-400 line-through">
+                          ₹{product.originalPrice}
+                        </span>
+                      )}
+                    </div>
+                    <Link
+                      to={`/product/${product._id}`}
+                      className="w-full py-2 mt-4 font-heading font-semibold text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-center rounded-lg block transition-colors"
+                    >
+                      {currentLang == "hi" ? "देखें" : "View Product"}
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* 5. Trust / Why Choose Us */}
-      <section className="bg-slate-50 border-y border-slate-200/80 my-16">
-        <div className="max-w-6xl mx-auto px-6 py-16 text-center">
+      <section className="w-full bg-gradient-to-b from-slate-50/60 to-white py-20 px-6 border-t border-slate-200/40">
+        <div className="max-w-6xl mx-auto px-6 text-center">
           <h2 className="font-heading text-3xl font-extrabold text-slate-800 mb-12">
             {currentLang == "hi"
               ? "नितेश कम्युनिकेशन्स पर भरोसा क्यों करें?"
@@ -338,88 +357,138 @@ const Home = () => {
       </section>
 
       {/* 6. FAQ Accordion */}
-      <section className="max-w-2xl mx-auto px-6 py-12">
-        <h2 className="font-heading text-3xl font-extrabold text-slate-800 mb-8 text-center">
-          {currentLang === "hi"
-            ? "अक्सर पूछे जाने वाले प्रश्न"
-            : "Frequently Asked Questions"}
-        </h2>
-        <div className="flex flex-col gap-4">
-          {(currentLang === "hi"
-            ? [
-                {
-                  q: "मोबाइल स्क्रीन रिप्लेसमेंट में कितना समय लगता है?",
-                  a: "हमारे पटखौली चौराहा केंद्र पर अधिकांश डिस्प्ले रिपेयर और टचस्क्रीन ग्लास रिप्लेसमेंट 1 से 2 घंटे के भीतर पूरे हो जाते हैं।",
-                },
-                {
-                  q: "क्या आप मोबाइल फाइनेंसिंग विकल्प प्रदान करते हैं?",
-                  a: "हाँ, हम अपने पार्टनर नेटवर्क के माध्यम से नए स्मार्टफोन पर आसान किश्तों (EMI) और फाइनेंसिंग योजनाएं प्रदान करते हैं।",
-                },
-                {
-                  q: "आधार/पैन सेवाओं के लिए कौन से दस्तावेज़ आवश्यक हैं?",
-                  a: <span>आम तौर पर, एक पहचान प्रमाण (वोटर आईडी/राशन कार्ड) और पते का प्रमाण आवश्यक होता है। विवरण के लिए हमसे संपर्क करें या हमारे <Link to="/csc" className="text-blue-600 hover:underline font-bold">जन सेवा केंद्र (CSC) अनुभाग</Link> पर जाएँ।</span>,
-                },
-                {
-                  q: "क्या मैं अपने उत्पाद ऑर्डर की स्थिति ऑनलाइन ट्रैक कर सकता हूँ?",
-                  a: <span>बिल्कुल! एक बार आपका ऑर्डर कन्फर्म हो जाने के बाद, आप अपने <Link to="/profile" className="text-blue-600 hover:underline font-bold">प्रोफाइल डैशबोर्ड</Link> में मेरे ऑर्डर्स के अंतर्गत इसे ट्रैक कर सकते हैं।</span>,
-                },
-              ]
-            : [
-                {
-                  q: "How long does mobile screen replacement take?",
-                  a: "Most display repairs and touchscreen glass replacements are completed within 1 to 2 hours at our Patkhauli Chauraha center.",
-                },
-                {
-                  q: "Do you offer mobile financing options?",
-                  a: "Yes, we provide easy installments (EMI) and financing schemes on brand new smartphones through our partner networks.",
-                },
-                {
-                  q: "Which documents are required for Aadhaar/PAN services?",
-                  a: <span>Generally, an identity proof (Voter ID/Rashan Card) and address proof are required. Contact us or visit our <Link to="/csc" className="text-blue-600 hover:underline font-bold">CSC section</Link> for details.</span>,
-                },
-                {
-                  q: "Can I track my product order status online?",
-                  a: <span>Absolutely! Once your order is confirmed, you can track it in your <Link to="/profile" className="text-blue-600 hover:underline font-bold">Profile Dashboard</Link> under My Orders.</span>,
-                },
-              ]
-          ).map((faq, idx) => (
-            <div
-              key={idx}
-              className="p-5 cursor-pointer bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
-              onClick={() => toggleFaq(idx)}
-            >
-              <div className="flex justify-between items-center font-bold text-sm sm:text-base text-slate-700">
-                <span>{faq.q}</span>
-                <span
-                  className={`text-xs text-blue-600 transition-transform duration-200 ${faqOpen[idx] ? "rotate-180" : ""}`}
-                >
-                  ▼
-                </span>
+      <section className="w-full bg-white py-20 border-t border-slate-100/80">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="font-heading text-3xl font-extrabold text-slate-800 mb-8 text-center">
+            {currentLang === "hi"
+              ? "अक्सर पूछे जाने वाले प्रश्न"
+              : "Frequently Asked Questions"}
+          </h2>
+          <div className="flex flex-col gap-4">
+            {(currentLang === "hi"
+              ? [
+                  {
+                    q: "मोबाइल स्क्रीन रिप्लेसमेंट में कितना समय लगता है?",
+                    a: "हमारे पटखौली चौराहा केंद्र पर अधिकांश डिस्प्ले रिपेयर और टचस्क्रीन ग्लास रिप्लेसमेंट 1 से 2 घंटे के भीतर पूरे हो जाते हैं।",
+                  },
+                  {
+                    q: "क्या आप मोबाइल फाइनेंसिंग विकल्प प्रदान करते हैं?",
+                    a: "हाँ, हम अपने पार्टनर नेटवर्क के माध्यम से नए स्मार्टफोन पर आसान किश्तों (EMI) और फाइनेंसिंग योजनाएं प्रदान करते हैं।",
+                  },
+                  {
+                    q: "आधार/पैन सेवाओं के लिए कौन से दस्तावेज़ आवश्यक हैं?",
+                    a: (
+                      <span>
+                        आम तौर पर, एक पहचान प्रमाण (वोटर आईडी/राशन कार्ड) और पते
+                        का प्रमाण आवश्यक होता है। विवरण के लिए हमसे संपर्क करें या
+                        हमारे{" "}
+                        <Link
+                          to="/csc"
+                          className="text-blue-600 hover:underline font-bold"
+                        >
+                          जन सेवा केंद्र (CSC) अनुभाग
+                        </Link>{" "}
+                        पर जाएँ।
+                      </span>
+                    ),
+                  },
+                  {
+                    q: "क्या मैं अपने उत्पाद ऑर्डर की स्थिति ऑनलाइन ट्रैक कर सकता हूँ?",
+                    a: (
+                      <span>
+                        बिल्कुल! एक बार आपका ऑर्डर कन्फर्म हो जाने के बाद, आप अपने{" "}
+                        <Link
+                          to="/profile"
+                          className="text-blue-600 hover:underline font-bold"
+                        >
+                          प्रोफाइल डैशबोर्ड
+                        </Link>{" "}
+                        में मेरे ऑर्डर्स के अंतर्गत इसे ट्रैक कर सकते हैं।
+                      </span>
+                    ),
+                  },
+                ]
+              : [
+                  {
+                    q: "How long does mobile screen replacement take?",
+                    a: "Most display repairs and touchscreen glass replacements are completed within 1 to 2 hours at our Patkhauli Chauraha center.",
+                  },
+                  {
+                    q: "Do you offer mobile financing options?",
+                    a: "Yes, we provide easy installments (EMI) and financing schemes on brand new smartphones through our partner networks.",
+                  },
+                  {
+                    q: "Which documents are required for Aadhaar/PAN services?",
+                    a: (
+                      <span>
+                        Generally, an identity proof (Voter ID/Rashan Card) and
+                        address proof are required. Contact us or visit our{" "}
+                        <Link
+                          to="/csc"
+                          className="text-blue-600 hover:underline font-bold"
+                        >
+                          CSC section
+                        </Link>{" "}
+                        for details.
+                      </span>
+                    ),
+                  },
+                  {
+                    q: "Can I track my product order status online?",
+                    a: (
+                      <span>
+                        Absolutely! Once your order is confirmed, you can track it
+                        in your{" "}
+                        <Link
+                          to="/profile"
+                          className="text-blue-600 hover:underline font-bold"
+                        >
+                          Profile Dashboard
+                        </Link>{" "}
+                        under My Orders.
+                      </span>
+                    ),
+                  },
+                ]
+            ).map((faq, idx) => (
+              <div
+                key={idx}
+                className="p-5 cursor-pointer bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+                onClick={() => toggleFaq(idx)}
+              >
+                <div className="flex justify-between items-center font-bold text-sm sm:text-base text-slate-700">
+                  <span>{faq.q}</span>
+                  <span
+                    className={`text-xs text-blue-600 transition-transform duration-200 ${faqOpen[idx] ? "rotate-180" : ""}`}
+                  >
+                    ▼
+                  </span>
+                </div>
+                {faqOpen[idx] && (
+                  <p className="mt-4 text-xs sm:text-sm text-slate-500 leading-relaxed border-t border-slate-100 pt-4">
+                    {faq.a}
+                  </p>
+                )}
               </div>
-              {faqOpen[idx] && (
-                <p className="mt-4 text-xs sm:text-sm text-slate-500 leading-relaxed border-t border-slate-100 pt-4">
-                  {faq.a}
-                </p>
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* 7. Quick Contact */}
-      <section className="max-w-xl mx-auto my-16 px-6">
-        <div className="p-8 md:p-12 text-center bg-slate-50 border border-slate-200/80 rounded-2xl">
+      <section className="w-full bg-white py-20 px-6 border-t border-slate-100">
+        <div className="max-w-3xl mx-auto text-center">
           <h3 className="font-heading text-2xl font-bold text-blue-600 mb-3">
             {currentLang == "hi"
               ? "कोई प्रश्न? संपर्क करें "
               : "Have Questions? Get in Touch"}
           </h3>
-          <p className="text-sm text-slate-500 mb-8 leading-relaxed">
+          <p className="text-sm text-slate-500 mb-8 leading-relaxed max-w-xl mx-auto">
             {currentLang == "hi"
-              ? "रिपेयर की कीमत या प्रोडक्ट संबंधी प्रश्नों के लिए नितेश कम्युनिकेशंस टीम से व्हाट्सएप या फोन पर सीधे संपर्क करने में संकोच न करें।"
+              ? "रिपेयर की कीमत या उत्पाद संबंधी प्रश्नों के लिए नितेश कम्युनिकेशंस टीम से व्हाट्सएप या फोन पर सीधे संपर्क करने में संकोच न करें।"
               : "Feel free to contact Nitesh Communications Team directly on WhatsApp or phone for custom repairs pricing or product questions."}
           </p>
-          <div className="flex flex-col gap-4 items-center mb-8">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
             <div className="flex items-center gap-2 text-sm text-slate-700">
               <Phone size={18} className="text-blue-600" />
               <span>+91 9125949456</span>

@@ -109,7 +109,7 @@ const ProductDetails = () => {
         {/* Left Column: Image Gallery */}
         <div className="flex flex-col gap-4">
           <div className="bg-slate-50 border border-slate-200 rounded-2xl h-[350px] flex justify-center items-center overflow-hidden">
-            <img src={activeImage} alt={product.name.en} className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply" />
+            <img src={activeImage} alt={product.name.en} className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply" loading="lazy" />
           </div>
           {product.images.length > 1 && (
             <div className="flex gap-3 overflow-x-auto pb-1">
@@ -121,7 +121,7 @@ const ProductDetails = () => {
                     activeImage === img ? 'border-blue-600' : 'border-slate-200'
                   }`}
                 >
-                  <img src={img} alt="Thumbnail" className="max-w-full max-h-full object-contain mix-blend-multiply" />
+                  <img src={img} alt="Thumbnail" className="max-w-full max-h-full object-contain mix-blend-multiply" loading="lazy" />
                 </button>
               ))}
             </div>
@@ -335,7 +335,7 @@ const ProductDetails = () => {
               <div key={item._id} className="p-3 text-center bg-white border border-slate-200 rounded-xl hover:shadow-sm">
                 <Link to={`/product/${item._id}`}>
                   <div className="h-[110px] flex justify-center items-center overflow-hidden bg-slate-50 border border-slate-100 rounded-lg mb-2">
-                    <img src={item.images[0]} alt={item.name.en} className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply" />
+                    <img src={item.images[0]} alt={item.name.en} className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply" loading="lazy" />
                   </div>
                   <h4 className="font-heading text-xs font-semibold text-slate-700 truncate">{item.name[currentLang]}</h4>
                   <p className="text-xs font-bold text-blue-600 mt-1">₹{item.price}</p>

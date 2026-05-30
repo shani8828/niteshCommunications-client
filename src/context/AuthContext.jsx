@@ -29,8 +29,10 @@ export const AuthProvider = ({ children }) => {
         setUser(response.data.user);
       } catch (error) {
         console.error('Error fetching profile:', error);
-        // Token expired or invalid
-        logout();
+        // Only log out if the server explicitly tells us the token is invalid or expired (401)
+        if (error.response && error.response.status === 401) {
+          logout(false);
+        }
       } finally {
         setLoading(false);
       }
@@ -136,7 +138,7 @@ export const AuthProvider = ({ children }) => {
   /**
    * Close session
    */
-  const logout = async () => {
+  const logout = async (showToastMessage = true) => {
     try {
       await api.post('/auth/logout');
     } catch (error) {
@@ -145,7 +147,9 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setToken('');
     setUser(null);
-    showToast.success('Logged out successfully');
+    if (showToastMessage) {
+      showToast.success('Logged out successfully');
+    }
   };
 
   return (

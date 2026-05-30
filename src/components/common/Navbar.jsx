@@ -77,13 +77,13 @@ const Navbar = () => {
           <NavLink to="/" className={getLinkClass}>
             {t("home")}
           </NavLink>
-          <NavLink to="/shop" className={getLinkClass}>
+          <NavLink to="/shop" className={getLinkClass} onMouseEnter={() => import("../../pages/Shop")}>
             {t("shop")}
           </NavLink>
-          <NavLink to="/repairs" className={getLinkClass}>
+          <NavLink to="/repairs" className={getLinkClass} onMouseEnter={() => import("../../pages/RepairService")}>
             {t("repair")}
           </NavLink>
-          <NavLink to="/csc" className={getLinkClass}>
+          <NavLink to="/csc" className={getLinkClass} onMouseEnter={() => import("../../pages/CscService")}>
             {t("csc")}
           </NavLink>
         </nav>
@@ -118,7 +118,7 @@ const Navbar = () => {
 
           {/* User Auth Profiles Dropdown */}
           {user ? (
-            <div className="relative">
+            <div className="relative hidden md:block">
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                 className="bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 text-slate-700 cursor-pointer flex items-center gap-2 hover:bg-slate-100 transition-all"
@@ -304,7 +304,7 @@ const Navbar = () => {
           {!user && (
             <>
               <hr className="border-t border-slate-100" />
-              <div className="flex flex-col gap-3 mt-1">
+              <div className="grid grid-cols-2 gap-3 mt-1">
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -11,30 +11,28 @@ import Footer from './components/common/Footer';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import ScrollToTop from './components/common/ScrollToTop';
 import Breadcrumbs from './components/common/Breadcrumbs';
-
-// Pages
-import Home from './pages/Home';
-import Shop from './pages/Shop';
-import ProductDetails from './pages/ProductDetails';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
-import OrderTracking from './pages/OrderTracking';
-import RepairService from './pages/RepairService';
-import CscService from './pages/CscService';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import NotFound from './pages/NotFound';
-import TermsConditions from './pages/TermsConditions';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import RefundPolicy from './pages/RefundPolicy';
-import ShippingPolicy from './pages/ShippingPolicy';
-import Profile from './pages/Profile';
-
-import AdminLogin from './pages/AdminLogin';
+import Loader from './components/common/Loader';
 import CookieConsent from './components/common/CookieConsent';
 
-// Dashboards
-import AdminDashboard from './pages/AdminDashboard';
+// Pages (Lazy Loaded for maximum performance)
+const Home = lazy(() => import('./pages/Home'));
+const Shop = lazy(() => import('./pages/Shop'));
+const ProductDetails = lazy(() => import('./pages/ProductDetails'));
+const Cart = lazy(() => import('./pages/Cart'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const OrderTracking = lazy(() => import('./pages/OrderTracking'));
+const RepairService = lazy(() => import('./pages/RepairService'));
+const CscService = lazy(() => import('./pages/CscService'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const TermsConditions = lazy(() => import('./pages/TermsConditions'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
+const ShippingPolicy = lazy(() => import('./pages/ShippingPolicy'));
+const Profile = lazy(() => import('./pages/Profile'));
+const AdminLogin = lazy(() => import('./pages/AdminLogin'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 
 function App() {
   return (
@@ -55,7 +53,8 @@ function App() {
 
               {/* Main Content Workspace */}
               <main className="main-content">
-                <Routes>
+                <Suspense fallback={<Loader fullPage />}>
+                  <Routes>
                   {/* Public routes */}
                   <Route path="/" element={<Home />} />
                   <Route path="/shop" element={<Shop />} />
@@ -122,7 +121,8 @@ function App() {
                   {/* Wildcard 404 Route */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-              </main>
+              </Suspense>
+            </main>
 
               {/* Footer Contacts & Maps info */}
               <Footer />

@@ -6,6 +6,7 @@ import { showToast } from '../utils/toast';
 import Loader from '../components/common/Loader';
 import api from '../utils/api';
 import { BarChart3, Plus, Edit, Trash2, Package, Wrench, FileText, Settings, X, Upload, RefreshCw, ShoppingBag } from 'lucide-react';
+import { clearCache } from '../utils/cache';
 
 const AdminDashboard = () => {
   const { t } = useTranslation();
@@ -129,6 +130,7 @@ const AdminDashboard = () => {
       });
 
       showToast.success(t('admin:success_category_create', 'Category created successfully!'));
+      clearCache();
       setCatNameHi('');
       setCatNameEn('');
       setCatImage(null);
@@ -175,6 +177,7 @@ const AdminDashboard = () => {
       });
 
       showToast.success(t('admin:success_product_save', 'Product saved successfully!'));
+      clearCache();
       setShowProductModal(false);
       setEditingProduct(null);
       setProdNameEn('');
@@ -215,6 +218,7 @@ const AdminDashboard = () => {
     try {
       await api.delete(`/products/${id}`);
       showToast.success(t('admin:success_product_delete', 'Product deleted successfully'));
+      clearCache();
       fetchInventory();
     } catch (err) {
       const errorMessage = err.response?.data?.message || t('admin:error_product_delete', 'Delete failed');
