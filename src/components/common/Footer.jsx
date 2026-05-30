@@ -1,7 +1,15 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Phone, MapPin, Mail, ShieldCheck } from "lucide-react";
+import {
+  Phone,
+  MapPin,
+  Mail,
+  ShieldCheck,
+  Instagram,
+  Facebook,
+  MessageCircle,
+} from "lucide-react";
 
 const Footer = () => {
   const { t, i18n } = useTranslation();
@@ -26,6 +34,10 @@ const Footer = () => {
                 : "100% Trust & Guarantee"}
             </span>
           </div>
+
+          <p className="mt-2 text-sm font-semibold text-blue-600">
+            {t("owner")}
+          </p>
         </div>
 
         {/* Quick Contacts */}
@@ -58,9 +70,37 @@ const Footer = () => {
             <Mail size={16} className="text-blue-600 flex-shrink-0" />
             <span>info.niteshcommunications@gmail.com</span>
           </a>
-          <p className="mt-2 text-sm font-semibold text-blue-600">
-            {t("owner")}
-          </p>
+
+          {/* Social Handles */}
+          <div className="flex items-center gap-3 mt-2">
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-700 transition-colors p-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg flex items-center justify-center"
+              title="Instagram"
+            >
+              <Instagram size={18} />
+            </a>
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-700 transition-colors p-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg flex items-center justify-center"
+              title="Facebook"
+            >
+              <Facebook size={18} />
+            </a>
+            <a
+              href="https://wa.me"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-700 transition-colors p-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg flex items-center justify-center"
+              title="WhatsApp Channel"
+            >
+              <MessageCircle size={18} />
+            </a>
+          </div>
         </div>
 
         {/* Embed Google Map */}
