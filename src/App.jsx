@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
@@ -18,6 +18,7 @@ import CookieConsent from './components/common/CookieConsent';
 const Home = lazy(() => import('./pages/Home'));
 const Shop = lazy(() => import('./pages/Shop'));
 const ProductDetails = lazy(() => import('./pages/ProductDetails'));
+const ProductRedirect = lazy(() => import('./components/common/ProductRedirect'));
 const Cart = lazy(() => import('./pages/Cart'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const OrderTracking = lazy(() => import('./pages/OrderTracking'));
@@ -35,6 +36,65 @@ const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 
 function App() {
+  useEffect(() => {
+    // 1. Inject global Organization schema
+    const orgSchema = {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "Nitesh Communications",
+      "url": "https://niteshcommunications.vercel.app",
+      "logo": "https://niteshcommunications.vercel.app/logo.png",
+      "description": "E-Commerce, Mobile Repairing, and Common Service Centre in Ayodhya",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Karamdanda Mod, Patkhauli Chauraha",
+        "addressLocality": "Ayodhya",
+        "addressRegion": "Uttar Pradesh",
+        "postalCode": "224001",
+        "addressCountry": "IN"
+      },
+      "telephone": "+919125949456"
+    };
+
+    const websiteSchema = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Nitesh Communications",
+      "url": "https://niteshcommunications.vercel.app",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://niteshcommunications.vercel.app/shop?search={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    };
+
+    let orgScript = document.getElementById("org-jsonld");
+    if (!orgScript) {
+      orgScript = document.createElement("script");
+      orgScript.id = "org-jsonld";
+      orgScript.setAttribute("type", "application/ld+json");
+      document.head.appendChild(orgScript);
+    }
+    orgScript.textContent = JSON.stringify(orgSchema);
+
+    let webScript = document.getElementById("web-jsonld");
+    if (!webScript) {
+      webScript = document.createElement("script");
+      webScript.id = "web-jsonld";
+      webScript.setAttribute("type", "application/ld+json");
+      document.head.appendChild(webScript);
+    }
+    webScript.textContent = JSON.stringify(websiteSchema);
+
+    return () => {
+      if (orgScript) orgScript.remove();
+      if (webScript) webScript.remove();
+    };
+  }, []);
+
   return (
     <Router>
       <ScrollToTop />
@@ -58,7 +118,9 @@ function App() {
                   {/* Public routes */}
                   <Route path="/" element={<Home />} />
                   <Route path="/shop" element={<Shop />} />
+                  <Route path="/product/:id" element={<ProductRedirect />} />
                   <Route path="/products/:slug" element={<ProductDetails />} />
+                  <Route path="/products/:categorySlug/:slug" element={<ProductDetails />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/repairs" element={<RepairService />} />
                   <Route path="/csc" element={<CscService />} />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
@@ -9,6 +9,33 @@ import QuickLinksBanner from "../components/common/QuickLinksBanner";
 const CscService = () => {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language || "hi";
+
+  useEffect(() => {
+    document.title = currentLang === "hi"
+      ? "सीएससी डिजिटल सरकारी सेवाएं | Nitesh Communications"
+      : "CSC Digital Government Services | Nitesh Communications";
+
+    let metaDesc = document.querySelector("meta[name='description']");
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.setAttribute("name", "description");
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute(
+      "content",
+      currentLang === "hi"
+        ? "आधार सुधार, पैन कार्ड आवेदन, बैंकिंग सेवाएं और अयोध्या में सरकारी योजनाओं के फॉर्म प्रिंटिंग।"
+        : "Aadhaar correction, PAN card application, banking services, and government scheme printing in Ayodhya."
+    );
+
+    let canonicalLink = document.querySelector("link[rel='canonical']");
+    if (!canonicalLink) {
+      canonicalLink = document.createElement("link");
+      canonicalLink.setAttribute("rel", "canonical");
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute("href", `${window.location.origin}/csc`);
+  }, [currentLang]);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");

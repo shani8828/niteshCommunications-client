@@ -12,26 +12,79 @@ import {
   ChevronRight,
   SlidersHorizontal,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import QuickLinksBanner from "../components/common/QuickLinksBanner";
 
 const Shop = () => {
   const { t, i18n } = useTranslation(["product", "common"]);
   const { addToCart, toggleWishlist, wishlist, user } = useCart();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const categoryParam = searchParams.get("category") || "";
+  const searchParam = searchParams.get("search") || "";
+  const sortParam = searchParams.get("sort") || "newest";
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [search, setSearch] = useState(searchParam);
+  const [selectedCategory, setSelectedCategory] = useState(categoryParam);
   const [maxPrice, setMaxPrice] = useState(100000);
   const [minPrice, setMinPrice] = useState(0);
-  const [sort, setSort] = useState("newest");
+  const [sort, setSort] = useState(sortParam);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState(searchParam);
+
+  const currentLang = i18n.language || "hi";
+
+  // Sync SearchParams with local states
+  useEffect(() => {
+    const params = {};
+    if (selectedCategory) params.category = selectedCategory;
+    if (search) params.search = search;
+    if (sort !== "newest") params.sort = sort;
+    setSearchParams(params, { replace: true });
+  }, [selectedCategory, search, sort, setSearchParams]);
+
+  // Sync back from URL when user navigates
+  useEffect(() => {
+    setSelectedCategory(categoryParam);
+    setSearch(searchParam);
+    setSearchText(searchParam);
+    setSort(sortParam);
+  }, [categoryParam, searchParam, sortParam]);
+
+  // SEO updates
+  useEffect(() => {
+    document.title =
+      currentLang === "hi"
+        ? "दुकान - उत्पाद सूची | Nitesh Communications"
+        : "Shop - Product Catalog | Nitesh Communications";
+
+    let metaDesc = document.querySelector("meta[name='description']");
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.setAttribute("name", "description");
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute(
+      "content",
+      currentLang === "hi"
+        ? "स्मार्टफोन, मोबाइल एक्सेसरीज, ईयरफोन, मूल एडाप्टर और पुरुषों के कपड़े सर्वश्रेष्ठ मूल्य पर खरीदें।"
+        : "Browse and buy premium smartphones, mobile accessories, earphones, and premium men's clothing.",
+    );
+
+    let canonicalLink = document.querySelector("link[rel='canonical']");
+    if (!canonicalLink) {
+      canonicalLink = document.createElement("link");
+      canonicalLink.setAttribute("rel", "canonical");
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute("href", `${window.location.origin}/shop`);
+  }, [currentLang]);
 
   useEffect(() => {
     const fetchCats = async () => {
@@ -79,7 +132,11 @@ const Shop = () => {
         const response = await api.get(url);
         setProducts(response.data.products);
         setTotalPages(response.data.pages);
-        setCachedData(cacheKey, { products: response.data.products, pages: response.data.pages }, 5 * 60 * 1000); // Cache products for 5 minutes
+        setCachedData(
+          cacheKey,
+          { products: response.data.products, pages: response.data.pages },
+          5 * 60 * 1000,
+        ); // Cache products for 5 minutes
       } catch (err) {
         console.error(err);
       } finally {
@@ -103,8 +160,6 @@ const Shop = () => {
     setPage(1);
   };
 
-  const currentLang = i18n.language || "hi";
-
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white">
       <div className="text-center mb-12 flex flex-col items-center gap-2">
@@ -116,6 +171,67 @@ const Shop = () => {
             ? "स्टेशनरी, फाइल फोल्डर, ब्लूटूथ इयरफ़ोन, चार्जर, बैटरी, हेडफ़ोन,फ़ोन ग्लास, फ़ोन आदि उपलब्ध हैं।"
             : "Stationary, File Folders, Bluetooth Earphone, Charger, Battery, Headphone, Phone Glasses, Phones are available."}
         </p>
+      </div>
+
+      {/* 2-Row Horizontal Scrollable Categories Filter */}
+      <div className="mb-10 w-full">
+        <div className="grid grid-rows-2 grid-flow-col gap-4 overflow-x-auto scrollbar-none pb-2">
+          {/* 'All Categories' Button */}
+          <button
+            onClick={() => handleCategorySelect("")}
+            className={`flex flex-col items-center gap-1.5 p-2 bg-white border rounded-2xl hover:shadow-md transition-all cursor-pointer text-center h-[90px] w-[90px] min-w-[90px] justify-between ${
+              selectedCategory === ""
+                ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-100"
+                : "border-slate-200"
+            }`}
+          >
+            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex-shrink-0 flex items-center justify-center mt-0.5">
+              <ShoppingCart size={16} className="text-blue-600" />
+            </div>
+            <div className="flex-grow flex items-center justify-center mb-0.5">
+              <span
+                className={`text-[9px] font-extrabold tracking-tight leading-none text-center ${
+                  selectedCategory === "" ? "text-blue-600" : "text-slate-800"
+                }`}
+              >
+                {currentLang === "hi" ? "सभी" : "All"}
+              </span>
+            </div>
+          </button>
+
+          {/* Mapped Categories */}
+          {categories.map((cat) => (
+            <button
+              key={cat._id}
+              onClick={() => handleCategorySelect(cat.slug || cat._id)}
+              className={`flex flex-col items-center gap-1.5 p-2 bg-white border rounded-2xl hover:shadow-md transition-all cursor-pointer text-center h-[90px] w-[90px] min-w-[90px] justify-between ${
+                selectedCategory === (cat.slug || cat._id)
+                  ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-100"
+                  : "border-slate-200"
+              }`}
+            >
+              <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex-shrink-0 overflow-hidden flex items-center justify-center mt-0.5">
+                <img
+                  src={cat.image}
+                  alt={cat.name.en}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <div className="flex-grow flex items-center justify-center mb-0.5">
+                <span
+                  className={`text-[9px] font-bold tracking-tight line-clamp-2 leading-none text-center ${
+                    selectedCategory === cat._id
+                      ? "text-blue-600"
+                      : "text-slate-700"
+                  }`}
+                >
+                  {cat.name[currentLang]}
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Top Bar (Search & Sort) */}
@@ -177,34 +293,10 @@ const Shop = () => {
 
           <hr className="border-t border-slate-200" />
 
-          {/* Categories List */}
-          <div className="flex flex-col gap-3">
-            <p className="font-heading font-semibold text-xs text-slate-700 uppercase tracking-wider">
-              {t("product:categories")}
-            </p>
-            <div className="flex flex-col gap-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat._id}
-                  onClick={() => handleCategorySelect(cat._id)}
-                  className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg transition-colors border-0 cursor-pointer ${
-                    selectedCategory === cat._id
-                      ? "bg-blue-600 text-white shadow-sm"
-                      : "bg-white hover:bg-slate-100 border border-slate-200 text-slate-700"
-                  }`}
-                >
-                  {cat.name[currentLang]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <hr className="border-t border-slate-200" />
-
           {/* Price Range Slider */}
           <div className="flex flex-col gap-3">
             <p className="font-heading font-semibold text-xs text-slate-700 uppercase tracking-wider">
-              {t("product:price_range")}: ₹{maxPrice.toLocaleString('en-IN')}
+              {t("product:price_range")}: ₹{maxPrice.toLocaleString("en-IN")}
             </p>
             <input
               type="range"
@@ -223,10 +315,12 @@ const Shop = () => {
             {/* Manual Max Price Input */}
             <div className="flex items-center justify-between gap-2 mt-1">
               <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                {currentLang === 'hi' ? 'अधिकतम मूल्य' : 'Max Price'}:
+                {currentLang === "hi" ? "अधिकतम मूल्य" : "Max Price"}:
               </span>
               <div className="relative w-28">
-                <span className="absolute left-2.5 top-1.5 text-xs text-slate-400 font-bold">₹</span>
+                <span className="absolute left-2.5 top-1.5 text-xs text-slate-400 font-bold">
+                  ₹
+                </span>
                 <input
                   type="number"
                   min="0"

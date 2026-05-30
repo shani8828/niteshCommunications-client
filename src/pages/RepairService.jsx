@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
@@ -9,6 +9,33 @@ import QuickLinksBanner from "../components/common/QuickLinksBanner";
 const RepairService = () => {
   const { t, i18n } = useTranslation(["repair", "common", "notifications"]);
   const currentLang = i18n.language || "hi";
+
+  useEffect(() => {
+    document.title = currentLang === "hi"
+      ? "मोबाइल रिपेयरिंग सेवाएं | Nitesh Communications"
+      : "Mobile Repair Services | Nitesh Communications";
+
+    let metaDesc = document.querySelector("meta[name='description']");
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.setAttribute("name", "description");
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute(
+      "content",
+      currentLang === "hi"
+        ? "अयोध्या में विशेषज्ञ मोबाइल स्क्रीन रिप्लेसमेंट, बैटरी रिप्लेसमेंट, सॉफ्टवेयर फ्लैशिंग और ग्लास रिपेयर सेवाएं।"
+        : "Expert screen replacement, battery replacement, software flashing, and glass repair services in Ayodhya."
+    );
+
+    let canonicalLink = document.querySelector("link[rel='canonical']");
+    if (!canonicalLink) {
+      canonicalLink = document.createElement("link");
+      canonicalLink.setAttribute("rel", "canonical");
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute("href", `${window.location.origin}/repairs`);
+  }, [currentLang]);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");

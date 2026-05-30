@@ -7,7 +7,37 @@ import { useBreadcrumbs } from '../context/BreadcrumbContext';
 import Loader from '../components/common/Loader';
 import api from '../utils/api';
 import { showToast } from '../utils/toast';
+import { getCachedData, setCachedData } from '../utils/cache';
 import { Star, Heart, ShoppingCart, ShieldAlert, ArrowLeft, Send } from 'lucide-react';
+
+const updateMetaTags = ({ title, description, image, url, type = 'website' }) => {
+  document.title = title;
+
+  const getOrCreateMetaTag = (attrName, attrValue, contentVal) => {
+    let element = document.querySelector(`meta[${attrName}='${attrValue}']`);
+    if (!element) {
+      element = document.createElement('meta');
+      element.setAttribute(attrName, attrValue);
+      document.head.appendChild(element);
+    }
+    element.setAttribute('content', contentVal);
+  };
+
+  getOrCreateMetaTag('name', 'description', description);
+
+  // Open Graph
+  getOrCreateMetaTag('property', 'og:title', title);
+  getOrCreateMetaTag('property', 'og:description', description);
+  getOrCreateMetaTag('property', 'og:type', type);
+  if (url) getOrCreateMetaTag('property', 'og:url', url);
+  if (image) getOrCreateMetaTag('property', 'og:image', image);
+
+  // Twitter Card
+  getOrCreateMetaTag('name', 'twitter:card', 'summary_large_image');
+  getOrCreateMetaTag('name', 'twitter:title', title);
+  getOrCreateMetaTag('name', 'twitter:description', description);
+  if (image) getOrCreateMetaTag('name', 'twitter:image', image);
+};
 
 const ProductDetails = () => {
   const { slug } = useParams();
@@ -30,6 +60,17 @@ const ProductDetails = () => {
 
   useEffect(() => {
     const fetchDetail = async () => {
+      const cacheKey = `product_detail_${slug}`;
+      const cached = getCachedData(cacheKey);
+      if (cached) {
+        setProduct(cached.product);
+        setRelated(cached.related || []);
+        setReviews(cached.reviews || []);
+        setActiveImage(cached.product.images[0]);
+        addRecentlyViewed(cached.product);
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       try {
         const response = await api.get(`/products/slug/${slug}`);
@@ -41,6 +82,7 @@ const ProductDetails = () => {
         setActiveImage(data.product.images[0]);
         
         addRecentlyViewed(data.product);
+        setCachedData(cacheKey, data, 5 * 60 * 1000); // Cache product details for 5 minutes
       } catch (err) {
         console.error(err);
         showToast.error('Product not found');
@@ -62,6 +104,143 @@ const ProductDetails = () => {
     }
   }, [product, i18n.language, setCrumbs, t]);
 
+  useEffect(() => {
+    if (product) {
+      const currentLang = i18n.language || 'hi';
+      const prodName = product.name[currentLang] || product.name.en;
+      const prodDesc = product.description[currentLang] || product.description.en;
+      const brand = product.brand || 'Nitesh Communications';
+      const storeName = 'Nitesh Communications';
+      
+      const title = `${prodName} | ${brand} | ${storeName}`;
+      const description = `Buy ${prodName} at best price. Check specifications, images, availability and offers. Fast delivery available.`;
+      const image = product.images?.[0] || '';
+      const url = `${window.location.origin}/products/${product.slug}`;
+
+      // Update meta tags
+      updateMetaTags({ title, description, image, url, type: 'product' });
+
+      // Update Canonical Link
+      let canonicalLink = document.querySelector("link[rel='canonical']");
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.setAttribute('rel', 'canonical');
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute('href', url);
+
+      // JSON-LD Product Schema
+      const productSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        'name': prodName,
+        'image': product.images,
+        'description': prodDesc,
+        'sku': product.sku || product._id,
+        'mpn': product._id,
+        'brand': {
+          '@type': 'Brand',
+          'name': brand
+        },
+        'offers': {
+          '@type': 'Offer',
+          'url': url,
+          'priceCurrency': 'INR',
+          'price': product.price,
+          'priceValidUntil': '2030-12-31',
+          'itemCondition': 'https://schema.org/NewCondition',
+          'availability': product.stock > 0 
+            ? 'https://schema.org/InStock' 
+            : 'https://schema.org/OutOfStock',
+          'seller': {
+            '@type': 'Organization',
+            'name': 'Nitesh Communications'
+          }
+        }
+      };
+
+      if (reviews.length > 0) {
+        productSchema.review = reviews.map((rev) => ({
+          '@type': 'Review',
+          'reviewRating': {
+            '@type': 'Rating',
+            'ratingValue': rev.rating,
+            'bestRating': '5'
+          },
+          'author': {
+            '@type': 'Person',
+            'name': rev.user?.name || 'Customer'
+          },
+          'reviewBody': rev.comment,
+          'datePublished': rev.createdAt ? rev.createdAt.split('T')[0] : new Date().toISOString().split('T')[0]
+        }));
+
+        productSchema.aggregateRating = {
+          '@type': 'AggregateRating',
+          'ratingValue': product.ratingsAverage || 5,
+          'reviewCount': product.ratingsCount || reviews.length
+        };
+      }
+
+      // Breadcrumb Schema
+      const breadcrumbSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          {
+            '@type': 'ListItem',
+            'position': 1,
+            'name': 'Home',
+            'item': window.location.origin
+          },
+          {
+            '@type': 'ListItem',
+            'position': 2,
+            'name': 'Shop',
+            'item': `${window.location.origin}/shop`
+          },
+          {
+            '@type': 'ListItem',
+            'position': 3,
+            'name': product.category?.name[currentLang] || product.category?.name?.en || 'Category',
+            'item': `${window.location.origin}/shop?category=${product.category?.slug || product.category?._id}`
+          },
+          {
+            '@type': 'ListItem',
+            'position': 4,
+            'name': prodName,
+            'item': url
+          }
+        ]
+      };
+
+      let prodScript = document.getElementById('product-jsonld');
+      if (!prodScript) {
+        prodScript = document.createElement('script');
+        prodScript.id = 'product-jsonld';
+        prodScript.setAttribute('type', 'application/ld+json');
+        document.head.appendChild(prodScript);
+      }
+      prodScript.textContent = JSON.stringify(productSchema);
+
+      let breadcrumbScript = document.getElementById('breadcrumb-jsonld');
+      if (!breadcrumbScript) {
+        breadcrumbScript = document.createElement('script');
+        breadcrumbScript.id = 'breadcrumb-jsonld';
+        breadcrumbScript.setAttribute('type', 'application/ld+json');
+        document.head.appendChild(breadcrumbScript);
+      }
+      breadcrumbScript.textContent = JSON.stringify(breadcrumbSchema);
+    }
+
+    return () => {
+      const prodScript = document.getElementById('product-jsonld');
+      if (prodScript) prodScript.remove();
+      const breadcrumbScript = document.getElementById('breadcrumb-jsonld');
+      if (breadcrumbScript) breadcrumbScript.remove();
+    };
+  }, [product, reviews, i18n.language]);
+
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     if (!reviewComment.trim()) {
@@ -80,6 +259,9 @@ const ProductDetails = () => {
       
       const refreshResponse = await api.get(`/products/slug/${slug}`);
       setReviews(refreshResponse.data.reviews || []);
+      
+      // Update cached data with the refreshed response
+      setCachedData(`product_detail_${slug}`, refreshResponse.data, 5 * 60 * 1000);
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Failed to submit review';
       showToast.error(errorMessage);

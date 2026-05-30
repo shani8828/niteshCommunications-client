@@ -30,6 +30,35 @@ const Home = () => {
     );
   };
 
+  const currentLang = i18n.language || "hi";
+
+  useEffect(() => {
+    document.title = currentLang === "hi"
+      ? "नीतेश कम्युनिकेशंस | ई-कॉमर्स, मोबाइल रिपेयरिंग और सीएससी सेवा केंद्र"
+      : "Nitesh Communications | E-Commerce, Mobile Repairing & CSC Services";
+
+    let metaDesc = document.querySelector("meta[name='description']");
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.setAttribute("name", "description");
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute(
+      "content",
+      currentLang === "hi"
+        ? "अयोध्या में एक प्रमुख स्टोर जो नए मोबाइल फोन, गुणवत्तापूर्ण मरम्मत सेवाएं और डिजिटल सीएससी समाधान प्रदान करता है।"
+        : "A leading store in Ayodhya providing brand new mobile phones, quality repair services, and digital CSC solutions."
+    );
+
+    let canonicalLink = document.querySelector("link[rel='canonical']");
+    if (!canonicalLink) {
+      canonicalLink = document.createElement("link");
+      canonicalLink.setAttribute("rel", "canonical");
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute("href", window.location.origin);
+  }, [currentLang]);
+
   useEffect(() => {
     const fetchFeatured = async () => {
       const cacheKey = "featured_products_limit_4";
@@ -52,12 +81,10 @@ const Home = () => {
     fetchFeatured();
   }, []);
 
-  const currentLang = i18n.language || "hi";
-
   return (
     <div className="w-full bg-white">
       {/* 1. Redesigned Premium Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-blue-50/60 via-white to-white py-20 px-6 sm:py-28">
+      <section className="relative min-h-[600px] flex flex-col justify-between items-stretch overflow-hidden bg-gradient-to-b from-blue-50/60 via-white to-white py-20 px-6 sm:py-28">
         {/* Subtle decorative background shapes */}
         <div className="absolute inset-0 -z-10 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-blue-400/10 blur-3xl" />
@@ -212,7 +239,7 @@ const Home = () => {
         <div className="max-w-6xl mx-auto">
           <div className="p-8 md:p-12 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-blue-50/30 rounded-3xl border border-blue-100/40 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
             <div className="flex-1 min-w-[280px] flex flex-col gap-4 pl-4 md:pl-0">
-              <span className="bg-blue-600 text-white px-2.5 py-1 rounded text-[10px] font-bold self-start uppercase">
+              <span className="bg-blue-100 text-blue-600 border border-blue-300 px-2.5 py-1 rounded text-[10px] font-bold self-start uppercase">
                 {currentLang == "hi"
                   ? "स्पेशल फ़ोन स्किन"
                   : "Special Phone Skins"}
