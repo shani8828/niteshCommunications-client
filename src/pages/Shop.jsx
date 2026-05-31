@@ -15,12 +15,22 @@ import {
 import { Link, useSearchParams } from "react-router-dom";
 import QuickLinksBanner from "../components/common/QuickLinksBanner";
 
+const shuffleArray = (array) => {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
 const Shop = () => {
   const { t, i18n } = useTranslation(["product", "common"]);
   const { addToCart, toggleWishlist, wishlist, user } = useCart();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const categoryParam = searchParams.get("category") || "";
+  const brandParam = searchParams.get("brand") || "";
   const searchParam = searchParams.get("search") || "";
   const sortParam = searchParams.get("sort") || "newest";
 
@@ -29,10 +39,14 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParam);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
+  const [availableBrands, setAvailableBrands] = useState([]);
+  const [selectedBrand, setSelectedBrand] = useState(brandParam);
   const [maxPrice, setMaxPrice] = useState(100000);
   const [minPrice, setMinPrice] = useState(0);
+  const [minPriceInput, setMinPriceInput] = useState("0");
+  const [maxPriceInput, setMaxPriceInput] = useState("100000");
   const [sort, setSort] = useState(sortParam);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState( page => 1 );
   const [totalPages, setTotalPages] = useState(1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
@@ -44,18 +58,29 @@ const Shop = () => {
   useEffect(() => {
     const params = {};
     if (selectedCategory) params.category = selectedCategory;
+    if (selectedBrand) params.brand = selectedBrand;
     if (search) params.search = search;
     if (sort !== "newest") params.sort = sort;
     setSearchParams(params, { replace: true });
-  }, [selectedCategory, search, sort, setSearchParams]);
+  }, [selectedCategory, selectedBrand, search, sort, setSearchParams]);
 
   // Sync back from URL when user navigates
   useEffect(() => {
     setSelectedCategory(categoryParam);
+    setSelectedBrand(brandParam);
     setSearch(searchParam);
     setSearchText(searchParam);
     setSort(sortParam);
-  }, [categoryParam, searchParam, sortParam]);
+  }, [categoryParam, brandParam, searchParam, sortParam]);
+
+  // Sync inputs back when minPrice or maxPrice state changes (e.g. on reset)
+  useEffect(() => {
+    setMinPriceInput(String(minPrice));
+  }, [minPrice]);
+
+  useEffect(() => {
+    setMaxPriceInput(String(maxPrice));
+  }, [maxPrice]);
 
   // SEO updates
   useEffect(() => {
@@ -113,12 +138,66 @@ const Shop = () => {
     return () => clearTimeout(timer);
   }, [searchText]);
 
+  // Debounce minPriceInput and maxPriceInput to prevent excessive backend queries
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const val = minPriceInput === "" ? 0 : Number(minPriceInput);
+      if (val !== minPrice) {
+        setMinPrice(val);
+        setPage(1);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [minPriceInput]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const val = maxPriceInput === "" ? 100000 : Number(maxPriceInput);
+      if (val !== maxPrice) {
+        setMaxPrice(val);
+        setPage(1);
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [maxPriceInput]);
+
+  // Fetch available brands when a category is selected
+  useEffect(() => {
+    const fetchBrandsForCategory = async () => {
+      if (!selectedCategory) {
+        setAvailableBrands([]);
+        setSelectedBrand("");
+        return;
+      }
+      try {
+        // Fetch products of this category with a high limit to extract unique brand names
+        const response = await api.get(`/products?category=${selectedCategory}&limit=200`);
+        if (response.data && response.data.products) {
+          const brands = response.data.products
+            .map((p) => p.brand)
+            .filter((b) => b && b.trim() !== "")
+            .map((b) => b.trim());
+          // Unique and sorted alphabetically
+          const uniqueBrands = Array.from(new Set(brands)).sort((a, b) => a.localeCompare(b));
+          setAvailableBrands(uniqueBrands);
+        }
+      } catch (err) {
+        console.error("Error fetching brands for category:", err);
+      }
+    };
+    fetchBrandsForCategory();
+  }, [selectedCategory]);
+
   useEffect(() => {
     const fetchProds = async () => {
-      const cacheKey = `shop_products_p_${page}_s_${sort}_min_${minPrice}_max_${maxPrice}_k_${search}_c_${selectedCategory}`;
+      const cacheKey = `shop_products_p_${page}_s_${sort}_min_${minPrice}_max_${maxPrice}_k_${search}_c_${selectedCategory}_b_${selectedBrand}`;
       const cached = getCachedData(cacheKey);
       if (cached) {
-        setProducts(cached.products);
+        let fetchedProducts = cached.products;
+        if (!selectedCategory && !selectedBrand && !search && sort === "newest") {
+          fetchedProducts = shuffleArray(fetchedProducts);
+        }
+        setProducts(fetchedProducts);
         setTotalPages(cached.pages);
         setLoading(false);
         return;
@@ -128,15 +207,21 @@ const Shop = () => {
         let url = `/products?page=${page}&sort=${sort}&minPrice=${minPrice}&maxPrice=${maxPrice}`;
         if (search) url += `&keyword=${search}`;
         if (selectedCategory) url += `&category=${selectedCategory}`;
+        if (selectedBrand) url += `&brand=${encodeURIComponent(selectedBrand)}`;
 
         const response = await api.get(url);
-        setProducts(response.data.products);
-        setTotalPages(response.data.pages);
         setCachedData(
           cacheKey,
           { products: response.data.products, pages: response.data.pages },
           5 * 60 * 1000,
         ); // Cache products for 5 minutes
+
+        let fetchedProducts = response.data.products;
+        if (!selectedCategory && !selectedBrand && !search && sort === "newest") {
+          fetchedProducts = shuffleArray(fetchedProducts);
+        }
+        setProducts(fetchedProducts);
+        setTotalPages(response.data.pages);
       } catch (err) {
         console.error(err);
       } finally {
@@ -144,16 +229,21 @@ const Shop = () => {
       }
     };
     fetchProds();
-  }, [page, search, selectedCategory, maxPrice, minPrice, sort]);
+  }, [page, search, selectedCategory, selectedBrand, maxPrice, minPrice, sort]);
 
   const handleCategorySelect = (id) => {
-    setSelectedCategory(id === selectedCategory ? "" : id);
+    const nextCat = id === selectedCategory ? "" : id;
+    setSelectedCategory(nextCat);
+    setSelectedBrand(""); // Reset brand when category changes
     setPage(1);
   };
 
   const handleResetFilters = () => {
     setSearchText("");
     setSelectedCategory("");
+    setSelectedBrand("");
+    setMinPriceInput("0");
+    setMaxPriceInput("100000");
     setMinPrice(0);
     setMaxPrice(100000);
     setSort("newest");
@@ -221,7 +311,7 @@ const Shop = () => {
               <div className="flex-grow flex items-center justify-center mb-0.5">
                 <span
                   className={`text-[9px] font-bold tracking-tight line-clamp-2 leading-none text-center ${
-                    selectedCategory === cat._id
+                    selectedCategory === (cat.slug || cat._id)
                       ? "text-blue-600"
                       : "text-slate-700"
                   }`}
@@ -293,44 +383,82 @@ const Shop = () => {
 
           <hr className="border-t border-slate-200" />
 
-          {/* Price Range Slider */}
+          {/* Price Range Inputs */}
           <div className="flex flex-col gap-3">
-            <p className="font-heading font-semibold text-xs text-slate-700 uppercase tracking-wider">
-              {t("product:price_range")}: ₹{maxPrice.toLocaleString("en-IN")}
+            <p className="font-heading font-bold text-xs text-slate-700 uppercase tracking-wider">
+              {currentLang === "hi" ? "मूल्य सीमा" : "Price Range"}
             </p>
-            <input
-              type="range"
-              min="0"
-              max="100000"
-              step="1000"
-              value={maxPrice > 100000 ? 100000 : maxPrice}
-              onChange={(e) => setMaxPrice(Number(e.target.value))}
-              className="w-full accent-blue-600 cursor-pointer"
-            />
-            <div className="flex justify-between text-[10px] text-slate-400 font-semibold mb-1">
-              <span>₹0</span>
-              <span>₹1,00,000+</span>
-            </div>
-
-            {/* Manual Max Price Input */}
-            <div className="flex items-center justify-between gap-2 mt-1">
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                {currentLang === "hi" ? "अधिकतम मूल्य" : "Max Price"}:
-              </span>
-              <div className="relative w-28">
-                <span className="absolute left-2.5 top-1.5 text-xs text-slate-400 font-bold">
-                  ₹
+            <div className="flex flex-col gap-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                  {currentLang === "hi" ? "न्यूनतम मूल्य" : "Min Price"}:
                 </span>
-                <input
-                  type="number"
-                  min="0"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-full pl-6 pr-2 py-1 bg-white border border-slate-200 rounded-lg text-slate-700 text-xs outline-none focus:border-blue-600 transition-all font-semibold"
-                />
+                <div className="relative w-32">
+                  <span className="absolute left-2.5 top-1.5 text-xs text-slate-400 font-bold">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={minPriceInput}
+                    onChange={(e) => setMinPriceInput(e.target.value)}
+                    className="w-full pl-6 pr-2 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-700 text-xs outline-none focus:border-blue-600 transition-all font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                  {currentLang === "hi" ? "अधिकतम मूल्य" : "Max Price"}:
+                </span>
+                <div className="relative w-32">
+                  <span className="absolute left-2.5 top-1.5 text-xs text-slate-400 font-bold">
+                    ₹
+                  </span>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="100000"
+                    value={maxPriceInput}
+                    onChange={(e) => setMaxPriceInput(e.target.value)}
+                    className="w-full pl-6 pr-2 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-700 text-xs outline-none focus:border-blue-600 transition-all font-semibold"
+                  />
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Brand Filter */}
+          {selectedCategory && availableBrands.length > 0 && (
+            <>
+              <hr className="border-t border-slate-200" />
+              <div className="flex flex-col gap-3">
+                <p className="font-heading font-bold text-xs text-slate-700 uppercase tracking-wider">
+                  {currentLang === "hi" ? "ब्रांड" : "Brands"}
+                </p>
+                <div className="flex flex-col gap-2 max-h-48 overflow-y-auto scrollbar-thin pr-1">
+                  {availableBrands.map((brandName) => (
+                    <label
+                      key={brandName}
+                      className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer hover:text-blue-600 transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedBrand === brandName}
+                        onChange={() => {
+                          setSelectedBrand(selectedBrand === brandName ? "" : brandName);
+                          setPage(1);
+                        }}
+                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                      />
+                      <span>{brandName}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </aside>
 
         {/* Right Column Products Grid */}

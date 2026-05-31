@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
 import api from "../utils/api";
@@ -8,6 +10,7 @@ import QuickLinksBanner from "../components/common/QuickLinksBanner";
 
 const RepairService = () => {
   const { t, i18n } = useTranslation(["repair", "common", "notifications"]);
+  const { user } = useAuth();
   const currentLang = i18n.language || "hi";
 
   useEffect(() => {
@@ -308,193 +311,221 @@ const RepairService = () => {
 
         {/* Right Column: Booking Form, WhatsApp CTA & FAQs */}
         <div className="flex flex-col gap-6 w-full">
-          {/* WhatsApp CTA Button */}
-          <div className="p-6 bg-white border border-slate-200 border-l-4 border-l-emerald-500 rounded-r-2xl flex flex-col gap-3 shadow-sm">
-            <h4 className="font-heading font-bold text-sm text-emerald-600">
-              {currentLang == "hi"
-                ? "तुरंत मरम्मत मूल्य निर्धारण चाहिए?"
-                : "Need Instant Repair Quote?"}
-            </h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              {currentLang == "hi"
-                ? "मूल्य निर्धारण या नैदानिक प्रश्नों पर चर्चा करने के लिए सीधे नितेश कम्युनिकेशंस टीम से व्हाट्सएप पर चैट करें।"
-                : "Chat directly with Nitesh Communications Team on WhatsApp to discuss pricing or diagnostic questions."}
-            </p>
-            <div>
-              <a
-                href="https://wa.me/919125949456?text=Hello%20Nitesh%20Communications,%20I%20have%20a%20repair%20query."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm inline-block cursor-pointer transition-colors border-0"
+          {!user ? (
+            <div className="p-8 md:p-10 bg-white border border-slate-200 rounded-2xl flex flex-col items-center text-center gap-6 shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                <Wrench size={30} className="animate-pulse" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <h3 className="font-heading text-lg font-extrabold text-slate-800">
+                  {currentLang === "hi"
+                    ? "रिपेयर बुकिंग और मूल्य निर्धारण"
+                    : "Repair Booking & Pricing"}
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed max-w-sm">
+                  {currentLang === "hi"
+                    ? "घर बैठे त्वरित मरम्मत मूल्य निर्धारण और मोबाइल रिपेयर बुकिंग के लिए कृपया लॉगिन करें।"
+                    : "Please login for instant repair pricing and booking a repair from your home."}
+                </p>
+              </div>
+              <Link
+                to="/login"
+                className="w-full sm:w-auto px-8 py-3 font-heading font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md shadow-blue-500/10 transition-all flex items-center justify-center gap-2 cursor-pointer border-0"
               >
-                {currentLang == "hi"
-                  ? "व्हाट्सएप पर चैट करें"
-                  : "Chat on WhatsApp"}
-              </a>
+                {currentLang === "hi" ? "लॉगिन करें" : "Login to Continue"}
+              </Link>
             </div>
-          </div>
-
-          {/* Booking Form Card */}
-          <div className="p-6 md:p-8 bg-white border border-slate-200 rounded-2xl flex flex-col gap-4 shadow-sm">
-            <h3 className="font-heading text-base font-bold text-slate-800 mb-2">
-              {t("repair:book_repair")}
-            </h3>
-            <form onSubmit={handleRepairSubmit} className="flex flex-col gap-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col">
-                  <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                    {currentLang == "hi" ? "पूरा नाम" : "Full Name"} *
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                    placeholder="Enter name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                    {currentLang == "hi" ? "संपर्क नंबर" : "Phone Number"} *
-                  </label>
-                  <input
-                    type="tel"
-                    maxLength="10"
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                    placeholder="9876543210"
-                    value={phone}
-                    onChange={(e) =>
-                      setPhone(e.target.value.replace(/\D/g, ""))
-                    }
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col">
-                  <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                    {t("repair:device_brand")} *
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                    placeholder={t("repair:placeholder_brand")}
-                    value={brand}
-                    onChange={(e) => setBrand(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                    {currentLang == "hi" ? "डिवाइस मॉडल" : "Device Model *"}
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                    placeholder="e.g. Note 12 Pro, Galaxy S21"
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col">
-                <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                  {t("repair:device_category")} *
-                </label>
-                <select
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none cursor-pointer text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  <option value="Hardware repair">
-                    {currentLang == "hi"
-                      ? "हार्डवेयर मरम्मत"
-                      : "Hardware Repair"}
-                  </option>
-                  <option value="Display repair">
-                    {t("repair:cat_display")}
-                  </option>
-                  <option value="Battery replacement">
-                    {t("repair:cat_battery")}
-                  </option>
-                  <option value="Software issue">
-                    {t("repair:cat_software")}
-                  </option>
-                  <option value="Other">
-                    {currentLang == "hi" ? "अन्य समस्याएं" : "Other Issues"}
-                  </option>
-                </select>
-              </div>
-
-              <div className="flex flex-col">
-                <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                  {t("repair:problem_desc")} *
-                </label>
-                <textarea
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                  rows="3"
-                  placeholder={t("repair:placeholder_desc")}
-                  value={problem}
-                  onChange={(e) => setProblem(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="flex flex-col">
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="text-xs font-semibold text-slate-500">
-                    {t("repair:pickup_address")} *
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleUseCurrentLocation}
-                    disabled={geolocating}
-                    className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer font-semibold disabled:text-slate-400 transition-colors"
+          ) : (
+            <>
+              {/* WhatsApp CTA Button */}
+              <div className="p-6 bg-white border border-slate-200 border-l-4 border-l-emerald-500 rounded-r-2xl flex flex-col gap-3 shadow-sm">
+                <h4 className="font-heading font-bold text-sm text-emerald-600">
+                  {currentLang == "hi"
+                    ? "तुरंत मरम्मत मूल्य निर्धारण चाहिए?"
+                    : "Need Instant Repair Quote?"}
+                </h4>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {currentLang == "hi"
+                    ? "मूल्य निर्धारण या नैदानिक प्रश्नों पर चर्चा करने के लिए सीधे नितेश कम्युनिकेशंस टीम से व्हाट्सएप पर चैट करें।"
+                    : "Chat directly with Nitesh Communications Team on WhatsApp to discuss pricing or diagnostic questions."}
+                </p>
+                <div>
+                  <a
+                    href="https://wa.me/919125949456?text=Hello%20Nitesh%20Communications,%20I%20have%20a%20repair%20query."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm inline-block cursor-pointer transition-colors border-0"
                   >
-                    <MapPin
-                      size={14}
-                      className={geolocating ? "animate-bounce" : ""}
-                    />
-                    {geolocating
-                      ? "खोज रहे हैं... / Locating..."
-                      : "वर्तमान लोकेशन / Use Location"}
-                  </button>
+                    {currentLang == "hi"
+                      ? "व्हाट्सएप पर चैट करें"
+                      : "Chat on WhatsApp"}
+                  </a>
                 </div>
-                <textarea
-                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                  rows="2"
-                  placeholder={t("repair:placeholder_address")}
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  required
-                />
-                {coordinates && (
-                  <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 shadow-inner h-32 w-full relative">
-                    <iframe
-                      title="Location Map"
-                      width="100%"
-                      height="100%"
-                      frameBorder="0"
-                      src={`https://maps.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}&z=15&output=embed`}
-                      allowFullScreen
+              </div>
+
+              {/* Booking Form Card */}
+              <div className="p-6 md:p-8 bg-white border border-slate-200 rounded-2xl flex flex-col gap-4 shadow-sm">
+                <h3 className="font-heading text-base font-bold text-slate-800 mb-2">
+                  {t("repair:book_repair")}
+                </h3>
+                <form onSubmit={handleRepairSubmit} className="flex flex-col gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col">
+                      <label className="block mb-1.5 text-xs font-semibold text-slate-500">
+                        {currentLang == "hi" ? "पूरा नाम" : "Full Name"} *
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                        placeholder="Enter name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="block mb-1.5 text-xs font-semibold text-slate-500">
+                        {currentLang == "hi" ? "संपर्क नंबर" : "Phone Number"} *
+                      </label>
+                      <input
+                        type="tel"
+                        maxLength="10"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                        placeholder="9876543210"
+                        value={phone}
+                        onChange={(e) =>
+                          setPhone(e.target.value.replace(/\D/g, ""))
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex flex-col">
+                      <label className="block mb-1.5 text-xs font-semibold text-slate-500">
+                        {t("repair:device_brand")} *
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                        placeholder={t("repair:placeholder_brand")}
+                        value={brand}
+                        onChange={(e) => setBrand(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="block mb-1.5 text-xs font-semibold text-slate-500">
+                        {currentLang == "hi" ? "डिवाइस मॉडल" : "Device Model *"}
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                        placeholder="e.g. Note 12 Pro, Galaxy S21"
+                        value={model}
+                        onChange={(e) => setModel(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label className="block mb-1.5 text-xs font-semibold text-slate-500">
+                      {t("repair:device_category")} *
+                    </label>
+                    <select
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none cursor-pointer text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                    >
+                      <option value="Hardware repair">
+                        {currentLang == "hi"
+                          ? "हार्डवेयर मरम्मत"
+                          : "Hardware Repair"}
+                      </option>
+                      <option value="Display repair">
+                        {t("repair:cat_display")}
+                      </option>
+                      <option value="Battery replacement">
+                        {t("repair:cat_battery")}
+                      </option>
+                      <option value="Software issue">
+                        {t("repair:cat_software")}
+                      </option>
+                      <option value="Other">
+                        {currentLang == "hi" ? "अन्य समस्याएं" : "Other Issues"}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <label className="block mb-1.5 text-xs font-semibold text-slate-500">
+                      {t("repair:problem_desc")} *
+                    </label>
+                    <textarea
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                      rows="3"
+                      placeholder={t("repair:placeholder_desc")}
+                      value={problem}
+                      onChange={(e) => setProblem(e.target.value)}
+                      required
                     />
                   </div>
-                )}
-              </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3.5 mt-2 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                <span>{loading ? t("common:submitting", "Submitting...") : t("repair:btn_book")}</span>
-              </button>
-            </form>
-          </div>
+                  <div className="flex flex-col">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <label className="text-xs font-semibold text-slate-500">
+                        {t("repair:pickup_address")} *
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleUseCurrentLocation}
+                        disabled={geolocating}
+                        className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer font-semibold disabled:text-slate-400 transition-colors"
+                      >
+                        <MapPin
+                          size={14}
+                          className={geolocating ? "animate-bounce" : ""}
+                        />
+                        {geolocating
+                          ? "खोज रहे हैं... / Locating..."
+                          : "वर्तमान लोकेशन / Use Location"}
+                      </button>
+                    </div>
+                    <textarea
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                      rows="2"
+                      placeholder={t("repair:placeholder_address")}
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      required
+                    />
+                    {coordinates && (
+                      <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 shadow-inner h-32 w-full relative">
+                        <iframe
+                          title="Location Map"
+                          width="100%"
+                          height="100%"
+                          frameBorder="0"
+                          src={`https://maps.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}&z=15&output=embed`}
+                          allowFullScreen
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 mt-2 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <span>{loading ? t("common:submitting", "Submitting...") : t("repair:btn_book")}</span>
+                  </button>
+                </form>
+              </div>
+            </>
+          )}
 
           {/* FAQs Card */}
           <div className="p-6 md:p-8 bg-white border border-slate-200 rounded-2xl flex flex-col gap-4 shadow-sm">

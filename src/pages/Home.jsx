@@ -82,6 +82,45 @@ const Home = () => {
     fetchFeatured();
   }, []);
 
+  useEffect(() => {
+    // Prefetch Shop page data in the background after home renders
+    const prefetchShopData = async () => {
+      // 1. Categories prefetch
+      const catCacheKey = "shop_categories";
+      if (!getCachedData(catCacheKey)) {
+        try {
+          const response = await api.get("/products/categories");
+          setCachedData(catCacheKey, response.data, 10 * 60 * 1000);
+        } catch (err) {
+          console.error("Prefetch categories failed:", err);
+        }
+      }
+
+      // 2. Products prefetch
+      const prodCacheKey = "shop_products_p_1_s_newest_min_0_max_100000_k__c__b_";
+      if (!getCachedData(prodCacheKey)) {
+        try {
+          const url = "/products?page=1&sort=newest&minPrice=0&maxPrice=100000";
+          const response = await api.get(url);
+          setCachedData(
+            prodCacheKey,
+            { products: response.data.products, pages: response.data.pages },
+            5 * 60 * 1000
+          );
+        } catch (err) {
+          console.error("Prefetch products failed:", err);
+        }
+      }
+    };
+
+    // Use a small timeout to let the home page load fully first
+    const timer = setTimeout(() => {
+      prefetchShopData();
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="w-full bg-white">
       {/* 1. Redesigned Premium Hero Section */}
