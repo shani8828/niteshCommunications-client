@@ -1,6 +1,30 @@
 {
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "https://niteshcommunications-server.vercel.app/sitemap.xml"
+    },
+    {
+      "source": "/pages-sitemap.xml",
+      "destination": "https://niteshcommunications-server.vercel.app/pages-sitemap.xml"
+    },
+    {
+      "source": "/category-sitemap.xml",
+      "destination": "https://niteshcommunications-server.vercel.app/category-sitemap.xml"
+    },
+    {
+      "source": "/product-sitemap.xml",
+      "destination": "https://niteshcommunications-server.vercel.app/product-sitemap.xml"
+    },
+    {
+      "source": "/image-sitemap.xml",
+      "destination": "https://niteshcommunications-server.vercel.app/image-sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "https://niteshcommunications-server.vercel.app/robots.txt"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

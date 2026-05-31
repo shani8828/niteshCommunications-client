@@ -33,9 +33,10 @@ const Home = () => {
   const currentLang = i18n.language || "hi";
 
   useEffect(() => {
-    document.title = currentLang === "hi"
-      ? "नीतेश कम्युनिकेशंस | ई-कॉमर्स, मोबाइल रिपेयरिंग और सीएससी सेवा केंद्र"
-      : "Nitesh Communications | E-Commerce, Mobile Repairing & CSC Services";
+    document.title =
+      currentLang === "hi"
+        ? "नितेश कम्युनिकेशंस | ई-कॉमर्स, मोबाइल रिपेयरिंग और जन सेवा केंद्र"
+        : "Nitesh Communications | E-Commerce, Mobile Repairing & CSC Services";
 
     let metaDesc = document.querySelector("meta[name='description']");
     if (!metaDesc) {
@@ -47,7 +48,7 @@ const Home = () => {
       "content",
       currentLang === "hi"
         ? "अयोध्या में एक प्रमुख स्टोर जो नए मोबाइल फोन, गुणवत्तापूर्ण मरम्मत सेवाएं और डिजिटल सीएससी समाधान प्रदान करता है।"
-        : "A leading store in Ayodhya providing brand new mobile phones, quality repair services, and digital CSC solutions."
+        : "A leading store in Ayodhya providing brand new mobile phones, quality repair services, and digital CSC solutions.",
     );
 
     let canonicalLink = document.querySelector("link[rel='canonical']");
@@ -84,64 +85,142 @@ const Home = () => {
   return (
     <div className="w-full bg-white">
       {/* 1. Redesigned Premium Hero Section */}
-      <section className="relative min-h-[600px] flex flex-col justify-between items-stretch overflow-hidden bg-gradient-to-b from-blue-50/60 via-white to-white py-20 px-6 sm:py-28">
-        {/* Subtle decorative background shapes */}
-        <div className="absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-blue-400/10 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-indigo-400/10 blur-3xl" />
+      <section className="relative min-h-[calc(100vh-80px)] flex flex-col justify-center items-center overflow-hidden bg-gradient-to-b from-blue-50 to-white text-slate-800 py-24 px-6">
+        {/* Animated drifting blue-300 smoke and light blobs */}
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          {/* Faded Watermark Logo in Background */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[550px] md:h-[550px] lg:w-[1100px] lg:h-[1100px] opacity-[0.2] pointer-events-none">
+            <motion.div
+              animate={{
+                rotate: [0, 0],
+              }}
+              transition={{
+                duration: 90,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+              className="w-full h-full"
+            >
+              <img
+                src="/branding/logo.png"
+                alt="Background Watermark Logo"
+                className="w-full h-full object-contain"
+              />
+            </motion.div>
+          </div>
+
+          {/* Smoke Cloud 1 (Drifting Blue) */}
+          <motion.div
+            animate={{
+              x: [-120, 120, -120],
+              y: [-50, 50, -50],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute top-1/4 left-1/12 w-[400px] h-[400px] rounded-full bg-blue-300/20 blur-[90px]"
+          />
+
+          {/* Smoke Cloud 2 (Drifting Blue) */}
+          <motion.div
+            animate={{
+              x: [120, -120, 120],
+              y: [50, -50, 50],
+              scale: [1.2, 0.95, 1.2],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute bottom-1/4 right-1/12 w-[450px] h-[450px] rounded-full bg-blue-300/15 blur-[100px]"
+          />
+
+          {/* Floating White Cloud */}
+          <motion.div
+            animate={{
+              x: [-40, 40, -40],
+              y: [40, -40, 40],
+              scale: [0.95, 1.1, 0.95],
+            }}
+            transition={{
+              duration: 18,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute top-1/3 left-1/3 w-[550px] h-[350px] rounded-full bg-white/60 blur-[90px]"
+          />
         </div>
 
-        <div className="max-w-4xl mx-auto flex flex-col items-center text-center gap-6">
+        <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center text-center gap-8 md:gap-10">
+          {/* Glassmorphic Badge */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50/80 backdrop-blur-md border border-blue-100/60 text-xs font-semibold text-blue-600 uppercase tracking-wider"
+          >
+            {/* <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-ping" /> */}
+            <span>
+              {currentLang == "hi"
+                ? "विश्वसनीय डिजिटल सेवा केंद्र"
+                : "Trusted Digital Service Hub"}
+            </span>
+          </motion.div>
+
           <motion.h1
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-heading text-4xl sm:text-6xl font-extrabold text-slate-900 leading-tight tracking-tight"
+            className="font-heading text-3xl sm:text-6xl md:text-7xl font-extrabold leading-tight tracking-tight text-blue-600"
           >
             {t("brand")}
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg sm:text-2xl text-blue-600 font-semibold font-heading"
+            className="text-xl sm:text-3xl text-blue-600 font-bold font-heading tracking-wide"
           >
             {t("tagline")}
           </motion.p>
 
           <motion.p
-            initial={{ opacity: 0, y: 15 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-slate-600 max-w-xl mx-auto leading-relaxed text-sm sm:text-base"
+            className="text-slate-600 max-w-2xl mx-auto leading-relaxed text-sm sm:text-lg"
           >
             {t("desc_banner_1")}
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex gap-4 mt-4 flex-wrap justify-center"
+            className="flex gap-4 sm:gap-6 mt-4 flex-wrap justify-center"
           >
             <Link
               to="/shop"
-              className="px-6 py-3 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all shadow-md shadow-blue-500/10 flex items-center gap-2"
+              className="px-8 py-3.5 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 hover:scale-105 transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2"
             >
               <ShoppingBag size={16} />
               {t("shop")}
             </Link>
             <Link
               to="/repairs"
-              className="px-6 py-3 font-heading font-bold text-sm bg-white text-slate-700 border border-slate-200 rounded-full hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2"
+              className="px-8 py-3.5 font-heading font-bold text-sm bg-white text-slate-700 border border-slate-200 rounded-full hover:bg-slate-50 hover:scale-105 transition-all flex items-center gap-2 shadow-sm"
             >
               <Wrench size={16} />
               {t("repair")}
             </Link>
             <Link
               to="/csc"
-              className="px-6 py-3 font-heading font-bold text-sm bg-blue-50 text-blue-700 border border-blue-100 rounded-full hover:bg-blue-100/50 transition-all flex items-center gap-2"
+              className="px-8 py-3.5 font-heading font-bold text-sm bg-blue-50 text-blue-700 border border-blue-100 rounded-full hover:bg-blue-100/60 hover:scale-105 transition-all flex items-center gap-2"
             >
               <FileText size={16} />
               {t("csc")}
@@ -151,7 +230,7 @@ const Home = () => {
       </section>
 
       {/* 2. Three Major CTA Cards */}
-      <section className="bg-white pb-20 px-6">
+      <section className="bg-white py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Card 1: Shop */}
@@ -237,7 +316,7 @@ const Home = () => {
       {/* 3. Promotional Special Banner */}
       <section className="w-full bg-white py-12 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="p-8 md:p-12 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-blue-50/30 rounded-3xl border border-blue-100/40 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
+          <div className="p-8 md:p-12 bg-blue-50 rounded-3xl border border-blue-200 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
             <div className="flex-1 min-w-[280px] flex flex-col gap-4 pl-4 md:pl-0">
               <span className="bg-blue-100 text-blue-600 border border-blue-300 px-2.5 py-1 rounded text-[10px] font-bold self-start uppercase">
                 {currentLang == "hi"
@@ -540,6 +619,51 @@ const Home = () => {
               {currentLang == "hi"
                 ? "व्हाट्सएप पर चैट करें"
                 : "Chat on WhatsApp"}
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Find Us on Google Maps Section */}
+      <section className="w-full bg-gradient-to-b from-slate-50 to-white py-16 px-6 border-t border-slate-200/60">
+        <div className="max-w-4xl mx-auto text-center flex flex-col gap-8">
+          <div>
+            <h3 className="font-heading text-2xl font-bold text-slate-800 mb-3">
+              {currentLang === "hi"
+                ? "गूगल मैप पर हमें खोजें"
+                : "Find us on Google Map"}
+            </h3>
+            <p className="text-sm text-slate-500 max-w-xl mx-auto leading-relaxed">
+              {currentLang === "hi"
+                ? "हमारी दुकान करमडांडा मोड़, पटखौली चौराहा, अयोध्या पर स्थित है। दिशा-निर्देश प्राप्त करने और सीधे हमारे पास आने के लिए नीचे दिए गए मानचित्र का उपयोग करें।"
+                : "Our shop is located at Karamdanda Mod, Patkhauli Chauraha, Ayodhya. Use the map below to get directions and reach our shop easily."}
+            </p>
+          </div>
+
+          <div className="rounded-2xl overflow-hidden shadow-md border border-slate-200 h-[380px] w-full bg-white p-2">
+            <iframe
+              title="Google Map Location"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3565.2719941459654!2d82.00883197528618!3d26.671782176791652!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x399a11003ad51177%3A0xe8ae78ae027dc07!2sNitesh%20Communications!5e0!3m2!1sen!2sin!4v1780212388004!5m2!1sen!2sin"
+              width="100%"
+              height="100%"
+              className="border-0 rounded-xl"
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+
+          <div>
+            <a
+              href="https://maps.app.goo.gl/EFMXBm2RCEf9YNa88"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3.5 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all shadow-md shadow-blue-500/10 inline-flex items-center gap-2"
+            >
+              <MapPin size={16} />
+              {currentLang === "hi"
+                ? "दुकान तक पहुँचने का रास्ता (दिशा-निर्देश)"
+                : "Get Directions to Reach Our Shop"}
             </a>
           </div>
         </div>

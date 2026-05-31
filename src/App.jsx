@@ -42,8 +42,8 @@ function App() {
       "@context": "https://schema.org",
       "@type": "Store",
       "name": "Nitesh Communications",
-      "url": "https://niteshcommunications.vercel.app",
-      "logo": "https://niteshcommunications.vercel.app/logo.png",
+      "url": "https://niteshcom.in",
+      "logo": "https://niteshcom.in/logo.png",
       "description": "E-Commerce, Mobile Repairing, and Common Service Centre in Ayodhya",
       "address": {
         "@type": "PostalAddress",
@@ -60,12 +60,12 @@ function App() {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Nitesh Communications",
-      "url": "https://niteshcommunications.vercel.app",
+      "url": "https://niteshcom.in",
       "potentialAction": {
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": "https://niteshcommunications.vercel.app/shop?search={search_term_string}"
+          "urlTemplate": "https://niteshcom.in/shop?search={search_term_string}"
         },
         "query-input": "required name=search_term_string"
       }

@@ -40,7 +40,32 @@ const Footer = () => {
           </p>
         </div>
 
-        {/* Quick Contacts */}
+        {/* Quick Links Column (2nd col) */}
+        <div className="flex flex-col gap-4">
+          <h4 className="font-heading font-bold text-base text-slate-800 mb-2">
+            {currentLang == "hi" ? "हमारी सेवाएं" : "Our Services"}
+          </h4>
+          <Link
+            to="/shop"
+            className="text-sm hover:text-blue-600 transition-colors"
+          >
+            {currentLang == "hi" ? "ई-कॉमर्स (दुकान)" : "E-Commerce"}
+          </Link>
+          <Link
+            to="/repairs"
+            className="text-sm hover:text-blue-600 transition-colors"
+          >
+            {currentLang == "hi" ? "मोबाइल रिपेयर" : "Mobile Repair"}
+          </Link>
+          <Link
+            to="/csc"
+            className="text-sm hover:text-blue-600 transition-colors"
+          >
+            {currentLang == "hi" ? "जन सेवा केंद्र" : "CSC Services"}
+          </Link>
+        </div>
+
+        {/* Quick Contacts (3rd col) */}
         <div className="flex flex-col gap-4">
           <h4 className="font-heading font-bold text-base text-slate-800 mb-2">
             {t("contact_us")}
@@ -100,25 +125,6 @@ const Footer = () => {
             >
               <MessageCircle size={18} />
             </a>
-          </div>
-        </div>
-
-        {/* Embed Google Map */}
-        <div className="flex flex-col gap-4">
-          <h4 className="font-heading font-bold text-base text-slate-800 mb-2">
-            Our Location
-          </h4>
-          <div className="rounded-lg overflow-hidden shadow-sm border border-slate-200 h-[150px]">
-            <iframe
-              title="Google Map Location"
-              src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d861.1373126817563!2d82.01133610182212!3d26.67255803920822!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sin!4v1780092263975!5m2!1sen!2sin"
-              width="100%"
-              height="100%"
-              className="border-0"
-              allowFullScreen=""
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
           </div>
         </div>
       </div>
