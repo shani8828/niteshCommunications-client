@@ -34,6 +34,8 @@ const ShippingPolicy = lazy(() => import('./pages/ShippingPolicy'));
 const Profile = lazy(() => import('./pages/Profile'));
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const OrderReturn = lazy(() => import('./pages/OrderReturn'));
+const OrderReplace = lazy(() => import('./pages/OrderReplace'));
 
 function App() {
   useEffect(() => {
@@ -148,6 +150,22 @@ function App() {
                     element={
                       <ProtectedRoute allowedRoles={['user']}>
                         <OrderTracking />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/order-tracking/:id/return"
+                    element={
+                      <ProtectedRoute allowedRoles={['user']}>
+                        <OrderReturn />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/order-tracking/:id/replace"
+                    element={
+                      <ProtectedRoute allowedRoles={['user']}>
+                        <OrderReplace />
                       </ProtectedRoute>
                     }
                   />

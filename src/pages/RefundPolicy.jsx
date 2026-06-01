@@ -50,7 +50,8 @@ const RefundPolicy = () => {
               <h2 className="font-heading text-base font-bold text-slate-800">2. ऑर्डर कैंसलेशन (Order Cancellation)</h2>
               <ul className="list-disc pl-5 flex flex-col gap-1 text-slate-500">
                 <li>उपयोगकर्ता ऑर्डर प्लेस करने के बाद <strong>2 घंटे</strong> के भीतर इसे रद्द कर सकते हैं, बशर्ते उत्पाद दुकान से डिस्पैच या डिलीवरी के लिए न निकला हो।</li>
-                <li>एक बार ऑर्डर शिप हो जाने के बाद, इसे रद्द नहीं किया जा सकता है। दरवाजे पर डिलीवरी के समय ऑर्डर अस्वीकार किया जा सकता है।</li>
+                <li>एक बार ऑर्डर शिप या डिस्पैच हो जाने के बाद, इसे रद्द नहीं किया जा सकता है। ग्राहक दरवाजे पर डिलीवरी के समय ऑर्डर को अस्वीकार कर सकते हैं।</li>
+                <li>यदि कोई ऑर्डर हमारी 15 किमी की डिलीवरी सीमा से बाहर पाया जाता है, तो उसे सिस्टम द्वारा स्वचालित रूप से रद्द कर दिया जाएगा और भुगतान किए जाने पर पूर्ण रिफंड जारी कर दिया जाएगा।</li>
               </ul>
             </div>
 
@@ -60,6 +61,7 @@ const RefundPolicy = () => {
                 <li>ऑनलाइन भुगतान (UPI, कार्ड) के कैंसलेशन या स्वीकृत रिटर्न के मामले में, रिफंड राशि सीधे आपके मूल भुगतान स्रोत में ट्रांसफर कर दी जाएगी।</li>
                 <li>रिफंड राशि बैंक/गेटवे द्वारा संसाधित होने के बाद <strong>5 से 7 कार्य दिवसों (Working Days)</strong> के भीतर आपके खाते में क्रेडिट हो जाएगी।</li>
                 <li>कैश ऑन डिलीवरी (COD) ऑर्डर्स के रिफंड के लिए, हम स्टोर क्रेडिट, गूगल पे या बैंक ट्रांसफर प्रदान करेंगे।</li>
+                <li>₹5,000 से अधिक के ऑर्डर्स के लिए अनिवार्य ऑनलाइन भुगतानों के रिफंड भी सीधे मूल भुगतान स्रोत में 5 से 7 कार्य दिवसों में क्रेडिट किए जाएंगे।</li>
               </ul>
             </div>
 
@@ -90,6 +92,7 @@ const RefundPolicy = () => {
               <ul className="list-disc pl-5 flex flex-col gap-1 text-slate-500">
                 <li>You can cancel your order within <strong>2 hours</strong> of booking it online, provided the item has not been dispatched from our store location.</li>
                 <li>Once the order is dispatched or marked "On The Way", cancellations are not permitted. You may refuse delivery at the doorstep.</li>
+                <li>Any order placed outside our 15 km delivery range will be automatically cancelled by the system, and a full refund will be processed (if paid online).</li>
               </ul>
             </div>
 
@@ -99,6 +102,7 @@ const RefundPolicy = () => {
                 <li>For cancelled online orders or approved returns, the refund amount will be automatically credited back to your original source of payment.</li>
                 <li>Refunds generally take <strong>5 to 7 working days</strong> to reflect in your bank account or payment app after approval.</li>
                 <li>For Cash on Delivery (COD) order cancellations/returns, refund transfers will be initiated via bank transfer, GPay, or store coupon code.</li>
+                <li>For orders exceeding ₹5,000 where online payment is mandated, refunds will be processed back to the original online payment source within 5 to 7 business days following cancellation approval.</li>
               </ul>
             </div>
 

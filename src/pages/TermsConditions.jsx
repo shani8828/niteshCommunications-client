@@ -59,14 +59,21 @@ const TermsConditions = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <h2 className="font-heading text-base font-bold text-slate-800">4. सेवाएं और बुकिंग (Services Booking)</h2>
+              <h2 className="font-heading text-base font-bold text-slate-800">4. डिलीवरी और भुगतान शर्तें (Delivery & Payment Terms)</h2>
+              <p>
+                हम अपने स्टोर केंद्र से <strong>अधिकतम 15 किमी</strong> के दायरे में डिलीवरी करते हैं, जिसकी पुष्टि चेकआउट के समय ऑटोमैटिक रूप से जीपीएस लोकेशन द्वारा की जाती है। सक्रिय डिलीवरी ऑपरेशन्स का समय <strong>सुबह 9:00 बजे से शाम 6:00 बजे</strong> तक है। शाम 6:00 बजे के बाद प्राप्त होने वाले ऑर्डर अगले दिन डिलीवर किए जाएंगे। इसके अतिरिक्त, <strong>₹5,000 से अधिक</strong> के उप-योग वाले सभी ऑर्डर्स के लिए भुगतान ऑनलाइन (UPI/कार्ड) करना आवश्यक है; कैश ऑन डिलीवरी (COD) केवल ₹5,000 या उससे कम के ऑर्डर्स के लिए ही उपलब्ध है।
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <h2 className="font-heading text-base font-bold text-slate-800">5. सेवाएं और बुकिंग (Services Booking)</h2>
               <p>
                 जन सेवा केंद्र (CSC) और मोबाइल रिपेयरिंग के लिए की गई पूछताछ या बुकिंग प्रारंभिक हैं। वास्तविक शुल्क निदान या दस्तावेज़ सत्यापन के बाद ही अंतिम माना जाएगा।
               </p>
             </div>
 
             <div className="flex flex-col gap-2">
-              <h2 className="font-heading text-base font-bold text-slate-800">5. विवाद और कानून (Disputes & Governing Law)</h2>
+              <h2 className="font-heading text-base font-bold text-slate-800">6. विवाद और कानून (Disputes & Governing Law)</h2>
               <p>
                 इस वेबसाइट और सेवाओं से उत्पन्न होने वाले किसी भी विवाद की सुनवाई विशेष रूप से जिला न्यायालय अयोध्या, उत्तर प्रदेश (भारत) के अधिकार क्षेत्र के अंतर्गत होगी।
               </p>
@@ -107,14 +114,21 @@ const TermsConditions = () => {
             </div>
 
             <div className="flex flex-col gap-2">
-              <h2 className="font-heading text-base font-bold text-slate-800">4. CSC & Repair Bookings</h2>
+              <h2 className="font-heading text-base font-bold text-slate-800">4. Delivery & Payment Policy</h2>
+              <p>
+                We service orders within a <strong>maximum radius of 15 km</strong> from our physical store (Karamdanda Mod, Ayodhya), validated dynamically using browser GPS/geolocation at checkout. Active deliveries occur only between <strong>9:00 AM and 6:00 PM</strong> daily; orders placed outside this timeframe are processed for next-day dispatch. Cash on Delivery (COD) is restricted to order subtotals of <strong>₹5,000 or below</strong>. Orders exceeding ₹5,000 must be settled online during checkout.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <h2 className="font-heading text-base font-bold text-slate-800">5. CSC & Repair Bookings</h2>
               <p>
                 Inquiries or bookings made for mobile repairs and Common Service Centre (CSC) services are preliminary. Final prices and delivery times will be determined post hardware diagnostics or document review.
               </p>
             </div>
 
             <div className="flex flex-col gap-2">
-              <h2 className="font-heading text-base font-bold text-slate-800">5. Governing Law</h2>
+              <h2 className="font-heading text-base font-bold text-slate-800">6. Governing Law</h2>
               <p>
                 These terms and conditions are governed by and construed in accordance with the laws of Uttar Pradesh, India. Any legal disputes will be subject to the exclusive jurisdiction of the courts in Ayodhya, Uttar Pradesh.
               </p>

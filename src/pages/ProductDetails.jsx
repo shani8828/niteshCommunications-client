@@ -406,16 +406,15 @@ const ProductDetails = () => {
               </>
             )}
 
-            {user && (
-              <button
-                onClick={() => toggleWishlist(product)}
-                className={`w-11 h-11 rounded-full flex justify-center items-center cursor-pointer border transition-colors ${
-                  isWishlisted ? 'border-rose-300 bg-rose-50/50' : 'border-slate-200 bg-white hover:bg-slate-50'
-                }`}
-              >
-                <Heart size={20} fill={isWishlisted ? '#ef4444' : 'none'} color={isWishlisted ? '#ef4444' : '#94a3b8'} />
-              </button>
-            )}
+            <button
+              onClick={() => toggleWishlist(product)}
+              className={`w-11 h-11 rounded-full flex justify-center items-center cursor-pointer border transition-colors ${
+                isWishlisted ? 'border-rose-300 bg-rose-50/50' : 'border-slate-200 bg-white hover:bg-slate-50'
+              }`}
+              title={currentLang === 'hi' ? "विशलिस्ट में जोड़ें/हटाएं" : "Add/Remove from Wishlist"}
+            >
+              <Heart size={20} fill={isWishlisted ? '#ef4444' : 'none'} color={isWishlisted ? '#ef4444' : '#94a3b8'} />
+            </button>
           </div>
         </div>
       </div>

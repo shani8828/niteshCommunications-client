@@ -46,7 +46,7 @@ const PrivacyPolicy = () => {
                 <li>आपका नाम (Full Name)</li>
                 <li>पंजीकृत मोबाइल नंबर (Mobile Number)</li>
                 <li>डिलीवरी या पिकअप का पता (Delivery/Pickup Address)</li>
-                <li>सटीक डिलीवरी के लिए जियो-लोकेशन कोऑर्डिनेट्स (GPS Coordinates)</li>
+                <li>सटीक डिलीवरी और यह सत्यापित करने के लिए कि आपका पता हमारे 15 किमी डिलीवरी दायरे के भीतर है, जियो-लोकेशन कोऑर्डिनेट्स (GPS Coordinates)</li>
                 <li>ईमेल पता (वैकल्पिक)</li>
               </ul>
             </div>
@@ -100,7 +100,7 @@ const PrivacyPolicy = () => {
                 <li>Full Name</li>
                 <li>Contact Mobile Number</li>
                 <li>Delivery/Pickup Address details</li>
-                <li>GPS / Geo-location coordinates (for accurate dispatch)</li>
+                <li>GPS / Geo-location coordinates (to verify your address is within our 15 km delivery radius and for accurate dispatch)</li>
                 <li>Email Address (optional)</li>
               </ul>
             </div>

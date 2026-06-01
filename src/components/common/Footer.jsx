@@ -99,7 +99,7 @@ const Footer = () => {
           {/* Social Handles */}
           <div className="flex items-center gap-3 mt-2">
             <a
-              href="https://instagram.com"
+              href="https://instagram.com/nitesh.communications"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-700 transition-colors p-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg flex items-center justify-center"

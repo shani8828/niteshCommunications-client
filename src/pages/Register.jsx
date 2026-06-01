@@ -1,21 +1,29 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { showToast } from '../utils/toast';
-import { useTranslation } from 'react-i18next';
-import Loader from '../components/common/Loader';
-import { Eye, EyeOff, MapPin, Copy, Download, Printer, CheckCircle } from 'lucide-react';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { showToast } from "../utils/toast";
+import { useTranslation } from "react-i18next";
+import Loader from "../components/common/Loader";
+import {
+  Eye,
+  EyeOff,
+  MapPin,
+  Copy,
+  Download,
+  Printer,
+  CheckCircle,
+} from "lucide-react";
 
 const Register = () => {
-  const { t } = useTranslation(['auth', 'common', 'notifications']);
+  const { t } = useTranslation(["auth", "common", "notifications"]);
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const [name, setName] = useState('');
-  const [mobile, setMobile] = useState('');
-  const [password, setPassword] = useState('');
-  const [address, setAddress] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [password, setPassword] = useState("");
+  const [address, setAddress] = useState("");
+  const [email, setEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [coordinates, setCoordinates] = useState(null);
   const [geolocating, setGeolocating] = useState(false);
@@ -24,7 +32,9 @@ const Register = () => {
 
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
-      showToast.error("आपका ब्राउज़र लोकेशन का समर्थन नहीं करता है / Your browser does not support geolocation");
+      showToast.error(
+        "आपका ब्राउज़र लोकेशन का समर्थन नहीं करता है / Your browser does not support geolocation",
+      );
       return;
     }
     setGeolocating(true);
@@ -34,19 +44,23 @@ const Register = () => {
         setCoordinates({ latitude, longitude });
         try {
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
           );
           const data = await response.json();
           if (data && data.display_name) {
             setAddress(data.display_name);
-            showToast.success("लोकेशन सफलतापूर्वक प्राप्त की गई / Location retrieved successfully");
+            showToast.success(
+              "लोकेशन सफलतापूर्वक प्राप्त की गई / Location retrieved successfully",
+            );
           } else {
             setAddress(`${latitude}, ${longitude}`);
           }
         } catch (err) {
           console.error(err);
           setAddress(`${latitude}, ${longitude}`);
-          showToast.warning("लोकेशन तो मिल गई, पर पता खोजने में समस्या हुई / Location retrieved, but failed to fetch address name");
+          showToast.warning(
+            "लोकेशन तो मिल गई, पर पता खोजने में समस्या हुई / Location retrieved, but failed to fetch address name",
+          );
         } finally {
           setGeolocating(false);
         }
@@ -54,46 +68,55 @@ const Register = () => {
       (error) => {
         console.error(error);
         setGeolocating(false);
-        showToast.error("लोकेशन अनुमति अस्वीकृत या उपलब्ध नहीं है / Location permission denied or unavailable");
+        showToast.error(
+          "लोकेशन अनुमति अस्वीकृत या उपलब्ध नहीं है / Location permission denied or unavailable",
+        );
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 10000 },
     );
   };
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (!name || !mobile || !password || !address) {
-      showToast.error(t('auth:fill_all_fields'));
+      showToast.error(t("auth:fill_all_fields"));
       return;
     }
     if (mobile.length !== 10) {
-      showToast.error(t('auth:enter_phone'));
+      showToast.error(t("auth:enter_phone"));
       return;
     }
 
     setLoading(true);
-    const result = await register(name, mobile, password, address, email, coordinates);
+    const result = await register(
+      name,
+      mobile,
+      password,
+      address,
+      email,
+      coordinates,
+    );
     setLoading(false);
 
     if (result.success) {
       if (result.recoveryCodes && result.recoveryCodes.length > 0) {
         setGeneratedCodes(result.recoveryCodes);
       } else {
-        navigate('/');
+        navigate("/");
       }
     }
   };
 
   const handleCopyCodes = () => {
-    navigator.clipboard.writeText(generatedCodes.join('\n'));
+    navigator.clipboard.writeText(generatedCodes.join("\n"));
     showToast.success("सभी कोड कॉपी हो गए! / All codes copied to clipboard!");
   };
 
   const handleDownloadCodes = () => {
-    const text = `NITESH COMMUNICATIONS RECOVERY CODES\n======================================\nGenerated on: ${new Date().toLocaleString()}\n\nKeep these codes secure. They are the only way to reset your password if you lose it.\n\n${generatedCodes.map((c, i) => `${i + 1}. ${c}`).join('\n')}\n\n======================================`;
-    const blob = new Blob([text], { type: 'text/plain' });
+    const text = `NITESH COMMUNICATIONS RECOVERY CODES\n======================================\nGenerated on: ${new Date().toLocaleString()}\n\nKeep these codes secure. They are the only way to reset your password if you lose it.\n\n${generatedCodes.map((c, i) => `${i + 1}. ${c}`).join("\n")}\n\n======================================`;
+    const blob = new Blob([text], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = `nitesh-recovery-codes-${mobile}.txt`;
     link.click();
@@ -102,9 +125,11 @@ const Register = () => {
   };
 
   const handlePrintCodes = () => {
-    const printWindow = window.open('', '_blank');
+    const printWindow = window.open("", "_blank");
     if (!printWindow) {
-      showToast.error("पॉपअप अवरोधित है! कृपया प्रिंट के लिए पॉपअप की अनुमति दें। / Popup blocked! Please allow popups to print.");
+      showToast.error(
+        "पॉपअप अवरोधित है! कृपया प्रिंट के लिए पॉपअप की अनुमति दें। / Popup blocked! Please allow popups to print.",
+      );
       return;
     }
     printWindow.document.write(`
@@ -130,7 +155,7 @@ const Register = () => {
           <p>कृपया इन कोड्स को सुरक्षित रखें। पासवर्ड भूलने पर केवल इन्हीं से रीसेट हो सकेगा। प्रत्येक कोड केवल एक बार इस्तेमाल किया जा सकता है।</p>
           <p>Please keep these codes safe. If you forget your password, these codes are the only way to recover your account. Each code can only be used once.</p>
           <div class="box">
-            ${generatedCodes.map((c, i) => `<div class="code">Code ${i + 1}: ${c}</div>`).join('')}
+            ${generatedCodes.map((c, i) => `<div class="code">Code ${i + 1}: ${c}</div>`).join("")}
           </div>
           <div class="note">
             चेतावनी: इन कोडों को दोबारा नहीं देखा जा सकेगा। इन्हें सुरक्षित स्थान पर रखें।<br/>
@@ -147,8 +172,6 @@ const Register = () => {
     printWindow.document.close();
   };
 
-
-
   if (generatedCodes.length > 0) {
     return (
       <div className="flex justify-center items-center min-h-[85vh] px-4 py-12 bg-slate-50">
@@ -159,19 +182,26 @@ const Register = () => {
               महत्वपूर्ण सुरक्षा कोड / Recovery Codes
             </h2>
             <p className="text-xs text-rose-600 font-semibold mb-6 max-w-sm">
-              इन कोडों को अभी सुरक्षित कर लें! पासवर्ड भूलने पर अकाउंट रीसेट करने के लिए केवल यही तरीका काम करेगा।
+              इन कोडों को अभी सुरक्षित कर लें! पासवर्ड भूलने पर अकाउंट रीसेट
+              करने के लिए केवल यही तरीका काम करेगा।
               <br />
               <span className="text-slate-500 font-normal">
-                Save these codes now! If you forget your password, this is the only way to recover your account.
+                Save these codes now! If you forget your password, this is the
+                only way to recover your account.
               </span>
             </p>
           </div>
 
           <div className="grid grid-cols-1 gap-2 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 font-mono text-center">
             {generatedCodes.map((c, i) => (
-              <div key={i} className="flex justify-between items-center px-4 py-2 bg-white border border-slate-100 rounded-lg shadow-sm">
-                <span className="text-xs text-slate-400">Code {i+1}</span>
-                <span className="font-bold text-slate-800 tracking-wider select-all">{c}</span>
+              <div
+                key={i}
+                className="flex justify-between items-center px-4 py-2 bg-white border border-slate-100 rounded-lg shadow-sm"
+              >
+                <span className="text-xs text-slate-400">Code {i + 1}</span>
+                <span className="font-bold text-slate-800 tracking-wider select-all">
+                  {c}
+                </span>
               </div>
             ))}
           </div>
@@ -206,7 +236,7 @@ const Register = () => {
 
             <button
               type="button"
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className="w-full py-3 mt-4 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-600/10 transition-all border-0 cursor-pointer text-center"
             >
               आगे बढ़ें / Continue to Home
@@ -218,25 +248,25 @@ const Register = () => {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-[85vh] px-4 py-12 bg-slate-50 relative">
+    <div className="flex justify-center items-center min-h-[85vh] px-4 py-12 bg-gradient-to-b from-slate-50 to-white relative">
       {loading && <Loader fullPage />}
       <div className="w-full max-w-[450px] p-8 bg-white border border-slate-200/80 shadow-md rounded-2xl">
         <h2 className="text-2xl font-heading font-extrabold text-center text-blue-600 mb-1">
-          {t('common:register')}
+          {t("common:register")}
         </h2>
         <p className="text-xs text-slate-500 text-center mb-6 leading-relaxed">
-          {t('common:tagline')}
+          {t("common:tagline")}
         </p>
 
         <form onSubmit={handleRegisterSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col">
             <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-              {t('auth:full_name')} *
+              {t("auth:full_name")} *
             </label>
             <input
               type="text"
               className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-              placeholder="e.g. Nitesh Maurya"
+              placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -245,28 +275,28 @@ const Register = () => {
 
           <div className="flex flex-col">
             <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-              {t('auth:phone_number')} *
+              {t("auth:phone_number")} *
             </label>
             <input
               type="tel"
               maxLength="10"
               className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-              placeholder="e.g. 9125949456"
+              placeholder="Enter 10 digit mobile number"
               value={mobile}
-              onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
+              onChange={(e) => setMobile(e.target.value.replace(/\D/g, ""))}
               required
             />
           </div>
 
           <div className="flex flex-col">
             <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-              {t('auth:password')} *
+              {t("auth:password")} *
             </label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 className="w-full pl-4 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                placeholder={t('auth:enter_password')}
+                placeholder={t("auth:enter_password")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -284,7 +314,7 @@ const Register = () => {
           <div className="flex flex-col">
             <div className="flex justify-between items-center mb-1.5">
               <label className="text-xs font-semibold text-slate-500">
-                {t('auth:address')} *
+                {t("auth:address")} *
               </label>
               <button
                 type="button"
@@ -292,14 +322,19 @@ const Register = () => {
                 disabled={geolocating}
                 className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer font-semibold disabled:text-slate-400 transition-colors"
               >
-                <MapPin size={14} className={geolocating ? "animate-bounce" : ""} />
-                {geolocating ? "खोज रहे हैं... / Locating..." : "वर्तमान लोकेशन / Use Location"}
+                <MapPin
+                  size={14}
+                  className={geolocating ? "animate-bounce" : ""}
+                />
+                {geolocating
+                  ? "खोज रहे हैं... / Locating..."
+                  : "वर्तमान लोकेशन / Use Location"}
               </button>
             </div>
             <textarea
               className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
               rows="2"
-              placeholder="e.g. Karamdanda Mod, Patkhauli Chauraha, Ayodhya"
+              placeholder="Enter your full address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               required
@@ -320,12 +355,12 @@ const Register = () => {
 
           <div className="flex flex-col">
             <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-              {t('auth:email')}
+              {t("auth:email")}
             </label>
             <input
               type="email"
               className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-              placeholder="e.g. info.niteshcommunications@gmail.com"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -336,14 +371,19 @@ const Register = () => {
             disabled={loading}
             className="w-full py-3 mt-4 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-600/10 transition-all border-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? t('common:submitting', 'Submitting...') : t('auth:register_button')}
+            {loading
+              ? t("common:submitting", "Submitting...")
+              : t("auth:register_button")}
           </button>
         </form>
 
         <p className="text-center mt-6 text-xs text-slate-500">
-          {t('auth:have_account')}{' '}
-          <Link to="/login" className="text-blue-600 hover:underline font-semibold">
-            {t('common:login')}
+          {t("auth:have_account")}{" "}
+          <Link
+            to="/login"
+            className="text-blue-600 hover:underline font-semibold"
+          >
+            {t("common:login")}
           </Link>
         </p>
       </div>

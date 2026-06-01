@@ -13,15 +13,122 @@ import {
   Phone,
   MapPin,
   Clock,
+  Shield,
+  CreditCard,
+  Landmark,
+  Printer,
+  Users,
 } from "lucide-react";
-import Loader from "../components/common/Loader";
 import api from "../utils/api";
+
+const categoriesList = [
+  {
+    id: "phones",
+    name: {
+      en: "Phones",
+      hi: "फ़ोन",
+    },
+    image:
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=300&auto=format&fit=crop",
+    desc: {
+      en: "Latest smartphones and devices",
+      hi: "नवीनतम स्मार्टफोन और डिवाइस",
+    },
+  },
+  {
+    id: "earphone",
+    name: {
+      en: "Earphone",
+      hi: "इयरफोन",
+    },
+    image:
+      "https://res.cloudinary.com/dd1tmrvu0/image/upload/v1780293047/nitesh_communications/keyxffy0yg48yrgosewd.avif",
+    desc: {
+      en: "Wired & wireless audio gear",
+      hi: "वायर्ड और वायरलेस ऑडियो गियर",
+    },
+  },
+  {
+    id: "tshirt",
+    name: {
+      en: "TShirt",
+      hi: "टी-शर्ट",
+    },
+    image:
+      "https://res.cloudinary.com/dd1tmrvu0/image/upload/v1780222418/nitesh_communications/x8db5ricws3aqpdylfml.avif",
+    desc: {
+      en: "Comfortable and trendy apparel",
+      hi: "आरामदायक और ट्रेंडी कपड़े",
+    },
+  },
+  {
+    id: "stationary",
+    name: {
+      en: "Stationary",
+      hi: "स्टेशनरी",
+    },
+    image:
+      "https://res.cloudinary.com/dd1tmrvu0/image/upload/v1780292917/nitesh_communications/pkh52pudhusn6eeiupap.avif",
+    desc: {
+      en: "Quality notebooks, pens and more",
+      hi: "गुणवत्ता वाले नोटबुक, पेन और बहुत कुछ",
+    },
+  },
+];
+
+const cscServicesFeatured = [
+  {
+    icon: Shield,
+    title: { en: "Aadhaar Services", hi: "आधार सेवाएं" },
+    desc: {
+      en: "Biometric updates, demographic corrections & print support.",
+      hi: "बायोमेट्रिक अपडेट, जनसांख्यिकीय सुधार और प्रिंट सहायता।",
+    },
+  },
+  {
+    icon: CreditCard,
+    title: { en: "PAN Card Services", hi: "पैन कार्ड सेवाएं" },
+    desc: {
+      en: "Application for new PAN card and corrections on existing card.",
+      hi: "नए पैन कार्ड के लिए आवेदन और मौजूदा कार्ड में सुधार।",
+    },
+  },
+  {
+    icon: FileText,
+    title: { en: "Govt Certificates", hi: "सरकारी प्रमाण पत्र" },
+    desc: {
+      en: "Apply for Income, Caste, and Domicile certificates quickly.",
+      hi: "आय, जाति और निवास प्रमाण पत्र के लिए त्वरित आवेदन करें।",
+    },
+  },
+  {
+    icon: Landmark,
+    title: { en: "Ration Card & Banking", hi: "राशन कार्ड और बैंकिंग" },
+    desc: {
+      en: "New applications, member modifications & banking withdrawals.",
+      hi: "नए आवेदन, सदस्य संशोधन और बैंकिंग निकासी सहायता।",
+    },
+  },
+  {
+    icon: Printer,
+    title: { en: "Online Forms & Printing", hi: "ऑनलाइन फॉर्म और प्रिंटिंग" },
+    desc: {
+      en: "Job application form filling, printouts & document lamination.",
+      hi: "नौकरी आवेदन पत्र भरना, प्रिंटआउट और दस्तावेज लेमिनेशन।",
+    },
+  },
+  {
+    icon: Users,
+    title: { en: "Welfare & Pensions", hi: "कल्याणकारी योजनाएं" },
+    desc: {
+      en: "Old Age, Widow and Disability pension registration assistance.",
+      hi: "वृद्धावस्था, विधवा और विकलांगता पेंशन पंजीकरण सहायता।",
+    },
+  },
+];
 
 const Home = () => {
   const { t, i18n } = useTranslation();
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   const [faqOpen, setFaqOpen] = useState([false, false, false, false]);
 
   const toggleFaq = (index) => {
@@ -61,28 +168,6 @@ const Home = () => {
   }, [currentLang]);
 
   useEffect(() => {
-    const fetchFeatured = async () => {
-      const cacheKey = "featured_products_limit_4";
-      const cached = getCachedData(cacheKey);
-      if (cached) {
-        setFeaturedProducts(cached);
-        setLoading(false);
-        return;
-      }
-      try {
-        const response = await api.get("/products?limit=4");
-        setFeaturedProducts(response.data.products);
-        setCachedData(cacheKey, response.data.products, 3 * 60 * 1000);
-      } catch (err) {
-        console.error("Failed to load featured products:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchFeatured();
-  }, []);
-
-  useEffect(() => {
     // Prefetch Shop page data in the background after home renders
     const prefetchShopData = async () => {
       // 1. Categories prefetch
@@ -97,7 +182,8 @@ const Home = () => {
       }
 
       // 2. Products prefetch
-      const prodCacheKey = "shop_products_p_1_s_newest_min_0_max_100000_k__c__b_";
+      const prodCacheKey =
+        "shop_products_p_1_s_newest_min_0_max_100000_k__c__b_";
       if (!getCachedData(prodCacheKey)) {
         try {
           const url = "/products?page=1&sort=newest&minPrice=0&maxPrice=100000";
@@ -105,10 +191,29 @@ const Home = () => {
           setCachedData(
             prodCacheKey,
             { products: response.data.products, pages: response.data.pages },
-            5 * 60 * 1000
+            5 * 60 * 1000,
           );
         } catch (err) {
           console.error("Prefetch products failed:", err);
+        }
+      }
+
+      // 3. Category-specific prefetch for the 4 featured categories
+      const targetCategories = ["phones", "earphone", "tshirt", "stationary"];
+      for (const cat of targetCategories) {
+        const catProdCacheKey = `shop_products_p_1_s_newest_min_0_max_100000_k__c_${cat}_b_`;
+        if (!getCachedData(catProdCacheKey)) {
+          try {
+            const url = `/products?page=1&sort=newest&minPrice=0&maxPrice=100000&category=${cat}`;
+            const response = await api.get(url);
+            setCachedData(
+              catProdCacheKey,
+              { products: response.data.products, pages: response.data.pages },
+              5 * 60 * 1000,
+            );
+          } catch (err) {
+            console.error(`Prefetch products for category ${cat} failed:`, err);
+          }
         }
       }
     };
@@ -268,91 +373,60 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 2. Three Major CTA Cards */}
-      <section className="bg-white py-20 px-6">
+      {/* 2. Featured Store Categories */}
+      <section className="w-full bg-gradient-to-b from-white to-slate-50/60 py-20 px-6 border-t border-slate-100">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Card 1: Shop */}
-            <motion.div
-              whileHover={{ y: -6 }}
-              className="flex flex-col items-start gap-4 p-8 glass-card rounded-2xl"
-            >
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-3.5 flex justify-center items-center">
-                <ShoppingBag size={28} className="text-blue-600" />
-              </div>
-              <h3 className="font-heading text-xl font-bold text-slate-800">
-                {t("shop")}
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                {currentLang == "hi"
-                  ? "स्टेशनरी, फाइल फोल्डर, ब्लूटूथ इयरफ़ोन, चार्जर, बैटरी, हेडफ़ोन,फ़ोन ग्लास, फ़ोन आदि उपलब्ध हैं।"
-                  : "Stationary, File Folders, Bluetooth Earphone, Charger, Battery, Headphone, Phone Glasses, Phones are available."}
-              </p>
-              <Link
-                to="/shop"
-                className="flex items-center gap-1 text-blue-600 font-bold text-xs hover:underline mt-auto pt-4"
-              >
-                {currentLang == "hi" ? "स्टोर देखें" : "Browse Store"}
-                <ChevronRight size={16} />
-              </Link>
-            </motion.div>
+          <h2 className="font-heading text-3xl font-extrabold text-slate-900 mb-2 text-center md:text-left">
+            {currentLang === "hi"
+              ? "श्रेणी के अनुसार खरीदें"
+              : "Shop by Category"}
+          </h2>
+          <p className="text-sm text-slate-500 mb-8 text-center md:text-left">
+            {currentLang === "hi"
+              ? "हमारे चुनिंदा और लोकप्रिय श्रेणियों के उत्पादों को ब्राउज़ करें"
+              : "Browse through our curated and popular product categories"}
+          </p>
 
-            {/* Card 2: Repair */}
-            <motion.div
-              whileHover={{ y: -6 }}
-              className="flex flex-col items-start gap-4 p-8 glass-card rounded-2xl"
-            >
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-3.5 flex justify-center items-center">
-                <Wrench size={28} className="text-blue-600" />
-              </div>
-              <h3 className="font-heading text-xl font-bold text-slate-800">
-                {t("repair")}
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                •{" "}
-                {currentLang == "hi"
-                  ? "मोबाइल रिपेयर (स्क्रीन, बैटरी, पानी से खराब, स्पीकर) घंटो के अंदर किया जाता है।"
-                  : "Mobile repairs (screen, battery, water damage, speakers) done within hours."}
-                <br />• {t("desc_banner_2")}
-              </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {categoriesList.map((cat) => (
               <Link
-                to="/repairs"
-                className="flex items-center gap-1 text-blue-600 font-bold text-xs hover:underline mt-auto pt-4"
+                key={cat.id}
+                to={`/shop?category=${cat.id}`}
+                className="p-4 flex flex-col gap-4 glass-card rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer group"
               >
-                {currentLang == "hi" ? "रिपेयर बुक करें" : "Book Repair"}{" "}
-                <ChevronRight size={16} />
+                <div className="bg-slate-50 rounded-xl h-[180px] flex justify-center items-center overflow-hidden border border-slate-100 relative">
+                  <img
+                    src={cat.image}
+                    alt={cat.name.en}
+                    className="max-w-[90%] max-h-[90%] object-contain group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="flex flex-col flex-grow text-center sm:text-left">
+                  <h4 className="font-heading text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
+                    {cat.name[currentLang]}
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    {cat.desc[currentLang]}
+                  </p>
+                  <div className="w-full py-2.5 mt-4 font-heading font-bold text-xs bg-blue-50 border border-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white text-center rounded-xl block transition-all">
+                    {currentLang === "hi" ? "प्रोडक्ट देखें" : "View Products"}
+                  </div>
+                </div>
               </Link>
-            </motion.div>
-
-            {/* Card 3: CSC */}
-            <motion.div
-              whileHover={{ y: -6 }}
-              className="flex flex-col items-start gap-4 p-8 glass-card rounded-2xl"
-            >
-              <div className="bg-blue-50 border border-blue-100 rounded-xl p-3.5 flex justify-center items-center">
-                <FileText size={28} className="text-blue-600" />
-              </div>
-              <h3 className="font-heading text-xl font-bold text-slate-800">
-                {t("csc")}
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                {currentLang == "hi"
-                  ? "आधार, पैन, ऑनलाइन फॉर्म, बैंकिंग सहायता, जन्म / आय प्रमाण पत्र जैसी अन्य ऑनलाइन सेवाएँ उपलब्ध हैं।"
-                  : "Fast service like Aadhaar, PAN, online job forms, banking withdrawal help, and birth/income certificates are available."}
-              </p>
-              <Link
-                to="/csc"
-                className="flex items-center gap-1 text-blue-600 font-bold text-xs hover:underline mt-auto pt-4"
-              >
-                {currentLang == "hi" ? "ऑनलाइन पूछताछ करें" : "Online Inquiry"}
-                <ChevronRight size={16} />
-              </Link>
-            </motion.div>
+            ))}
           </div>
+          <Link to="/shop" className="flex justify-center items-center mt-10">
+            <div className="px-8 py-3.5 font-heading font-bold text-sm bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 rounded-full text-center transition-all duration-300 shadow-md shadow-blue-500/10">
+              {currentLang === "hi"
+                ? "सभी प्रोडक्ट देखें"
+                : "View All Products"}
+            </div>
+          </Link>
         </div>
       </section>
 
-      {/* 3. Promotional Special Banner */}
+      {/* 3. Promotional Special Banner Or Repair Section*/}
       <section className="w-full bg-white py-12 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="p-8 md:p-12 bg-blue-50 rounded-3xl border border-blue-200 flex flex-col md:flex-row items-center justify-between gap-8 shadow-sm">
@@ -389,63 +463,70 @@ const Home = () => {
               />
             </div>
           </div>
+          <Link
+            to="/repairs"
+            className="flex justify-center items-center mt-10"
+          >
+            <div className="px-8 py-3.5 font-heading font-bold text-sm bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 rounded-full text-center transition-all duration-300 shadow-md shadow-blue-500/10">
+              {currentLang === "hi"
+                ? "फोन रिपेयर करवाएं"
+                : "Repair Your Mobile Now"}
+            </div>
+          </Link>
         </div>
       </section>
 
-      {/* 4. Featured Store Products */}
-      <section className="w-full bg-gradient-to-b from-white to-slate-50/60 py-20 px-6 border-t border-slate-100">
+      {/* 4. Jan Seva Kendra Section*/}
+      <section className="w-full bg-gradient-to-b from-white to-slate-50/40 py-20 px-6 border-t border-slate-100">
         <div className="max-w-6xl mx-auto">
-          <h2 className="font-heading text-3xl font-extrabold text-slate-900 mb-2 text-center md:text-left">
-            {currentLang == "hi" ? "हमारे प्रोडक्ट्स" : "Featured Products"}
-          </h2>
-          <p className="text-sm text-slate-500 mb-8 text-center md:text-left">
-            {currentLang == "hi"
-              ? "ओरिजिनल चार्जर, मोबाइल ग्लास, इयरफ़ोन, और भी सामान देखें..."
-              : "Explore original chargers, mobile glasses, earphones, and accessories..."}
-          </p>
+          <div className="text-center mb-12 flex flex-col items-center gap-2">
+            <h2 className="font-heading text-3xl font-extrabold text-slate-900 mt-1">
+              {currentLang === "hi"
+                ? "जन सेवा केंद्र सेवाएं"
+                : "Jan Seva Kendra Services"}
+            </h2>
+            <p className="text-sm text-slate-500 max-w-xl mx-auto leading-relaxed">
+              {currentLang === "hi"
+                ? "अयोध्या में विश्वसनीय सरकारी प्रमाण पत्र, पहचान पत्र सुधार, ऑनलाइन फॉर्म और डिजिटल बैंकिंग सेवाएं।"
+                : "Reliable government certificate application, identity card correction, online form filling, and digital banking right in Ayodhya."}
+            </p>
+          </div>
 
-          {loading ? (
-            <Loader />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {featuredProducts.map((product) => (
-                <div
-                  key={product._id}
-                  className="p-4 flex flex-col gap-3 glass-card rounded-2xl hover:shadow-md"
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {cscServicesFeatured.map((service, idx) => {
+              const IconComp = service.icon;
+              return (
+                <Link
+                  key={idx}
+                  to="/csc"
+                  className="p-6 flex flex-col gap-4 bg-white border border-slate-200/80 rounded-2xl hover:shadow-lg hover:border-blue-300/80 hover:scale-[1.02] transition-all cursor-pointer group"
                 >
-                  <div className="bg-slate-50 rounded-xl h-[180px] flex justify-center items-center overflow-hidden border border-slate-100">
-                    <img
-                      src={product.images[0]}
-                      alt={product.name.en}
-                      className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply"
-                      loading="lazy"
+                  <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 w-fit flex justify-center items-center group-hover:bg-blue-600 group-hover:border-blue-600 transition-all duration-300">
+                    <IconComp
+                      size={24}
+                      className="text-blue-600 group-hover:text-white transition-all duration-300"
                     />
                   </div>
                   <div className="flex flex-col flex-grow">
-                    <h4 className="font-heading text-sm font-semibold text-slate-800 truncate">
-                      {product.name[currentLang]}
+                    <h4 className="font-heading text-base font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
+                      {service.title[currentLang]}
                     </h4>
-                    <div className="flex gap-2 items-center mt-1">
-                      <span className="text-base font-extrabold text-blue-600">
-                        ₹{product.price}
-                      </span>
-                      {product.originalPrice > product.price && (
-                        <span className="text-xs text-slate-400 line-through">
-                          ₹{product.originalPrice}
-                        </span>
-                      )}
-                    </div>
-                    <Link
-                      to={`/products/${product.slug || product._id}`}
-                      className="w-full py-2 mt-4 font-heading font-semibold text-xs bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-center rounded-lg block transition-colors"
-                    >
-                      {currentLang == "hi" ? "देखें" : "View Product"}
-                    </Link>
+                    <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                      {service.desc[currentLang]}
+                    </p>
                   </div>
-                </div>
-              ))}
+                </Link>
+              );
+            })}
+          </div>
+
+          <Link to="/csc" className="flex justify-center items-center mt-10">
+            <div className="px-8 py-3.5 font-heading font-bold text-sm bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 rounded-full text-center transition-all duration-300 shadow-md shadow-blue-500/10">
+              {currentLang === "hi"
+                ? "सभी जन सेवा केंद्र सेवाएं देखें"
+                : "View All Jan Seva Kendra Services"}
             </div>
-          )}
+          </Link>
         </div>
       </section>
 
@@ -650,7 +731,7 @@ const Home = () => {
           </div>
           <div>
             <a
-              href="https://wa.me/919125949456?text=Hello%20Nitesh%20Communications,%20I%20have%20a%20repair/product%20query."
+              href="https://wa.me/919125949456?text=नमस्ते%20नितेश%20कम्युनिकेशन्स,%20मुझे%20रिपेयर%20या%20प्रोडक्ट%20से%20संबंधित%20जानकारी%20चाहिए।"
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all shadow-md shadow-blue-500/10 inline-block"

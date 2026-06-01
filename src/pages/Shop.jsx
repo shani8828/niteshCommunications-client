@@ -46,7 +46,7 @@ const Shop = () => {
   const [minPriceInput, setMinPriceInput] = useState("0");
   const [maxPriceInput, setMaxPriceInput] = useState("100000");
   const [sort, setSort] = useState(sortParam);
-  const [page, setPage] = useState( page => 1 );
+  const [page, setPage] = useState((page) => 1);
   const [totalPages, setTotalPages] = useState(1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
@@ -171,14 +171,18 @@ const Shop = () => {
       }
       try {
         // Fetch products of this category with a high limit to extract unique brand names
-        const response = await api.get(`/products?category=${selectedCategory}&limit=200`);
+        const response = await api.get(
+          `/products?category=${selectedCategory}&limit=200`,
+        );
         if (response.data && response.data.products) {
           const brands = response.data.products
             .map((p) => p.brand)
             .filter((b) => b && b.trim() !== "")
             .map((b) => b.trim());
           // Unique and sorted alphabetically
-          const uniqueBrands = Array.from(new Set(brands)).sort((a, b) => a.localeCompare(b));
+          const uniqueBrands = Array.from(new Set(brands)).sort((a, b) =>
+            a.localeCompare(b),
+          );
           setAvailableBrands(uniqueBrands);
         }
       } catch (err) {
@@ -194,7 +198,12 @@ const Shop = () => {
       const cached = getCachedData(cacheKey);
       if (cached) {
         let fetchedProducts = cached.products;
-        if (!selectedCategory && !selectedBrand && !search && sort === "newest") {
+        if (
+          !selectedCategory &&
+          !selectedBrand &&
+          !search &&
+          sort === "newest"
+        ) {
           fetchedProducts = shuffleArray(fetchedProducts);
         }
         setProducts(fetchedProducts);
@@ -217,7 +226,12 @@ const Shop = () => {
         ); // Cache products for 5 minutes
 
         let fetchedProducts = response.data.products;
-        if (!selectedCategory && !selectedBrand && !search && sort === "newest") {
+        if (
+          !selectedCategory &&
+          !selectedBrand &&
+          !search &&
+          sort === "newest"
+        ) {
           fetchedProducts = shuffleArray(fetchedProducts);
         }
         setProducts(fetchedProducts);
@@ -258,8 +272,8 @@ const Shop = () => {
         </h2>
         <p className="text-sm text-slate-500 max-w-xl mx-auto leading-relaxed">
           {currentLang == "hi"
-            ? "स्टेशनरी, फाइल फोल्डर, ब्लूटूथ इयरफ़ोन, चार्जर, बैटरी, हेडफ़ोन,फ़ोन ग्लास, फ़ोन आदि उपलब्ध हैं।"
-            : "Stationary, File Folders, Bluetooth Earphone, Charger, Battery, Headphone, Phone Glasses, Phones are available."}
+            ? "पुरुषों के कपड़े, स्टेशनरी, फाइल फोल्डर, ब्लूटूथ इयरफ़ोन, चार्जर, बैटरी, हेडफ़ोन,फ़ोन ग्लास, फ़ोन आदि उपलब्ध हैं।"
+            : "Men's Clothes, Stationary, File Folders, Bluetooth Earphone, Charger, Battery, Headphone, Phone Glasses, Phones are available."}
         </p>
       </div>
 
@@ -447,7 +461,9 @@ const Shop = () => {
                         type="checkbox"
                         checked={selectedBrand === brandName}
                         onChange={() => {
-                          setSelectedBrand(selectedBrand === brandName ? "" : brandName);
+                          setSelectedBrand(
+                            selectedBrand === brandName ? "" : brandName,
+                          );
                           setPage(1);
                         }}
                         className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
@@ -505,8 +521,25 @@ const Shop = () => {
                   return (
                     <div
                       key={product._id}
-                      className="p-4 flex flex-col gap-3 bg-white border border-slate-200 rounded-2xl hover:shadow-md transition-all"
+                      className="p-4 flex flex-col gap-3 bg-white border border-slate-200 rounded-2xl hover:shadow-md transition-all relative group"
                     >
+                      {/* Floating Wishlist Button */}
+                      <button
+                        onClick={() => toggleWishlist(product)}
+                        className={`absolute top-6 right-6 w-8 h-8 rounded-full border flex justify-center items-center cursor-pointer transition-all z-10 shadow-sm ${
+                          isWishlisted
+                            ? "border-rose-200 bg-rose-50 text-rose-500"
+                            : "border-slate-200 bg-white text-slate-400 hover:text-rose-500 hover:scale-105"
+                        }`}
+                        title={currentLang === "hi" ? "विशलिस्ट में जोड़ें/हटाएं" : "Add/Remove from Wishlist"}
+                      >
+                        <Heart
+                          size={15}
+                          fill={isWishlisted ? "#ef4444" : "none"}
+                          color={isWishlisted ? "#ef4444" : "currentColor"}
+                        />
+                      </button>
+
                       {/* Image Wrap */}
                       <Link
                         to={`/products/${product.slug || product._id}`}
@@ -526,18 +559,6 @@ const Shop = () => {
                           <span className="text-[10px] uppercase font-bold text-blue-600 tracking-wider">
                             {product.category?.name[currentLang]}
                           </span>
-                          {user && (
-                            <button
-                              onClick={() => toggleWishlist(product)}
-                              className="bg-transparent border-0 cursor-pointer p-0"
-                            >
-                              <Heart
-                                size={16}
-                                fill={isWishlisted ? "#ef4444" : "none"}
-                                color={isWishlisted ? "#ef4444" : "#94a3b8"}
-                              />
-                            </button>
-                          )}
                         </div>
 
                         <Link to={`/products/${product.slug || product._id}`}>

@@ -143,6 +143,30 @@ const Profile = () => {
     }
   };
 
+  const handleCancelClick = async (ord) => {
+    if (ord.paymentStatus === 'Paid') {
+      navigate(`/order-tracking/${ord._id}/return?cancel=true`);
+    } else {
+      const confirmCancel = window.confirm(
+        isHindi
+          ? 'क्या आप सचमुच इस ऑर्डर को रद्द करना चाहते हैं?'
+          : 'Are you sure you want to cancel this order?'
+      );
+      if (!confirmCancel) return;
+
+      setActionLoading(true);
+      try {
+        await api.post(`/orders/${ord._id}/cancel`);
+        showToast.success(isHindi ? 'ऑर्डर सफलतापूर्वक रद्द कर दिया गया!' : 'Order cancelled successfully!');
+        fetchMyOrders();
+      } catch (err) {
+        showToast.error(err.response?.data?.message || 'Cancellation failed');
+      } finally {
+        setActionLoading(false);
+      }
+    }
+  };
+
   if (loading && !user) return <Loader fullPage />;
 
   return (
@@ -226,7 +250,7 @@ const Profile = () => {
                       <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] bg-blue-50 text-blue-600 font-bold px-2 py-0.5 rounded border border-blue-100 uppercase tracking-wide">
-                            Order ID: NC-{ord.orderId}
+                            Order ID: {ord.orderId}
                           </span>
                           <span className="text-[10px] text-slate-400 font-semibold">
                             {new Date(ord.createdAt).toLocaleDateString()}
@@ -270,12 +294,23 @@ const Profile = () => {
                           </span>
                         </div>
 
-                        <Link
-                          to={`/order-tracking/${ord._id}`}
-                          className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 hover:underline"
-                        >
-                          {isHindi ? 'ऑर्डर ट्रैक करें' : 'Track Order'} <ArrowRight size={12} />
-                        </Link>
+                        <div className="flex flex-col sm:flex-row items-center gap-3 mt-1.5 w-full sm:w-auto">
+                          <Link
+                            to={`/order-tracking/${ord._id}`}
+                            className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 hover:underline"
+                          >
+                            {isHindi ? 'ऑर्डर ट्रैक करें' : 'Track Order'} <ArrowRight size={12} />
+                          </Link>
+                          {['Order Placed', 'Confirmed', 'Packed', 'Waiting Pickup'].includes(ord.deliveryStatus) && (
+                            <button
+                              type="button"
+                              onClick={() => handleCancelClick(ord)}
+                              className="px-3 py-1 text-[11px] font-bold text-rose-600 hover:text-white bg-rose-50 hover:bg-rose-600 border border-rose-200 hover:border-rose-600 rounded-lg cursor-pointer transition-all w-full sm:w-auto text-center"
+                            >
+                              {isHindi ? 'ऑर्डर रद्द करें' : 'Cancel Order'}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

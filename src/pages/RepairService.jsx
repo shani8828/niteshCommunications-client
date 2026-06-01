@@ -1,22 +1,250 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
 import api from "../utils/api";
-import { Wrench, MapPin, Smartphone, Battery, Zap, Cpu, Camera, Volume2, Shield } from "lucide-react";
+import {
+  Wrench,
+  MapPin,
+  Smartphone,
+  Battery,
+  Zap,
+  Cpu,
+  Camera,
+  Volume2,
+  Shield,
+  ArrowLeft,
+  CheckCircle,
+  FileText,
+  User,
+  Phone,
+  X,
+} from "lucide-react";
 import QuickLinksBanner from "../components/common/QuickLinksBanner";
+
+// Configured Brand, Model & Price database for repairs
+const repairPricingData = {
+  display_repair: {
+    category: "Display repair",
+    title: {
+      en: "Screen / Folder Replacement",
+      hi: "स्क्रीन और फोल्डर रिप्लेसमेंट",
+    },
+    desc: {
+      en: "Fix broken, flickering, color bleeding, or non-responsive touchscreen folders.",
+      hi: "टूटे हुए, टिमटिमाते, रंग बदलने वाले, या काम न करने वाले टचस्क्रीन फोल्डर को बदलें।",
+    },
+    icon: Smartphone,
+    brands: {
+      Apple: {
+        "iPhone 11": 2999,
+        "iPhone 12": 4999,
+        "iPhone 13": 6999,
+        "iPhone 14": 8999,
+      },
+      Samsung: {
+        "Galaxy M31 / M51": 1899,
+        "Galaxy A52 / A72": 3499,
+        "Galaxy S21 / S22": 7999,
+      },
+      "Xiaomi / Redmi": {
+        "Redmi Note 10 / 11": 1699,
+        "Redmi Note 12 / 12 Pro": 2499,
+        "Xiaomi 11 Lite": 3199,
+      },
+      OnePlus: {
+        "Nord CE / CE 2": 2799,
+        "OnePlus 8 / 8T": 5499,
+        "OnePlus 9R / 9 Pro": 7499,
+      },
+      Realme: {
+        "Realme 8 / 9": 1599,
+        "Realme GT Master": 2999,
+      },
+    },
+  },
+  battery_replacement: {
+    category: "Battery replacement",
+    title: { en: "Battery Replacement", hi: "मोबाइल बैटरी बदलना" },
+    desc: {
+      en: "Replace old, bloated, draining, or heating phone batteries with fresh cells.",
+      hi: "पुरानी, सूजी हुई, जल्दी डिस्चार्ज होने वाली या गर्म होने वाली मोबाइल बैटरी को नई सेल से बदलें।",
+    },
+    icon: Battery,
+    brands: {
+      Apple: {
+        "iPhone 11": 1499,
+        "iPhone 12": 1999,
+        "iPhone 13": 2499,
+        "iPhone 14": 2999,
+      },
+      Samsung: {
+        "Galaxy M31 / M51": 899,
+        "Galaxy A52 / A72": 1099,
+        "Galaxy S21 / S22": 1499,
+      },
+      "Xiaomi / Redmi": {
+        "Redmi Note 10 / 11": 799,
+        "Redmi Note 12 / 12 Pro": 999,
+        "Xiaomi 11 Lite": 1199,
+      },
+      OnePlus: {
+        "Nord CE / CE 2": 999,
+        "OnePlus 8 / 8T": 1299,
+        "OnePlus 9R / 9 Pro": 1499,
+      },
+      Realme: {
+        "Realme 8 / 9": 799,
+        "Realme GT Master": 999,
+      },
+    },
+  },
+  charging_issue: {
+    category: "Charging issue",
+    title: {
+      en: "Charging Port Jack Repair",
+      hi: "चार्जिंग जैक और पोर्ट मरम्मत",
+    },
+    desc: {
+      en: "Fix loose connection, slow charging, or unrecognised USB connection issues.",
+      hi: "ढीले कनेक्शन, धीमी चार्जिंग, या न पहचानी जाने वाली यूएसबी कनेक्शन समस्याओं को ठीक करें।",
+    },
+    icon: Zap,
+    brands: {
+      Apple: {
+        "iPhone 11": 999,
+        "iPhone 12": 1299,
+        "iPhone 13": 1499,
+      },
+      Samsung: {
+        "Galaxy M Series": 399,
+        "Galaxy A Series": 499,
+        "Galaxy S Series": 799,
+      },
+      "Xiaomi / Redmi": {
+        "Redmi Note Series": 349,
+        "Xiaomi Premium Series": 499,
+      },
+      OnePlus: {
+        "Nord Series": 399,
+        "OnePlus Flagship Series": 599,
+      },
+      Realme: {
+        "Realme Number Series": 349,
+        "Realme GT Series": 499,
+      },
+    },
+  },
+  hardware_repair: {
+    category: "Hardware repair",
+    title: {
+      en: "Motherboard Chip-Level Repair",
+      hi: "मदरबोर्ड और आईसी चिप-लेवल रिपेयर",
+    },
+    desc: {
+      en: "Micro-soldering, water damage recovery, network IC, and CPU reballing.",
+      hi: "माइक्रो-सोल्डरिंग, पानी से खराब हुए फोन की रिकवरी, नेटवर्क आईसी और सीपीयू रीबॉलिंग।",
+    },
+    icon: Cpu,
+    brands: {
+      Apple: {
+        "iPhone 11 / 12": 2499,
+        "iPhone 13 / 14": 3999,
+      },
+      Samsung: {
+        "Galaxy A / M Series": 1299,
+        "Galaxy S Series": 2499,
+      },
+      "Xiaomi / Redmi": {
+        "Redmi Note Series": 999,
+        "Xiaomi Premium Series": 1499,
+      },
+      OnePlus: {
+        "Nord Series": 1299,
+        "OnePlus Flagship Series": 2299,
+      },
+      Realme: {
+        "Realme Number Series": 999,
+        "Realme GT Series": 1499,
+      },
+    },
+  },
+  speaker_repair: {
+    category: "Speaker repair",
+    title: {
+      en: "Speaker, Mic & Audio Fix",
+      hi: "स्पीकर, माइक और ऑडियो फिक्स",
+    },
+    desc: {
+      en: "Repair crackling ear speaker, low volume, silent main speaker, or faulty mic.",
+      hi: "फटने वाली आवाज, कम वॉल्यूम, बंद मुख्य स्पीकर, या दोषपूर्ण माइक को ठीक करें।",
+    },
+    icon: Volume2,
+    brands: {
+      Apple: {
+        "iPhone 11 / 12": 799,
+        "iPhone 13 / 14": 999,
+      },
+      Samsung: {
+        "Galaxy A / M Series": 349,
+        "Galaxy S Series": 599,
+      },
+      "Xiaomi / Redmi": {
+        "Redmi Note Series": 249,
+        "Xiaomi Premium Series": 399,
+      },
+      OnePlus: {
+        "Nord Series": 349,
+        "OnePlus Flagship Series": 499,
+      },
+      Realme: {
+        "Realme Number Series": 249,
+        "Realme GT Series": 399,
+      },
+    },
+  },
+  software_issue: {
+    category: "Software issue",
+    title: { en: "Software Flash & OS Boot", hi: "सॉफ्टवेयर फ्लैश और ओएस बूट" },
+    desc: {
+      en: "Bypass boot loops, logo stuck, pattern lock, FRP Google lock bypass.",
+      hi: "बूट लूप, लोगो पर अटकना, पैटर्न लॉक, एफआरपी गूगल लॉक बाईपास।",
+    },
+    icon: Wrench,
+    brands: {
+      Apple: {
+        "All iOS Devices (OS restoration)": 499,
+      },
+      Samsung: {
+        "All Models (OS Flash / FRP bypass)": 399,
+      },
+      "Xiaomi / Redmi": {
+        "All Models (FRP / Account / Bootloop)": 299,
+      },
+      OnePlus: {
+        "All Models (OxygenOS Flash / Brick recovery)": 399,
+      },
+      Realme: {
+        "All Models (ROM Flash / Lock Bypass)": 299,
+      },
+    },
+  },
+};
 
 const RepairService = () => {
   const { t, i18n } = useTranslation(["repair", "common", "notifications"]);
   const { user } = useAuth();
   const currentLang = i18n.language || "hi";
+  const location = useLocation();
 
+  // SEO & Head Metadata
   useEffect(() => {
-    document.title = currentLang === "hi"
-      ? "मोबाइल रिपेयरिंग सेवाएं | Nitesh Communications"
-      : "Mobile Repair Services | Nitesh Communications";
+    document.title =
+      currentLang === "hi"
+        ? "मोबाइल रिपेयरिंग सेवाएं | Nitesh Communications"
+        : "Mobile Repair Services | Nitesh Communications";
 
     let metaDesc = document.querySelector("meta[name='description']");
     if (!metaDesc) {
@@ -28,30 +256,100 @@ const RepairService = () => {
       "content",
       currentLang === "hi"
         ? "अयोध्या में विशेषज्ञ मोबाइल स्क्रीन रिप्लेसमेंट, बैटरी रिप्लेसमेंट, सॉफ्टवेयर फ्लैशिंग और ग्लास रिपेयर सेवाएं।"
-        : "Expert screen replacement, battery replacement, software flashing, and glass repair services in Ayodhya."
+        : "Expert screen replacement, battery replacement, software flashing, and glass repair services in Ayodhya.",
     );
-
-    let canonicalLink = document.querySelector("link[rel='canonical']");
-    if (!canonicalLink) {
-      canonicalLink = document.createElement("link");
-      canonicalLink.setAttribute("rel", "canonical");
-      document.head.appendChild(canonicalLink);
-    }
-    canonicalLink.setAttribute("href", `${window.location.origin}/repairs`);
   }, [currentLang]);
 
+  // Interactive Selection Wizard State
+  const [selectedServiceKey, setSelectedServiceKey] = useState(null);
+  const [selectedBrand, setSelectedBrand] = useState(null);
+  const [selectedModel, setSelectedModel] = useState(null);
+  const [confirmBookFromHome, setConfirmBookFromHome] = useState(false);
+
+  // Booking Form State
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [brand, setBrand] = useState("");
-  const [model, setModel] = useState("");
-  const [category, setCategory] = useState("Hardware repair");
-  const [problem, setProblem] = useState("");
   const [address, setAddress] = useState("");
   const [coordinates, setCoordinates] = useState(null);
   const [geolocating, setGeolocating] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(null);
 
   const [faqOpen, setFaqOpen] = useState([false, false, false]);
+
+  const [paymentType, setPaymentType] = useState("COD");
+  const [distance, setDistance] = useState(null);
+  const [outOfRange, setOutOfRange] = useState(false);
+
+  const SHOP_LAT = 26.671782;
+  const SHOP_LON = 82.008832;
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Radius of the earth in km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) *
+        Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c; // Distance in km
+    return Number(d.toFixed(2));
+  };
+
+  useEffect(() => {
+    if (coordinates && coordinates.latitude) {
+      const dist = calculateDistance(
+        SHOP_LAT,
+        SHOP_LON,
+        coordinates.latitude,
+        coordinates.longitude
+      );
+      setDistance(dist);
+      setOutOfRange(dist > 15);
+    } else {
+      setDistance(null);
+      setOutOfRange(false);
+    }
+  }, [coordinates]);
+
+  // Enforce payment method limits based on price
+  useEffect(() => {
+    if (selectedServiceKey && selectedBrand && selectedModel) {
+      const price = repairPricingData[selectedServiceKey].brands[selectedBrand][selectedModel];
+      if (price > 5000) {
+        setPaymentType("Online");
+      }
+    }
+  }, [selectedServiceKey, selectedBrand, selectedModel]);
+
+  // Prevent background scrolling when modal is active
+  useEffect(() => {
+    if (selectedServiceKey) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [selectedServiceKey]);
+
+  // Autofill details once logged-in user is loaded
+  useEffect(() => {
+    if (user) {
+      setName(user.name || "");
+      setPhone(user.mobile || user.phone || "");
+      if (user.address) {
+        setAddress(user.address);
+      }
+      if (user.coordinates) {
+        setCoordinates(user.coordinates);
+      }
+    }
+  }, [user]);
 
   const toggleFaq = (index) => {
     setFaqOpen((prev) =>
@@ -62,7 +360,9 @@ const RepairService = () => {
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
       showToast.error(
-        "आपका ब्राउज़र लोकेशन का समर्थन नहीं करता है / Your browser does not support geolocation",
+        currentLang === "hi"
+          ? "आपका ब्राउज़र लोकेशन का समर्थन नहीं करता है"
+          : "Your browser does not support geolocation",
       );
       return;
     }
@@ -79,7 +379,9 @@ const RepairService = () => {
           if (data && data.display_name) {
             setAddress(data.display_name);
             showToast.success(
-              "लोकेशन सफलतापूर्वक प्राप्त की गई / Location retrieved successfully",
+              currentLang === "hi"
+                ? "लोकेशन सफलतापूर्वक प्राप्त की गई"
+                : "Location retrieved successfully",
             );
           } else {
             setAddress(`${latitude}, ${longitude}`);
@@ -88,7 +390,9 @@ const RepairService = () => {
           console.error(err);
           setAddress(`${latitude}, ${longitude}`);
           showToast.warning(
-            "लोकेशन तो मिल गई, पर पता खोजने में समस्या हुई / Location retrieved, but failed to fetch address name",
+            currentLang === "hi"
+              ? "लोकेशन मिल गई, पर पता खोजने में समस्या हुई"
+              : "Location retrieved, but failed to fetch address name",
           );
         } finally {
           setGeolocating(false);
@@ -98,20 +402,44 @@ const RepairService = () => {
         console.error(error);
         setGeolocating(false);
         showToast.error(
-          "लोकेशन अनुमति अस्वीकृत या उपलब्ध नहीं है / Location permission denied or unavailable",
+          currentLang === "hi"
+            ? "लोकेशन अनुमति अस्वीकृत या उपलब्ध नहीं है"
+            : "Location permission denied or unavailable",
         );
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
   };
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handleRepairSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !phone || !brand || !model || !problem || !address) {
+    if (!name.trim() || !phone.trim() || !address.trim()) {
       showToast.error(t("notifications:fill_all_fields"));
       return;
     }
+
+    if (outOfRange) {
+      showToast.error(
+        currentLang === "hi"
+          ? "क्षमा करें, आपका पता हमारी 15 किमी होम पिकअप सेवा सीमा से बाहर है।"
+          : "Sorry, your address is out of our 15km home pickup service range."
+      );
+      return;
+    }
+
+    const serviceData = repairPricingData[selectedServiceKey];
+    const price = serviceData.brands[selectedBrand][selectedModel];
 
     setLoading(true);
 
@@ -119,476 +447,824 @@ const RepairService = () => {
       const response = await api.post("/repairs", {
         customerName: name,
         customerPhone: phone,
-        deviceBrand: brand,
-        deviceModel: model,
-        problemDescription: problem,
-        serviceCategory: category,
+        deviceBrand: selectedBrand,
+        deviceModel: selectedModel,
+        problemDescription: serviceData.title.en,
+        serviceCategory: serviceData.category,
         pickupAddress: address,
+        estimatedPrice: price,
         coordinates,
+        paymentMethod: paymentType,
       });
 
       const data = response.data;
-      showToast.success(
-        t("notifications:repair_submitted") +
-          " ID: " +
-          (data.repair?.requestId || data.repairRequest?.requestId || ""),
-      );
-      setName("");
-      setPhone("");
-      setBrand("");
-      setModel("");
-      setProblem("");
-      setAddress("");
-      setCoordinates(null);
+
+      if (paymentType === "COD") {
+        setBookingSuccess({
+          id:
+            data.repair?._id ||
+            data.repair?.requestId ||
+            data.repairRequest?.requestId ||
+            "NC-REP-SUCCESS",
+          brand: selectedBrand,
+          model: selectedModel,
+          price,
+          service: serviceData.title[currentLang],
+          paymentMethod: paymentType,
+        });
+
+        showToast.success(
+          currentLang === "hi"
+            ? "रिपेयर सफलतापूर्वक बुक किया गया!"
+            : "Repair booked successfully!"
+        );
+
+        // Reset form options
+        setName(user?.name || "");
+        setPhone(user?.mobile || user?.phone || "");
+        setAddress(user?.address || "");
+        setCoordinates(user?.coordinates || null);
+        setPaymentType("COD");
+      } else {
+        const scriptLoaded = await loadRazorpayScript();
+        if (!scriptLoaded) {
+          showToast.error("Razorpay SDK failed to load. Are you offline?");
+          setLoading(false);
+          return;
+        }
+
+        const rzpKey = "rzp_test_dummy_key_id";
+
+        const options = {
+          key: rzpKey,
+          amount: data.razorpayOrder.amount,
+          currency: data.razorpayOrder.currency,
+          name: "NITESH COMMUNICATIONS",
+          description: "Payment for Repair Booking - " + selectedBrand + " " + selectedModel,
+          order_id: data.razorpayOrder.id,
+          prefill: {
+            name: name,
+            contact: phone,
+            email: user?.email || "",
+          },
+          theme: {
+            color: "#2563eb",
+          },
+          handler: async (rzpResponse) => {
+            setLoading(true);
+            try {
+              const verifyResponse = await api.post("/repairs/verify", {
+                repairId: data.repair._id,
+                razorpayPaymentId: rzpResponse.razorpay_payment_id,
+                razorpayOrderId: rzpResponse.razorpay_order_id,
+                razorpaySignature: rzpResponse.razorpay_signature,
+              });
+
+              setBookingSuccess({
+                id:
+                  verifyResponse.data.repair?._id ||
+                  data.repair?._id ||
+                  "NC-REP-SUCCESS",
+                brand: selectedBrand,
+                model: selectedModel,
+                price,
+                service: serviceData.title[currentLang],
+                paymentMethod: paymentType,
+              });
+
+              showToast.success(
+                currentLang === "hi"
+                  ? "रिपेयर सफलतापूर्वक बुक किया गया!"
+                  : "Repair booked successfully!"
+              );
+
+              // Reset form options
+              setName(user?.name || "");
+              setPhone(user?.mobile || user?.phone || "");
+              setAddress(user?.address || "");
+              setCoordinates(user?.coordinates || null);
+              setPaymentType("COD");
+            } catch (verifyErr) {
+              const verifyErrorMessage =
+                verifyErr.response?.data?.message || "Signature verification failed";
+              showToast.error(verifyErrorMessage);
+            } finally {
+              setLoading(false);
+            }
+          },
+          modal: {
+            ondismiss: () => {
+              showToast.warning("Payment window closed. Booking is pending.");
+            },
+          },
+        };
+
+        const razorpayInstance = new window.Razorpay(options);
+        razorpayInstance.open();
+      }
     } catch (err) {
-      const errorMessage = err.response?.data?.message || t("notifications:server_error");
+      const errorMessage =
+        err.response?.data?.message || t("notifications:server_error");
       showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const servicesList = [
-    {
-      title: { en: "Screen / Folder Replacement", hi: "स्क्रीन और फोल्डर रिप्लेसमेंट" },
-      desc: { en: "Fix broken, flickering, color bleeding, or non-responsive touchscreen folders.", hi: "टूटे हुए, टिमटिमाते, रंग बदलने वाले, या काम न करने वाले टचस्क्रीन फोल्डर को बदलें।" },
-      fee: { en: "₹1,499 onwards", hi: "₹1,499 से शुरू" },
-      time: { en: "1 - 2 Hours", hi: "1 - 2 घंटे" },
-      bullets: {
-        en: ["High-quality LCD/OLED panels", "90-day warranty included", "Tempered glass protection free"],
-        hi: ["उच्च गुणवत्ता वाले LCD/OLED पैनल", "90 दिनों की वारंटी शामिल", "टेम्पर्ड ग्लास सुरक्षा मुफ्त"]
-      },
-      icon: Smartphone
-    },
-    {
-      title: { en: "Battery Replacement", hi: "मोबाइल बैटरी बदलना" },
-      desc: { en: "Replace old, bloated, draining, or heating phone batteries with fresh cells.", hi: "पुरानी, सूजी हुई, जल्दी डिस्चार्ज होने वाली या गर्म होने वाली मोबाइल बैटरी को नई सेल से बदलें।" },
-      fee: { en: "₹799 onwards", hi: "₹799 से शुरू" },
-      time: { en: "30 - 60 Minutes", hi: "30 - 60 मिनट" },
-      bullets: {
-        en: ["OEM-quality high capacity batteries", "Strict testing & power safety", "Safe disposal of old cell"],
-        hi: ["OEM-गुणवत्ता वाली उच्च क्षमता वाली बैटरी", "सख्त परीक्षण और बिजली सुरक्षा", "पुरानी सेल का सुरक्षित निपटान"]
-      },
-      icon: Battery
-    },
-    {
-      title: { en: "Charging Port Jack Repair", hi: "चार्जिंग जैक और पोर्ट मरम्मत" },
-      desc: { en: "Fix loose connection, slow charging, or unrecognised USB connection issues.", hi: "ढीले कनेक्शन, धीमी चार्जिंग, या न पहचानी जाने वाली यूएसबी कनेक्शन समस्याओं को ठीक करें।" },
-      fee: { en: "₹349 onwards", hi: "₹349 से शुरू" },
-      time: { en: "1 - 2 Hours", hi: "1 - 2 घंटे" },
-      bullets: {
-        en: ["Type-C & Micro-USB jacks replacement", "Mic/audio pathway checking", "Proper solder joint reinforcement"],
-        hi: ["टाइप-सी और माइक्रो-यूएसबी जैक रिप्लेसमेंट", "माइक/ऑडियो पाथवे चेकिंग", "सोल्डर जोड़ का सुदृढ़ीकरण"]
-      },
-      icon: Zap
-    },
-    {
-      title: { en: "Motherboard Chip-Level Repair", hi: "मदरबोर्ड और आईसी चिप-लेवल रिपेयर" },
-      desc: { en: "Micro-soldering, water damage recovery, network IC, and CPU reballing.", hi: "माइक्रो-सोल्डरिंग, पानी से खराब हुए फोन की रिकवरी, नेटवर्क आईसी और सीपीयू रीबॉलिंग।" },
-      fee: { en: "₹999 onwards", hi: "₹999 से शुरू" },
-      time: { en: "1 - 2 Days", hi: "1 - 2 दिन" },
-      bullets: {
-        en: ["Expert chip-level micro-soldering", "Short circuit tracing on board", "Dead phone boot recovery"],
-        hi: ["विशेषज्ञ चिप-लेवल माइक्रो-सोल्डरिंग", "बोर्ड पर शॉर्ट सर्किट की ट्रेसिंग", "डेड फोन बूट रिकवरी"]
-      },
-      icon: Cpu
-    },
-    {
-      title: { en: "Speaker, Mic & Audio Fix", hi: "स्पीकर, माइक और ऑडियो फिक्स" },
-      desc: { en: "Repair crackling ear speaker, low volume, silent main speaker, or faulty mic.", hi: "फटने वाली आवाज, कम वॉल्यूम, बंद मुख्य स्पीकर, या दोषपूर्ण माइक को ठीक करें।" },
-      fee: { en: "₹249 onwards", hi: "₹249 से शुरू" },
-      time: { en: "1 - 2 Hours", hi: "1 - 2 घंटे" },
-      bullets: {
-        en: ["Original replacement buzzer/mic", "Dust mesh cleaning included", "Pre-delivery call quality check"],
-        hi: ["मूल रिप्लेसमेंट बजर/माइक", "धूल की जाली की सफाई शामिल", "वितरण से पहले कॉल गुणवत्ता की जांच"]
-      },
-      icon: Volume2
-    },
-    {
-      title: { en: "Camera Lens & Module Repair", hi: "कैमरा लेंस और सेंसर मरम्मत" },
-      desc: { en: "Replace blurry camera glass, broken external lens, or vibration issues.", hi: "धुंधले कैमरे के कांच, टूटे हुए बाहरी लेंस, या वाइब्रेशन की समस्या को बदलें।" },
-      fee: { en: "₹399 onwards", hi: "₹399 से शुरू" },
-      time: { en: "1 - 2 Hours", hi: "1 - 2 घंटे" },
-      bullets: {
-        en: ["OEM glass lens replacements", "Autofocus sensor realignment", "Dust removal from camera lens"],
-        hi: ["OEM ग्लास लेंस रिप्लेसमेंट", "ऑटोफोकस सेंसर रीलाइनमेंट", "कैमरा लेंस से धूल हटाना"]
-      },
-      icon: Camera
-    },
-    {
-      title: { en: "Software Flash & OS Boot", hi: "सॉफ्टवेयर फ्लैश और ओएस बूट" },
-      desc: { en: "Bypass boot loops, logo stuck, pattern lock, FRP Google lock bypass.", hi: "बूट लूप, लोगो पर अटकना, पैटर्न लॉक, एफआरपी गूगल लॉक बाईपास।" },
-      fee: { en: "₹299 onwards", hi: "₹299 से शुरू" },
-      time: { en: "1 - 2 Hours", hi: "1 - 2 घंटे" },
-      bullets: {
-        en: ["Official stock firmware flash", "Safe and secure data handling", "Latest security patch installations"],
-        hi: ["आधिकारिक स्टॉक फर्मवेयर फ्लैश", "सुरक्षित डेटा हैंडलिंग", "नवीनतम सुरक्षा पैच इंस्टॉलेशन"]
-      },
-      icon: Wrench
-    },
-    {
-      title: { en: "Custom Back Skins & Glass", hi: "कस्टम बैक स्किन और पैनल" },
-      desc: { en: "Precision machine cut designer skins and mobile back panel glass replacement.", hi: "सटीक मशीन कट डिजाइनर स्किन और मोबाइल बैक पैनल ग्लास रिप्लेसमेंट।" },
-      fee: { en: "₹199 onwards", hi: "₹199 से शुरू" },
-      time: { en: "15 - 30 Minutes", hi: "15 - 30 मिनट" },
-      bullets: {
-        en: ["3M quality scratch-proof skins", "Precision cutting for all brands", "Premium color match back glass"],
-        hi: ["3M गुणवत्ता वाली स्क्रैच-प्रूफ स्किन", "सभी ब्रांडों के लिए सटीक कटिंग", "प्रीमियम रंग मिलान बैक ग्लास"]
-      },
-      icon: Shield
-    }
-  ];
+  const handleResetWizard = () => {
+    setSelectedServiceKey(null);
+    setSelectedBrand(null);
+    setSelectedModel(null);
+    setConfirmBookFromHome(false);
+    setBookingSuccess(null);
+    setPaymentType("COD");
+    setDistance(null);
+    setOutOfRange(false);
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white relative">
       {loading && <Loader fullPage />}
+
+      {/* Header Banner Section */}
       <div className="text-center mb-12 flex flex-col items-center gap-2">
         <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-800 mt-1">
-          {t("common:repair")}
+          {currentLang === "hi"
+            ? "स्मार्टफोन रिपेयरिंग सेंटर"
+            : "Smartphone Repairing Centre"}
         </h2>
         <p className="text-sm text-slate-500 max-w-xl mx-auto leading-relaxed">
-          {currentLang == "hi"
-            ? "करमडांडा मोड़, अयोध्या में प्रोफेशनल चिप-लेवल रिपेयर, स्क्रीन रिप्लेसमेंट, और सॉफ्टवेयर फिक्स।"
-            : "Professional chip-level repairs, screen replacements, and software fixes at Karamdanda Mod, Ayodhya."}
+          {currentLang === "hi"
+            ? "स्क्रीन, बैटरी रिप्लेसमेंट, सॉफ्टवेयर फ़िक्स और चिप-लेवल मदरबोर्ड रिपेयर के लिए अयोध्या का सबसे भरोसेमंद केंद्र।"
+            : "Ayodhya's most trusted shop for screens, battery replacements, software fixes, and chip-level motherboard repairs."}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1.6fr_1.1fr] gap-10">
-        {/* Left Column: Repair Service Offerings Showcase */}
-        <div className="flex flex-col gap-6">
-          <h3 className="font-heading text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
-            {currentLang === 'hi' ? 'सभी रिपेयर सेवाएं और अनुमानित दरें' : 'All Repair Services & Estimated Pricing'}
+      {/* Restructured Main Flow */}
+      <div className="max-w-4xl mx-auto">
+        {/* Step 1: Select Repair Category / Service */}
+        <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-3xl shadow-sm">
+          <h3 className="font-heading text-base font-bold text-slate-800 mb-6 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
+              1
+            </span>
+            {currentLang === "hi"
+              ? "मरम्मत सेवा चुनें"
+              : "Select Repair Service"}
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {servicesList.map((item, idx) => {
-              const IconComponent = item.icon;
-              return (
-                <div
-                  key={idx}
-                  className="flex flex-col p-6 bg-white border border-slate-200/80 rounded-2xl transition-all hover:shadow-md hover:border-blue-200/80 gap-3 relative group"
-                >
-                  <div className="flex justify-between items-start gap-4">
-                    <div className="bg-blue-50 border border-blue-100 p-2.5 rounded-xl flex justify-center items-center">
-                      <IconComponent size={20} className="text-blue-600" />
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className="text-[10px] bg-blue-50 text-blue-600 font-bold px-2.5 py-1 rounded-full border border-blue-100 uppercase tracking-wide">
-                        {item.fee[currentLang]}
-                      </span>
-                      <span className="text-[9px] text-slate-400 font-semibold">
-                        {currentLang === 'hi' ? 'समय: ' : 'Time: '}{item.time[currentLang]}
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="flex flex-col gap-1">
-                    <h4 className="font-heading text-base font-bold text-slate-800">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {Object.entries(repairPricingData).map(([key, item]) => {
+              const Icon = item.icon;
+              const isSelected = selectedServiceKey === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => {
+                    setSelectedServiceKey(key);
+                    setSelectedBrand(null);
+                    setSelectedModel(null);
+                    setConfirmBookFromHome(false);
+                  }}
+                  className={`p-5 rounded-2xl border text-left flex flex-col gap-3 transition-all cursor-pointer outline-none ${
+                    isSelected
+                      ? "border-blue-600 bg-blue-50/40 shadow-sm"
+                      : "border-slate-200/80 bg-white hover:border-blue-200 hover:bg-slate-50/30"
+                  }`}
+                >
+                  <div
+                    className={`p-2.5 rounded-xl inline-flex self-start ${isSelected ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600"}`}
+                  >
+                    <Icon size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-heading text-sm font-bold text-slate-800 leading-tight">
                       {item.title[currentLang]}
                     </h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">
+                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed line-clamp-2">
                       {item.desc[currentLang]}
                     </p>
                   </div>
-
-                  <div className="border-t border-slate-100 pt-3 mt-1 flex flex-col gap-1.5">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                      {currentLang === 'hi' ? 'सेवा हाइलाइट्स:' : 'Service Highlights:'}
-                    </p>
-                    <ul className="list-none p-0 m-0 flex flex-col gap-1">
-                      {item.bullets[currentLang].map((bullet, bIdx) => (
-                        <li key={bIdx} className="text-xs text-slate-700 flex items-center gap-1.5">
-                          <span className="h-1.5 w-1.5 rounded-full bg-blue-500 flex-shrink-0" />
-                          <span>{bullet}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
+                </button>
               );
             })}
           </div>
         </div>
+      </div>
 
-        {/* Right Column: Booking Form, WhatsApp CTA & FAQs */}
-        <div className="flex flex-col gap-6 w-full">
-          {!user ? (
-            <div className="p-8 md:p-10 bg-white border border-slate-200 rounded-2xl flex flex-col items-center text-center gap-6 shadow-sm">
-              <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
-                <Wrench size={30} className="animate-pulse" />
-              </div>
-              <div className="flex flex-col gap-2">
-                <h3 className="font-heading text-lg font-extrabold text-slate-800">
-                  {currentLang === "hi"
-                    ? "रिपेयर बुकिंग और मूल्य निर्धारण"
-                    : "Repair Booking & Pricing"}
-                </h3>
-                <p className="text-sm text-slate-500 leading-relaxed max-w-sm">
-                  {currentLang === "hi"
-                    ? "घर बैठे त्वरित मरम्मत मूल्य निर्धारण और मोबाइल रिपेयर बुकिंग के लिए कृपया लॉगिन करें।"
-                    : "Please login for instant repair pricing and booking a repair from your home."}
-                </p>
-              </div>
-              <Link
-                to="/login"
-                className="w-full sm:w-auto px-8 py-3 font-heading font-bold text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-md shadow-blue-500/10 transition-all flex items-center justify-center gap-2 cursor-pointer border-0"
-              >
-                {currentLang === "hi" ? "लॉगिन करें" : "Login to Continue"}
-              </Link>
-            </div>
-          ) : (
-            <>
-              {/* WhatsApp CTA Button */}
-              <div className="p-6 bg-white border border-slate-200 border-l-4 border-l-emerald-500 rounded-r-2xl flex flex-col gap-3 shadow-sm">
-                <h4 className="font-heading font-bold text-sm text-emerald-600">
-                  {currentLang == "hi"
-                    ? "तुरंत मरम्मत मूल्य निर्धारण चाहिए?"
-                    : "Need Instant Repair Quote?"}
-                </h4>
-                <p className="text-xs text-slate-500 leading-relaxed">
-                  {currentLang == "hi"
-                    ? "मूल्य निर्धारण या नैदानिक प्रश्नों पर चर्चा करने के लिए सीधे नितेश कम्युनिकेशंस टीम से व्हाट्सएप पर चैट करें।"
-                    : "Chat directly with Nitesh Communications Team on WhatsApp to discuss pricing or diagnostic questions."}
-                </p>
-                <div>
-                  <a
-                    href="https://wa.me/919125949456?text=Hello%20Nitesh%20Communications,%20I%20have%20a%20repair%20query."
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm inline-block cursor-pointer transition-colors border-0"
+      {/* Modal Popup Overlay for interactive steps */}
+      {selectedServiceKey && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-fadeIn">
+          <div className="relative w-full max-w-2xl bg-white border border-slate-100 rounded-3xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto flex flex-col gap-5">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-3">
+                {/* Back button within modal */}
+                {selectedBrand && !bookingSuccess && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (
+                        confirmBookFromHome === "no" ||
+                        confirmBookFromHome === true
+                      ) {
+                        setConfirmBookFromHome(false);
+                      } else if (selectedModel) {
+                        setSelectedModel(null);
+                      } else {
+                        setSelectedBrand(null);
+                      }
+                    }}
+                    className="p-1.5 hover:bg-slate-50 rounded-lg text-slate-400 hover:text-slate-700 transition-colors border-0 bg-transparent cursor-pointer"
                   >
-                    {currentLang == "hi"
-                      ? "व्हाट्सएप पर चैट करें"
-                      : "Chat on WhatsApp"}
-                  </a>
+                    <ArrowLeft size={18} />
+                  </button>
+                )}
+                <div>
+                  <h3 className="font-heading text-base font-extrabold text-slate-800">
+                    {repairPricingData[selectedServiceKey].title[currentLang]}
+                  </h3>
+                  <p className="text-[10px] text-slate-400 mt-0.5 max-w-md hidden sm:block">
+                    {repairPricingData[selectedServiceKey].desc[currentLang]}
+                  </p>
                 </div>
               </div>
 
-              {/* Booking Form Card */}
-              <div className="p-6 md:p-8 bg-white border border-slate-200 rounded-2xl flex flex-col gap-4 shadow-sm">
-                <h3 className="font-heading text-base font-bold text-slate-800 mb-2">
-                  {t("repair:book_repair")}
-                </h3>
-                <form onSubmit={handleRepairSubmit} className="flex flex-col gap-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex flex-col">
-                      <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                        {currentLang == "hi" ? "पूरा नाम" : "Full Name"} *
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                        placeholder="Enter name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                        {currentLang == "hi" ? "संपर्क नंबर" : "Phone Number"} *
-                      </label>
-                      <input
-                        type="tel"
-                        maxLength="10"
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                        placeholder="9876543210"
-                        value={phone}
-                        onChange={(e) =>
-                          setPhone(e.target.value.replace(/\D/g, ""))
-                        }
-                        required
-                      />
-                    </div>
-                  </div>
+              {/* Close (X) button */}
+              <button
+                type="button"
+                onClick={handleResetWizard}
+                className="p-1.5 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors border-0 bg-transparent cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex flex-col">
-                      <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                        {t("repair:device_brand")} *
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                        placeholder={t("repair:placeholder_brand")}
-                        value={brand}
-                        onChange={(e) => setBrand(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                        {currentLang == "hi" ? "डिवाइस मॉडल" : "Device Model *"}
-                      </label>
-                      <input
-                        type="text"
-                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                        placeholder="e.g. Note 12 Pro, Galaxy S21"
-                        value={model}
-                        onChange={(e) => setModel(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
+            {/* Modal Content */}
+            {bookingSuccess ? (
+              /* BOOKING SUCCESS SCREEN */
+              <div className="text-center flex flex-col items-center gap-5 py-4 animate-fadeIn">
+                <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+                  <CheckCircle size={32} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <h3 className="font-heading text-xl font-extrabold text-slate-800">
+                    {currentLang === "hi"
+                      ? "बुकिंग की पुष्टि हो गई!"
+                      : "Repair Booking Confirmed!"}
+                  </h3>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                    Request ID: {bookingSuccess.id}
+                  </p>
+                  <p className="text-xs text-slate-500 max-w-md leading-relaxed mt-1">
+                    {currentLang === "hi"
+                      ? `हमने ${bookingSuccess.brand} ${bookingSuccess.model} के लिए ${bookingSuccess.service} का अनुरोध दर्ज कर लिया है।`
+                      : `We have registered your request for ${bookingSuccess.service} on your ${bookingSuccess.brand} ${bookingSuccess.model}.`}
+                  </p>
+                </div>
 
-                  <div className="flex flex-col">
-                    <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                      {t("repair:device_category")} *
-                    </label>
-                    <select
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none cursor-pointer text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                    >
-                      <option value="Hardware repair">
-                        {currentLang == "hi"
-                          ? "हार्डवेयर मरम्मत"
-                          : "Hardware Repair"}
-                      </option>
-                      <option value="Display repair">
-                        {t("repair:cat_display")}
-                      </option>
-                      <option value="Battery replacement">
-                        {t("repair:cat_battery")}
-                      </option>
-                      <option value="Software issue">
-                        {t("repair:cat_software")}
-                      </option>
-                      <option value="Other">
-                        {currentLang == "hi" ? "अन्य समस्याएं" : "Other Issues"}
-                      </option>
-                    </select>
+                <div className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-left flex flex-col gap-2 max-w-sm">
+                  <div className="flex justify-between text-xs text-slate-500 font-semibold">
+                    <span>
+                      {currentLang === "hi"
+                        ? "अनुमानित लागत"
+                        : "Estimated Cost"}
+                    </span>
+                    <span className="text-slate-900 font-bold">
+                      ₹{bookingSuccess.price}
+                    </span>
                   </div>
-
-                  <div className="flex flex-col">
-                    <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                      {t("repair:problem_desc")} *
-                    </label>
-                    <textarea
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                      rows="3"
-                      placeholder={t("repair:placeholder_desc")}
-                      value={problem}
-                      onChange={(e) => setProblem(e.target.value)}
-                      required
-                    />
+                  <div className="flex justify-between text-xs text-slate-500 font-semibold border-t border-slate-200/60 pt-2">
+                    <span>
+                      {currentLang === "hi" ? "भुगतान प्रकार" : "Payment Method"}
+                    </span>
+                    <span className="text-slate-900 font-bold">
+                      {bookingSuccess.paymentMethod === "Online"
+                        ? (currentLang === "hi" ? "ऑनलाइन भुगतान" : "Online Payment")
+                        : (currentLang === "hi" ? "कैश ऑन डिलीवरी" : "Cash on Delivery")}
+                    </span>
                   </div>
+                  <div className="flex justify-between text-xs text-slate-500 font-semibold border-t border-slate-200/60 pt-2">
+                    <span>
+                      {currentLang === "hi" ? "पिकअप चार्ज" : "Pickup Charge"}
+                    </span>
+                    <span className="text-emerald-600 font-bold">FREE</span>
+                  </div>
+                </div>
 
-                  <div className="flex flex-col">
-                    <div className="flex justify-between items-center mb-1.5">
-                      <label className="text-xs font-semibold text-slate-500">
-                        {t("repair:pickup_address")} *
-                      </label>
+                <button
+                  onClick={handleResetWizard}
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-heading font-bold text-xs rounded-xl shadow-md cursor-pointer border-0 mt-2 transition-all"
+                >
+                  {currentLang === "hi"
+                    ? "पूर्ण (Done)"
+                    : "Close & Book Another"}
+                </button>
+              </div>
+            ) : !selectedBrand ? (
+              /* STEP 2: Select Brand */
+              <div className="flex flex-col gap-4 animate-fadeIn">
+                <span className="text-xs font-heading font-bold uppercase tracking-wider text-slate-400">
+                  {currentLang === "hi"
+                    ? "ब्रांड चुनें"
+                    : "Select Device Brand"}
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {Object.entries(
+                    repairPricingData[selectedServiceKey].brands,
+                  ).map(([brandName, modelsMap]) => {
+                    const prices = Object.values(modelsMap);
+                    const minPrice =
+                      prices.length > 0 ? Math.min(...prices) : 0;
+                    return (
                       <button
+                        key={brandName}
                         type="button"
-                        onClick={handleUseCurrentLocation}
-                        disabled={geolocating}
-                        className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer font-semibold disabled:text-slate-400 transition-colors"
+                        onClick={() => {
+                          setSelectedBrand(brandName);
+                          setSelectedModel(null);
+                        }}
+                        className="p-4 bg-white hover:bg-slate-50 border border-slate-200 hover:border-blue-300 rounded-2xl text-left flex flex-col gap-1 cursor-pointer transition-all outline-none"
                       >
-                        <MapPin
-                          size={14}
-                          className={geolocating ? "animate-bounce" : ""}
-                        />
-                        {geolocating
-                          ? "खोज रहे हैं... / Locating..."
-                          : "वर्तमान लोकेशन / Use Location"}
+                        <span className="font-heading font-bold text-xs text-slate-800">
+                          {brandName}
+                        </span>
+                        <span className="text-[10px] text-blue-600 font-semibold">
+                          {currentLang === "hi"
+                            ? `₹${minPrice} से शुरू`
+                            : `Starts ₹${minPrice}`}
+                        </span>
                       </button>
-                    </div>
-                    <textarea
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-                      rows="2"
-                      placeholder={t("repair:placeholder_address")}
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      required
-                    />
-                    {coordinates && (
-                      <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 shadow-inner h-32 w-full relative">
-                        <iframe
-                          title="Location Map"
-                          width="100%"
-                          height="100%"
-                          frameBorder="0"
-                          src={`https://maps.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}&z=15&output=embed`}
-                          allowFullScreen
+                    );
+                  })}
+                </div>
+              </div>
+            ) : !selectedModel ? (
+              /* STEP 3: Select Model & View Pricing */
+              <div className="flex flex-col gap-4 animate-fadeIn">
+                <span className="text-xs font-heading font-bold uppercase tracking-wider text-slate-400">
+                  {selectedBrand} -{" "}
+                  {currentLang === "hi" ? "मॉडल चुनें" : "Select Model"}
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[35vh] overflow-y-auto pr-1">
+                  {Object.entries(
+                    repairPricingData[selectedServiceKey].brands[selectedBrand],
+                  ).map(([modelName, price]) => {
+                    return (
+                      <button
+                        key={modelName}
+                        type="button"
+                        onClick={() => {
+                          setSelectedModel(modelName);
+                        }}
+                        className="p-3.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-blue-300 rounded-xl flex justify-between items-center text-left cursor-pointer transition-all outline-none"
+                      >
+                        <span className="font-heading font-bold text-xs text-slate-800">
+                          {modelName}
+                        </span>
+                        <span className="text-xs font-extrabold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg border border-blue-100/50">
+                          ₹{price}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : !confirmBookFromHome ? (
+              /* STEP 4: Home pickup choice */
+              <div className="flex flex-col items-center gap-4 text-center py-4 animate-fadeIn">
+                <div className="border border-slate-100 bg-slate-50/50 p-4 rounded-2xl flex flex-col gap-2 w-full text-left">
+                  <h4 className="font-heading text-xs font-bold text-slate-800">
+                    {currentLang === "hi"
+                      ? "चयनित मरम्मत सारांश"
+                      : "Selected Repair Summary"}
+                  </h4>
+                  <div className="grid grid-cols-2 gap-y-1.5 text-xs font-semibold text-slate-500 mt-1">
+                    <span>
+                      {currentLang === "hi" ? "सेवा श्रेणी" : "Service Type"}
+                    </span>
+                    <span className="text-slate-800 text-right">
+                      {repairPricingData[selectedServiceKey].title[currentLang]}
+                    </span>
+                    <span>
+                      {currentLang === "hi" ? "उपकरण मॉडल" : "Device Model"}
+                    </span>
+                    <span className="text-slate-800 text-right">
+                      {selectedBrand} {selectedModel}
+                    </span>
+                    <span className="border-t border-slate-200 pt-1.5 font-bold text-blue-600">
+                      {currentLang === "hi"
+                        ? "अनुमानित राशि"
+                        : "Estimated Price"}
+                    </span>
+                    <span className="text-right border-t border-slate-200 pt-1.5 font-bold text-blue-600 text-sm">
+                      ₹
+                      {
+                        repairPricingData[selectedServiceKey].brands[
+                          selectedBrand
+                        ][selectedModel]
+                      }
+                    </span>
+                  </div>
+                </div>
+
+                <div className="py-2">
+                  <h4 className="font-heading text-sm sm:text-base font-extrabold text-slate-800">
+                    {currentLang === "hi"
+                      ? "क्या आप घर बैठे मोबाइल रिपेयरिंग बुक करना चाहते हैं?"
+                      : "Would you like to book a repair from home?"}
+                  </h4>
+                  <p className="text-xs text-slate-500 max-w-sm leading-relaxed mt-2 mx-auto">
+                    {currentLang === "hi"
+                      ? "हम मुफ़्त होम पिकअप और ड्रॉप सुविधा प्रदान करते हैं। हमारे प्रतिनिधि आपके पते पर आकर फोन प्राप्त करेंगे।"
+                      : "We offer free home pickups and drops. Our support agent will come to your address to collect your phone."}
+                  </p>
+                </div>
+
+                {outOfRange && (
+                  <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl text-xs text-left max-w-md mx-auto mb-2 flex flex-col gap-1">
+                    <span className="font-bold flex items-center gap-1">
+                      ⚠️ {currentLang === "hi" ? "होम पिकअप अनुपलब्ध" : "Home Pickup Unavailable"}
+                    </span>
+                    <span>
+                      {currentLang === "hi"
+                        ? `आपकी लोकेशन दुकान से ${distance} किमी दूर है, जो हमारी 15 किमी की सीमा से बाहर है। कृपया दुकान पर आने का विकल्प चुनें।`
+                        : `Your location is ${distance} km away, which exceeds our 15km home pickup service boundary. Please select the shop visit option.`}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-3 w-full justify-center mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setConfirmBookFromHome(true)}
+                    disabled={outOfRange}
+                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-heading font-bold text-xs rounded-xl shadow-md border-0 cursor-pointer transition-all flex-1 max-w-[200px] disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {currentLang === "hi"
+                      ? "हाँ, होम पिकअप बुक करें"
+                      : "Yes, Book Free Pickup"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmBookFromHome("no")}
+                    className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-heading font-bold text-xs rounded-xl border border-slate-200 cursor-pointer transition-all flex-1 max-w-[200px]"
+                  >
+                    {currentLang === "hi"
+                      ? "नहीं, मैं दुकान पर आऊंगा"
+                      : "No, I'll Visit Shop"}
+                  </button>
+                </div>
+              </div>
+            ) : confirmBookFromHome === "no" ? (
+              /* SHOP VISIT INFO CARD */
+              <div className="flex flex-col items-center gap-4 text-center py-4 animate-fadeIn">
+                <div className="w-12 h-12 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                  <Smartphone size={24} />
+                </div>
+                <div>
+                  <h4 className="font-heading text-sm sm:text-base font-extrabold text-slate-800">
+                    {currentLang === "hi"
+                      ? "हमारी दुकान पर आपका स्वागत है!"
+                      : "Welcome to Our Shop!"}
+                  </h4>
+                  <p className="text-xs text-slate-500 max-w-md leading-relaxed mt-2 mx-auto">
+                    {currentLang === "hi"
+                      ? "आप नीचे दिए गए पते पर आकर तत्काल रिपेयर प्राप्त कर सकते हैं। अधिकतर स्क्रीन और बैटरी रिप्लेसमेंट 1-2 घंटे में हो जाते हैं।"
+                      : "You can visit our store directly for instant repairs. Most screen & battery replacements are completed in 1-2 hours."}
+                  </p>
+                </div>
+
+                <div className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-left flex flex-col gap-3 text-xs font-semibold text-slate-600 mt-2">
+                  <div className="flex justify-between">
+                    <span>
+                      {currentLang === "hi" ? "दुकान का पता" : "Shop Address"}
+                    </span>
+                    <span className="text-slate-800 text-right">
+                      Nitesh Communications, Karamdanda Mod, Patkhauli Chauraha,
+                      Ayodhya
+                    </span>
+                  </div>
+                  <div className="flex justify-between border-t border-slate-200/60 pt-2.5">
+                    <span>
+                      {currentLang === "hi" ? "कार्य समय" : "Working Hours"}
+                    </span>
+                    <span className="text-slate-800 text-right">
+                      9:00 AM - 8:00 PM (Mon-Sat)
+                    </span>
+                  </div>
+                  <div className="flex justify-between border-t border-slate-200/60 pt-2.5">
+                    <span>
+                      {currentLang === "hi" ? "फ़ोन संपर्क" : "Contact Phone"}
+                    </span>
+                    <span className="text-blue-600 font-bold text-right">
+                      +91 9125949456
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 shadow-inner h-32 w-full relative">
+                  <iframe
+                    title="Shop Location Map"
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1651.7408662594805!2d82.01162535484514!3d26.671605216106993!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x399a11003ad51177%3A0xe8ae78ae027dc07!2sNitesh%20Communications!5e0!3m2!1sen!2sin!4v1780307010471!5m2!1sen!2sin"
+                    allowFullScreen
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setConfirmBookFromHome(true)}
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-heading font-bold text-xs rounded-xl shadow-md border-0 cursor-pointer transition-all mt-2"
+                >
+                  {currentLang === "hi"
+                    ? "होम पिकअप बुक करें"
+                    : "Book Pickup from Home instead"}
+                </button>
+              </div>
+            ) : (
+              /* DETAILED BOOKING FORM WITH AUTOFILL & MAP */
+              <div className="flex flex-col gap-4 animate-fadeIn">
+                {!user ? (
+                  /* LOGIN GATE */
+                  <div className="bg-slate-50 border border-slate-200 p-8 rounded-2xl text-center flex flex-col items-center gap-4 max-w-md mx-auto w-full">
+                    <Wrench size={28} className="text-blue-600 animate-pulse" />
+                    <h4 className="font-heading font-bold text-sm text-slate-800">
+                      {currentLang === "hi"
+                        ? "लॉगिन की आवश्यकता है"
+                        : "Login Required"}
+                    </h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      {currentLang === "hi"
+                        ? "रिपेयर बुकिंग करने और अपने ऑर्डर ट्रैक करने के लिए कृपया पहले लॉगिन करें।"
+                        : "Please login to confirm your repair booking and track its status."}
+                    </p>
+                    <Link
+                      to="/login"
+                      state={{ from: location }}
+                      className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-heading font-bold text-xs rounded-xl shadow-md cursor-pointer border-0 block text-center decoration-none"
+                    >
+                      {currentLang === "hi"
+                        ? "लॉगिन करें"
+                        : "Login to Continue"}
+                    </Link>
+                  </div>
+                ) : (
+                  /* BOOKING DETAILS FORM (AUTO-FILLED) */
+                  <form
+                    onSubmit={handleRepairSubmit}
+                    className="flex flex-col gap-4 w-full"
+                  >
+                    <h4 className="font-heading text-xs font-bold uppercase text-slate-400 tracking-wider border-b border-slate-100 pb-2">
+                      {currentLang === "hi"
+                        ? "होम पिकअप और संपर्क विवरण"
+                        : "Home Pickup & Contact Details"}
+                    </h4>
+
+                    <div className="flex flex-col">
+                      <label className="block mb-1.5 text-xs font-semibold text-slate-500">
+                        {currentLang === "hi"
+                          ? "ग्राहक का नाम"
+                          : "Customer Name"}{" "}
+                        *
+                      </label>
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                          <User size={14} />
+                        </span>
+                        <input
+                          type="text"
+                          className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-xs font-medium"
+                          placeholder="Your full name"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          required
                         />
                       </div>
-                    )}
-                  </div>
+                    </div>
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full py-3.5 mt-2 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    <span>{loading ? t("common:submitting", "Submitting...") : t("repair:btn_book")}</span>
-                  </button>
-                </form>
+                    <div className="flex flex-col">
+                      <label className="block mb-1.5 text-xs font-semibold text-slate-500">
+                        {currentLang === "hi" ? "संपर्क नंबर" : "Phone Number"}{" "}
+                        *
+                      </label>
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                          <Phone size={14} />
+                        </span>
+                        <input
+                          type="tel"
+                          maxLength="10"
+                          className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-xs font-medium"
+                          placeholder="Enter 10-digit phone number"
+                          value={phone}
+                          onChange={(e) =>
+                            setPhone(e.target.value.replace(/\D/g, ""))
+                          }
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <div className="flex justify-between items-center mb-1.5">
+                        <label className="text-xs font-semibold text-slate-500">
+                          {currentLang === "hi"
+                            ? "पिकअप का पता"
+                            : "Pickup Address"}{" "}
+                          *
+                        </label>
+                        <button
+                          type="button"
+                          onClick={handleUseCurrentLocation}
+                          disabled={geolocating}
+                          className="flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer font-bold disabled:text-slate-400 transition-colors"
+                        >
+                          <MapPin
+                            size={12}
+                            className={geolocating ? "animate-bounce" : ""}
+                          />
+                          {geolocating ? "Locating..." : "Use Location"}
+                        </button>
+                      </div>
+                      <textarea
+                        className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-xs font-medium"
+                        rows="2"
+                        placeholder="Flat / Building / Area Details"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        required
+                      />
+
+                      {coordinates ? (
+                        outOfRange ? (
+                          <div className="mt-2 bg-rose-50 border border-rose-200 text-rose-800 p-3 rounded-xl text-[11px] leading-relaxed animate-fadeIn">
+                            <strong>⚠️ {currentLang === "hi" ? "दूरी सीमा से बाहर:" : "Out of Pickup Range:"}</strong>{" "}
+                            {currentLang === "hi"
+                              ? `आपका पता दुकान से ${distance} किमी दूर है, जो 15 किमी पिकअप सीमा से बाहर है। होम डिलीवरी संभव नहीं है।`
+                              : `Your address is ${distance} km from our shop, which exceeds the 15km free pickup limit. Please visit our shop.`}
+                          </div>
+                        ) : (
+                          <div className="mt-2 bg-emerald-50 border border-emerald-250 text-emerald-850 p-2.5 rounded-xl text-[11px] font-semibold flex items-center gap-1.5 animate-fadeIn">
+                            <span>✓</span>
+                            <span>
+                              {currentLang === "hi"
+                                ? `लोकेशन सत्यापित: दुकान से दूरी ${distance} किमी (15 किमी सीमा के भीतर)।`
+                                : `Location Verified: ${distance} km from shop (within 15km pickup limit).`}
+                            </span>
+                          </div>
+                        )
+                      ) : (
+                        <div className="mt-2 bg-amber-50 border border-amber-200 text-amber-850 p-2.5 rounded-xl text-[11px] leading-relaxed">
+                          {currentLang === "hi"
+                            ? "📍 दूरी सीमा (15 किमी) की जांच करने के लिए कृपया 'Use Location' का उपयोग करें।"
+                            : "📍 Please use 'Use Location' to verify your distance is within the 15km boundary."}
+                        </div>
+                      )}
+
+                      {coordinates && (
+                        <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 shadow-inner h-28 w-full relative">
+                          <iframe
+                            title="Location Map"
+                            width="100%"
+                            height="100%"
+                            frameBorder="0"
+                            src={`https://maps.google.com/maps?q=${coordinates.latitude},${coordinates.longitude}&z=15&output=embed`}
+                            allowFullScreen
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Payment Method Selection */}
+                    <div className="flex flex-col gap-2 bg-slate-50 border border-slate-200/60 p-3.5 rounded-xl mt-1">
+                      <label className="block text-xs font-bold text-slate-700">
+                        {currentLang === "hi" ? "भुगतान का विकल्प चुनें" : "Select Payment Method"} *
+                      </label>
+                      
+                      <div className="flex flex-col gap-2.5 mt-1">
+                        <label className="flex items-center gap-2.5 cursor-pointer text-xs font-semibold text-slate-700">
+                          <input
+                            type="radio"
+                            name="repairPaymentType"
+                            value="COD"
+                            checked={paymentType === "COD"}
+                            onChange={() => setPaymentType("COD")}
+                            disabled={repairPricingData[selectedServiceKey].brands[selectedBrand][selectedModel] > 5000}
+                            className="w-4 h-4 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
+                          />
+                          <span>
+                            {currentLang === "hi" ? "कैश ऑन डिलीवरी (COD)" : "Cash on Delivery (COD)"}
+                          </span>
+                        </label>
+                        
+                        <label className="flex items-center gap-2.5 cursor-pointer text-xs font-semibold text-slate-700">
+                          <input
+                            type="radio"
+                            name="repairPaymentType"
+                            value="Online"
+                            checked={paymentType === "Online"}
+                            onChange={() => setPaymentType("Online")}
+                            className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                          />
+                          <span>
+                            {currentLang === "hi" ? "ऑनलाइन भुगतान" : "Online Payment"}
+                          </span>
+                        </label>
+                      </div>
+
+                      {repairPricingData[selectedServiceKey].brands[selectedBrand][selectedModel] > 5000 && (
+                        <p className="text-[10px] text-amber-600 font-semibold mt-1">
+                          {currentLang === "hi"
+                            ? "₹5,000 से अधिक की लागत होने के कारण केवल ऑनलाइन भुगतान का विकल्प उपलब्ध है।"
+                            : "For estimated costs exceeding ₹5,000, only Online Payment is available."}
+                        </p>
+                      )}
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading || outOfRange || !coordinates}
+                      className="w-full py-3 mt-2 font-heading font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md border-0 cursor-pointer transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading
+                        ? currentLang === "hi"
+                          ? "बुकिंग दर्ज हो रही है..."
+                          : "Processing Booking..."
+                        : !coordinates
+                        ? (currentLang === "hi" ? "पहले स्थान सत्यापित करें" : "Verify Location First")
+                        : outOfRange
+                        ? (currentLang === "hi" ? "दूरी सीमा से बाहर (पिकअप अवरुद्ध)" : "Out of Range (Pickup Blocked)")
+                        : `${currentLang === "hi" ? "बुक रिपेयर" : "Confirm Booking"} (₹${repairPricingData[selectedServiceKey].brands[selectedBrand][selectedModel]})`}
+                    </button>
+                  </form>
+                )}
               </div>
-            </>
-          )}
-
-          {/* FAQs Card */}
-          <div className="p-6 md:p-8 bg-white border border-slate-200 rounded-2xl flex flex-col gap-4 shadow-sm">
-            <h3 className="font-heading text-base font-bold text-blue-600 mb-2">
-              {t("repair:faq_title")}
-            </h3>
-            <div className={`flex flex-col gap-3`}>
-              {(currentLang === "hi"
-                ? [
-                    {
-                      q: "क्या आप वारंटी देते हैं?",
-                      a: "हाँ! हम सभी स्क्रीन रिप्लेसमेंट और बैटरी रिप्लेसमेंट पर 90 दिनों की वारंटी देते हैं।",
-                    },
-                    {
-                      q: "पिकअप और डिलीवरी का शुल्क कितना है?",
-                      a: "पटखौली चौराहा से 5 किमी के भीतर हम मुफ्त होम पिकअप और ड्रॉप सुविधा देते हैं।",
-                    },
-                    {
-                      q: "क्या रिपेयर के दौरान मेरे फोन का डेटा सुरक्षित रहेगा?",
-                      a: "हम आपकी प्राइवेसी का पूरा ध्यान रखते हैं। फिर भी, यदि डिवाइस चालू है तो बैकअप लेने की सलाह दी जाती है।",
-                    },
-                  ]
-                : [
-                    {
-                      q: "Do you offer a repair warranty?",
-                      a: "Yes! We provide a 90-day warranty on all screen replacements and battery replacements.",
-                    },
-                    {
-                      q: "What is the pickup and delivery charge?",
-                      a: "We offer free home pickups and drops for repairs within 5 km of Patkhauli Chauraha.",
-                    },
-                    {
-                      q: "Are my phone data files safe during repairs?",
-                      a: "We take complete care of privacy. However, we recommend taking backups if the device is operational.",
-                    },
-                  ]
-              ).map((faq, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 cursor-pointer bg-slate-50 border border-slate-100 rounded-xl hover:bg-slate-100 transition-colors"
-                  onClick={() => toggleFaq(idx)}
-                >
-                  <div className="flex justify-between items-center text-slate-700">
-                    <span className="font-bold text-xs sm:text-sm">
-                      {faq.q}
-                    </span>
-
-                    <span className="text-[10px] text-slate-400">
-                      {faqOpen[idx] ? "▲" : "▼"}
-                    </span>
-                  </div>
-
-                  {faqOpen[idx] && (
-                    <p className="mt-3 text-xs text-slate-500 leading-relaxed border-t border-slate-200 pt-3">
-                      {faq.a}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
+            )}
           </div>
         </div>
+      )}
+
+      {/* FAQs Section (Full-Width Footer Area) */}
+      <div className="max-w-4xl mx-auto mt-16 bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm">
+        <h3 className="font-heading text-base font-bold text-blue-600 mb-6 border-b border-slate-100 pb-3 flex items-center gap-2">
+          <FileText size={18} /> {t("repair:faq_title")}
+        </h3>
+        <div className="flex flex-col gap-3">
+          {(currentLang === "hi"
+            ? [
+                {
+                  q: "क्या आप वारंटी देते हैं?",
+                  a: "हाँ! हम सभी स्क्रीन रिप्लेसमेंट और बैटरी रिप्लेसमेंट पर 90 दिनों की वारंटी देते हैं।",
+                },
+                {
+                  q: "पिकअप और डिलीवरी का शुल्क कितना है?",
+                  a: "पटखौली चौराहा से 5 किमी के भीतर हम मुफ्त होम पिकअप और ड्रॉप सुविधा देते हैं।",
+                },
+                {
+                  q: "क्या रिपेयर के दौरान मेरे फोन का डेटा सुरक्षित रहेगा?",
+                  a: "हम आपकी प्राइवेसी का पूरा ध्यान रखते हैं। फिर भी, यदि डिवाइस चालू है तो बैकअप लेने की सलाह दी जाती है।",
+                },
+              ]
+            : [
+                {
+                  q: "Do you offer a repair warranty?",
+                  a: "Yes! We provide a 90-day warranty on all screen replacements and battery replacements.",
+                },
+                {
+                  q: "What is the pickup and delivery charge?",
+                  a: "We offer free home pickups and drops for repairs within 5 km of Patkhauli Chauraha.",
+                },
+                {
+                  q: "Are my phone data files safe during repairs?",
+                  a: "We take complete care of privacy. However, we recommend taking backups if the device is operational.",
+                },
+              ]
+          ).map((faq, idx) => (
+            <div
+              key={idx}
+              className="p-4 cursor-pointer bg-slate-50 border border-slate-100 rounded-xl hover:bg-slate-100 transition-colors"
+              onClick={() => toggleFaq(idx)}
+            >
+              <div className="flex justify-between items-center text-slate-700">
+                <span className="font-bold text-xs sm:text-sm">{faq.q}</span>
+                <span className="text-[10px] text-slate-400">
+                  {faqOpen[idx] ? "▲" : "▼"}
+                </span>
+              </div>
+              {faqOpen[idx] && (
+                <p className="mt-3 text-xs text-slate-500 leading-relaxed border-t border-slate-200 pt-3">
+                  {faq.a}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
+
       <QuickLinksBanner currentType="repair" />
     </div>
   );
