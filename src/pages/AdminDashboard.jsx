@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
 import api from "../utils/api";
+import * as LucideIcons from "lucide-react";
 import {
   BarChart3,
   Plus,
@@ -19,6 +20,7 @@ import {
   RefreshCw,
   ShoppingBag,
   Users,
+  Sliders,
 } from "lucide-react";
 import { getCachedData, setCachedData, clearCache } from "../utils/cache";
 
@@ -86,6 +88,48 @@ const AdminDashboard = () => {
   const [loadingUserActivityDetail, setLoadingUserActivityDetail] =
     useState(false);
 
+  // Repair Services Configuration States
+  const [repairPricingList, setRepairPricingList] = useState([]);
+  const [activeService, setActiveService] = useState(null);
+  const [activeBrand, setActiveBrand] = useState("");
+  const [showServiceModal, setShowServiceModal] = useState(false);
+  const [editingService, setEditingService] = useState(null);
+
+  // CSC Services Configuration States
+  const [cscServicesList, setCscServicesList] = useState([]);
+  const [showCscModal, setShowCscModal] = useState(false);
+  const [editingCscService, setEditingCscService] = useState(null);
+
+  // Form states for CSC service CRUD
+  const [cscTitleEn, setCscTitleEn] = useState("");
+  const [cscTitleHi, setCscTitleHi] = useState("");
+  const [cscDescEn, setCscDescEn] = useState("");
+  const [cscDescHi, setCscDescHi] = useState("");
+  const [cscFeeEn, setCscFeeEn] = useState("");
+  const [cscFeeHi, setCscFeeHi] = useState("");
+  const [cscDocsEn, setCscDocsEn] = useState("");
+  const [cscDocsHi, setCscDocsHi] = useState("");
+  const [cscIcon, setCscIcon] = useState("FileText");
+
+  // Service Category Form State
+  const [srvKey, setSrvKey] = useState("");
+  const [srvCategory, setSrvCategory] = useState("");
+  const [srvTitleEn, setSrvTitleEn] = useState("");
+  const [srvTitleHi, setSrvTitleHi] = useState("");
+  const [srvDescEn, setSrvDescEn] = useState("");
+  const [srvDescHi, setSrvDescHi] = useState("");
+
+  // Brand Form State
+  const [newBrandName, setNewBrandName] = useState("");
+  const [editingBrandName, setEditingBrandName] = useState("");
+  const [oldBrandName, setOldBrandName] = useState("");
+
+  // Model Form State
+  const [newModelName, setNewModelName] = useState("");
+  const [newModelPrice, setNewModelPrice] = useState("");
+  const [editingModelName, setEditingModelName] = useState("");
+  const [editingModelPrice, setEditingModelPrice] = useState("");
+
   const activeTabRef = React.useRef(activeTab);
 
   // Refs for tracking user modifications and dirty states for auto-translation
@@ -97,6 +141,16 @@ const AdminDashboard = () => {
 
   const prodDescEnDirty = React.useRef(false);
   const prodDescHiManual = React.useRef(false);
+
+  const srvTitleEnDirty = React.useRef(false);
+  const srvTitleHiManual = React.useRef(false);
+  const srvDescEnDirty = React.useRef(false);
+  const srvDescHiManual = React.useRef(false);
+
+  const cscTitleEnDirty = React.useRef(false);
+  const cscTitleHiManual = React.useRef(false);
+  const cscDescEnDirty = React.useRef(false);
+  const cscDescHiManual = React.useRef(false);
 
   // Auto-translate Category Name
   useEffect(() => {
@@ -145,6 +199,70 @@ const AdminDashboard = () => {
     }, 800);
     return () => clearTimeout(delayDebounce);
   }, [prodDescEn]);
+
+  // Auto-translate Service Title
+  useEffect(() => {
+    if (!srvTitleEnDirty.current || srvTitleHiManual.current) return;
+    const delayDebounce = setTimeout(async () => {
+      if (srvTitleEn.trim()) {
+        const translated = await translateToHindi(srvTitleEn);
+        if (translated && !srvTitleHiManual.current) {
+          setSrvTitleHi(translated);
+        }
+      } else {
+        setSrvTitleHi("");
+      }
+    }, 800);
+    return () => clearTimeout(delayDebounce);
+  }, [srvTitleEn]);
+
+  // Auto-translate Service Description
+  useEffect(() => {
+    if (!srvDescEnDirty.current || srvDescHiManual.current) return;
+    const delayDebounce = setTimeout(async () => {
+      if (srvDescEn.trim()) {
+        const translated = await translateToHindi(srvDescEn);
+        if (translated && !srvDescHiManual.current) {
+          setSrvDescHi(translated);
+        }
+      } else {
+        setSrvDescHi("");
+      }
+    }, 800);
+    return () => clearTimeout(delayDebounce);
+  }, [srvDescEn]);
+
+  // Auto-translate CSC Service Title
+  useEffect(() => {
+    if (!cscTitleEnDirty.current || cscTitleHiManual.current) return;
+    const delayDebounce = setTimeout(async () => {
+      if (cscTitleEn.trim()) {
+        const translated = await translateToHindi(cscTitleEn);
+        if (translated && !cscTitleHiManual.current) {
+          setCscTitleHi(translated);
+        }
+      } else {
+        setCscTitleHi("");
+      }
+    }, 800);
+    return () => clearTimeout(delayDebounce);
+  }, [cscTitleEn]);
+
+  // Auto-translate CSC Service Description
+  useEffect(() => {
+    if (!cscDescEnDirty.current || cscDescHiManual.current) return;
+    const delayDebounce = setTimeout(async () => {
+      if (cscDescEn.trim()) {
+        const translated = await translateToHindi(cscDescEn);
+        if (translated && !cscDescHiManual.current) {
+          setCscDescHi(translated);
+        }
+      } else {
+        setCscDescHi("");
+      }
+    }, 800);
+    return () => clearTimeout(delayDebounce);
+  }, [cscDescEn]);
 
   useEffect(() => {
     activeTabRef.current = activeTab;
@@ -260,6 +378,18 @@ const AdminDashboard = () => {
           setUsers(cached);
           hasCache = true;
         }
+      } else if (tab === "repair-services") {
+        const cached = getCachedData("admin_repair_pricing");
+        if (cached) {
+          setRepairPricingList(cached);
+          hasCache = true;
+        }
+      } else if (tab === "csc-services") {
+        const cached = getCachedData("admin_csc_services");
+        if (cached) {
+          setCscServicesList(cached);
+          hasCache = true;
+        }
       }
     }
 
@@ -278,6 +408,10 @@ const AdminDashboard = () => {
         await fetchRepairsAndCsc();
       } else if (tab === "users") {
         await fetchUsers("");
+      } else if (tab === "repair-services") {
+        await fetchRepairPricing();
+      } else if (tab === "csc-services") {
+        await fetchCscServices();
       }
     } catch (err) {
       console.error(`Error loading tab data for ${tab}:`, err);
@@ -939,6 +1073,360 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchRepairPricing = async () => {
+    try {
+      const response = await api.get("/repairs/pricing/all");
+      const pricingData = response.data || [];
+      setRepairPricingList(pricingData);
+      setCachedData("admin_repair_pricing", pricingData, 5 * 60 * 1000);
+    } catch (err) {
+      console.error(err);
+      showToast.error(t("admin:error_repair_pricing_fetch", "Failed to fetch repair services"));
+    }
+  };
+
+  const fetchCscServices = async () => {
+    try {
+      const response = await api.get("/csc/services");
+      const servicesData = response.data || [];
+      setCscServicesList(servicesData);
+      setCachedData("admin_csc_services", servicesData, 5 * 60 * 1000);
+    } catch (err) {
+      console.error(err);
+      showToast.error("Failed to fetch CSC services / सीएससी सेवाएं प्राप्त करने में विफल");
+    }
+  };
+
+  const handleEditCscClick = (service) => {
+    setEditingCscService(service);
+    setCscTitleEn(service.title.en);
+    setCscTitleHi(service.title.hi);
+    setCscDescEn(service.desc.en);
+    setCscDescHi(service.desc.hi);
+    setCscFeeEn(service.fee.en);
+    setCscFeeHi(service.fee.hi);
+    setCscDocsEn(service.documents?.en?.join(", ") || "");
+    setCscDocsHi(service.documents?.hi?.join(", ") || "");
+    setCscIcon(service.icon || "FileText");
+    // Reset translation flags
+    cscTitleEnDirty.current = false;
+    cscTitleHiManual.current = false;
+    cscDescEnDirty.current = false;
+    cscDescHiManual.current = false;
+    setShowCscModal(true);
+  };
+
+  const handleSaveCscService = async (e) => {
+    e.preventDefault();
+    if (!cscTitleEn || !cscTitleHi || !cscDescEn || !cscDescHi || !cscFeeEn || !cscFeeHi || !cscIcon) {
+      showToast.error("Please fill all required fields / कृपया सभी आवश्यक फ़ील्ड भरें");
+      return;
+    }
+    setLoading(true);
+    try {
+      const payload = {
+        title: { en: cscTitleEn, hi: cscTitleHi },
+        desc: { en: cscDescEn, hi: cscDescHi },
+        fee: { en: cscFeeEn, hi: cscFeeHi },
+        documents: {
+          en: cscDocsEn.split(",").map(d => d.trim()).filter(Boolean),
+          hi: cscDocsHi.split(",").map(d => d.trim()).filter(Boolean),
+        },
+        icon: cscIcon,
+      };
+
+      if (editingCscService) {
+        await api.put(`/csc/services/${editingCscService._id}`, payload);
+        showToast.success("CSC Service updated successfully! / सीएससी सेवा सफलतापूर्वक अपडेट की गई!");
+      } else {
+        await api.post("/csc/services", payload);
+        showToast.success("CSC Service created successfully! / सीएससी सेवा सफलतापूर्वक बनाई गई!");
+      }
+
+      clearCache();
+      setShowCscModal(false);
+      setEditingCscService(null);
+      setCscTitleEn("");
+      setCscTitleHi("");
+      setCscDescEn("");
+      setCscDescHi("");
+      setCscFeeEn("");
+      setCscFeeHi("");
+      setCscDocsEn("");
+      setCscDocsHi("");
+      setCscIcon("FileText");
+      await fetchCscServices();
+    } catch (err) {
+      console.error(err);
+      showToast.error("Failed to save CSC service / सीएससी सेवा सहेजने में विफल");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteCscService = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this CSC Service? / क्या आप वाकई इस सीएससी सेवा को हटाना चाहते हैं?")) return;
+    setLoading(true);
+    try {
+      await api.delete(`/csc/services/${id}`);
+      showToast.success("CSC Service deleted! / सीएससी सेवा हटा दी गई!");
+      clearCache();
+      await fetchCscServices();
+    } catch (err) {
+      console.error(err);
+      showToast.error("Failed to delete CSC service / सीएससी सेवा हटाने में विफल");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditServiceClick = (service) => {
+    setEditingService(service);
+    setSrvKey(service.serviceKey);
+    setSrvCategory(service.category);
+    setSrvTitleEn(service.title.en);
+    setSrvTitleHi(service.title.hi);
+    setSrvDescEn(service.desc.en);
+    setSrvDescHi(service.desc.hi);
+    // Reset translation flags
+    srvTitleEnDirty.current = false;
+    srvTitleHiManual.current = false;
+    srvDescEnDirty.current = false;
+    srvDescHiManual.current = false;
+    setShowServiceModal(true);
+  };
+
+  const handleSaveService = async (e) => {
+    e.preventDefault();
+    if (!srvKey || !srvCategory || !srvTitleEn || !srvTitleHi || !srvDescEn || !srvDescHi) {
+      showToast.error("Please fill all required fields / कृपया सभी आवश्यक फ़ील्ड भरें");
+      return;
+    }
+    setLoading(true);
+    try {
+      const payload = {
+        serviceKey: srvKey.trim(),
+        category: srvCategory.trim(),
+        title: { en: srvTitleEn.trim(), hi: srvTitleHi.trim() },
+        desc: { en: srvDescEn.trim(), hi: srvDescHi.trim() },
+      };
+      let res;
+      if (editingService) {
+        payload.brands = editingService.brands;
+        res = await api.put(`/repairs/pricing/${editingService._id}`, payload);
+        showToast.success("Service updated successfully! / सेवा सफलतापूर्वक अपडेट की गई!");
+      } else {
+        payload.brands = {};
+        res = await api.post("/repairs/pricing", payload);
+        showToast.success("Service added successfully! / सेवा सफलतापूर्वक जोड़ी गई!");
+      }
+      clearCache();
+      setShowServiceModal(false);
+      setEditingService(null);
+      setSrvKey("");
+      setSrvCategory("");
+      setSrvTitleEn("");
+      setSrvTitleHi("");
+      setSrvDescEn("");
+      setSrvDescHi("");
+      
+      await fetchRepairPricing();
+      
+      if (editingService && activeService && activeService._id === editingService._id) {
+        setActiveService(res.data);
+      }
+    } catch (err) {
+      console.error(err);
+      showToast.error(err.response?.data?.message || "Failed to save service / सेवा सहेजने में विफल");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteService = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this repair service category? This will delete all its brands and models too. / क्या आप वाकई इस रिपेयर सेवा श्रेणी को हटाना चाहते हैं? इससे इसके सभी ब्रांड और मॉडल भी हट जाएंगे।")) return;
+    setLoading(true);
+    try {
+      await api.delete(`/repairs/pricing/${id}`);
+      showToast.success("Service deleted successfully! / सेवा सफलतापूर्वक हटा दी गई!");
+      clearCache();
+      if (activeService && activeService._id === id) {
+        setActiveService(null);
+        setActiveBrand("");
+      }
+      await fetchRepairPricing();
+    } catch (err) {
+      console.error(err);
+      showToast.error(err.response?.data?.message || "Failed to delete service / सेवा हटाने में विफल");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddBrand = async (e) => {
+    e.preventDefault();
+    if (!newBrandName.trim()) return;
+    const brandName = newBrandName.trim();
+    if (activeService.brands && activeService.brands[brandName]) {
+      showToast.error("Brand already exists! / ब्रांड पहले से मौजूद है!");
+      return;
+    }
+    const updatedBrands = {
+      ...(activeService.brands || {}),
+      [brandName]: {}
+    };
+    setLoading(true);
+    try {
+      const res = await api.put(`/repairs/pricing/${activeService._id}`, { brands: updatedBrands });
+      showToast.success(`Brand ${brandName} added! / ब्रांड ${brandName} जोड़ा गया!`);
+      clearCache();
+      setActiveService(res.data);
+      setNewBrandName("");
+      setRepairPricingList(prev => prev.map(s => s._id === res.data._id ? res.data : s));
+    } catch (err) {
+      console.error(err);
+      showToast.error("Failed to add brand / ब्रांड जोड़ने में विफल");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRenameBrand = async (oldName, newName) => {
+    if (!newName.trim() || oldName === newName.trim()) return;
+    const cleanNewName = newName.trim();
+    if (activeService.brands[cleanNewName]) {
+      showToast.error("Brand name already exists! / ब्रांड नाम पहले से मौजूद है!");
+      return;
+    }
+    const updatedBrands = { ...activeService.brands };
+    updatedBrands[cleanNewName] = { ...updatedBrands[oldName] };
+    delete updatedBrands[oldName];
+    
+    setLoading(true);
+    try {
+      const res = await api.put(`/repairs/pricing/${activeService._id}`, { brands: updatedBrands });
+      showToast.success("Brand renamed! / ब्रांड का नाम बदला गया!");
+      clearCache();
+      setActiveService(res.data);
+      if (activeBrand === oldName) {
+        setActiveBrand(cleanNewName);
+      }
+      setEditingBrandName("");
+      setNewBrandName("");
+      setRepairPricingList(prev => prev.map(s => s._id === res.data._id ? res.data : s));
+    } catch (err) {
+      console.error(err);
+      showToast.error("Failed to rename brand / ब्रांड का नाम बदलने में विफल");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteBrand = async (brandName) => {
+    if (!window.confirm(`Are you sure you want to delete brand "${brandName}" and all its models? / क्या आप वाकई ब्रांड "${brandName}" और इसके सभी मॉडलों को हटाना चाहते हैं?`)) return;
+    const updatedBrands = { ...activeService.brands };
+    delete updatedBrands[brandName];
+    
+    setLoading(true);
+    try {
+      const res = await api.put(`/repairs/pricing/${activeService._id}`, { brands: updatedBrands });
+      showToast.success(`Brand ${brandName} deleted! / ब्रांड ${brandName} हटाया गया!`);
+      clearCache();
+      setActiveService(res.data);
+      if (activeBrand === brandName) {
+        setActiveBrand("");
+      }
+      setRepairPricingList(prev => prev.map(s => s._id === res.data._id ? res.data : s));
+    } catch (err) {
+      console.error(err);
+      showToast.error("Failed to delete brand / ब्रांड हटाने में विफल");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddModel = async (e) => {
+    e.preventDefault();
+    if (!newModelName.trim() || !newModelPrice) {
+      showToast.error("Please enter both model name and price / कृपया मॉडल का नाम और कीमत दोनों दर्ज करें");
+      return;
+    }
+    const modelName = newModelName.trim();
+    const price = parseInt(newModelPrice);
+    if (activeService.brands[activeBrand] && activeService.brands[activeBrand][modelName] !== undefined) {
+      showToast.error("Model already exists! / मॉडल पहले से मौजूद है!");
+      return;
+    }
+    const updatedBrands = { ...activeService.brands };
+    updatedBrands[activeBrand] = {
+      ...(updatedBrands[activeBrand] || {}),
+      [modelName]: price
+    };
+    
+    setLoading(true);
+    try {
+      const res = await api.put(`/repairs/pricing/${activeService._id}`, { brands: updatedBrands });
+      showToast.success(`Model ${modelName} added! / मॉडल ${modelName} जोड़ा गया!`);
+      clearCache();
+      setActiveService(res.data);
+      setNewModelName("");
+      setNewModelPrice("");
+      setRepairPricingList(prev => prev.map(s => s._id === res.data._id ? res.data : s));
+    } catch (err) {
+      console.error(err);
+      showToast.error("Failed to add model / मॉडल जोड़ने में विफल");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditModelPrice = async (modelName, newPrice) => {
+    const price = parseInt(newPrice);
+    if (isNaN(price)) return;
+    const updatedBrands = { ...activeService.brands };
+    updatedBrands[activeBrand] = {
+      ...updatedBrands[activeBrand],
+      [modelName]: price
+    };
+    
+    setLoading(true);
+    try {
+      const res = await api.put(`/repairs/pricing/${activeService._id}`, { brands: updatedBrands });
+      showToast.success(`Updated ${modelName} price to ₹${price}! / ₹${price} पर ${modelName} की कीमत अपडेट की गई!`);
+      clearCache();
+      setActiveService(res.data);
+      setEditingModelName("");
+      setEditingModelPrice("");
+      setRepairPricingList(prev => prev.map(s => s._id === res.data._id ? res.data : s));
+    } catch (err) {
+      console.error(err);
+      showToast.error("Failed to update price / कीमत अपडेट करने में विफल");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteModel = async (modelName) => {
+    if (!window.confirm(`Are you sure you want to delete model "${modelName}"? / क्या आप वाकई मॉडल "${modelName}" को हटाना चाहते हैं?`)) return;
+    const updatedBrands = { ...activeService.brands };
+    updatedBrands[activeBrand] = { ...updatedBrands[activeBrand] };
+    delete updatedBrands[activeBrand][modelName];
+    
+    setLoading(true);
+    try {
+      const res = await api.put(`/repairs/pricing/${activeService._id}`, { brands: updatedBrands });
+      showToast.success(`Model ${modelName} deleted! / मॉडल ${modelName} हटाया गया!`);
+      clearCache();
+      setActiveService(res.data);
+      setRepairPricingList(prev => prev.map(s => s._id === res.data._id ? res.data : s));
+    } catch (err) {
+      console.error(err);
+      showToast.error("Failed to delete model / मॉडल हटाने में विफल");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (!analytics) return <Loader fullPage />;
 
   return (
@@ -960,7 +1448,11 @@ const AdminDashboard = () => {
 
       {/* Dashboard Analytics widgets grid */}
       {analytics && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className={`grid gap-4 mb-8 ${
+          analytics.totalPayouts > 0 
+            ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-6" 
+            : "grid-cols-2 md:grid-cols-4"
+        }`}>
           <div className="p-5 glass-card rounded-2xl flex flex-col gap-1.5 shadow-sm">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
               {t("admin:total_sales")}
@@ -993,6 +1485,26 @@ const AdminDashboard = () => {
               {analytics.totalProducts}
             </h3>
           </div>
+          {analytics.totalPayouts > 0 && (
+            <>
+              <div className="p-5 glass-card rounded-2xl flex flex-col gap-1.5 shadow-sm border border-red-500/10">
+                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  {t("admin:payouts")}
+                </span>
+                <h3 className="text-2xl font-extrabold text-red-500 font-heading">
+                  ₹{analytics.totalPayouts}
+                </h3>
+              </div>
+              <div className="p-5 glass-card rounded-2xl flex flex-col gap-1.5 shadow-sm border border-emerald-500/10">
+                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  {t("admin:net_effective")}
+                </span>
+                <h3 className="text-2xl font-extrabold text-emerald-500 font-heading">
+                  ₹{analytics.netEffective}
+                </h3>
+              </div>
+            </>
+          )}
         </div>
       )}
 
@@ -1067,6 +1579,19 @@ const AdminDashboard = () => {
           </button>
           <button
             onClick={() => {
+              setActiveTab("repair-services");
+              loadTabData("repair-services");
+            }}
+            className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+              activeTab === "repair-services"
+                ? "bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10"
+                : "hover:bg-slate-100 text-slate-600"
+            }`}
+          >
+            <Sliders size={16} /> {currentLang === "hi" ? "रिपेयर सेवाएं" : "Repair Services"}
+          </button>
+          <button
+            onClick={() => {
               setActiveTab("csc");
               loadTabData("csc");
             }}
@@ -1077,6 +1602,19 @@ const AdminDashboard = () => {
             }`}
           >
             <FileText size={16} /> {t("admin:nav_csc")}
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("csc-services");
+              loadTabData("csc-services");
+            }}
+            className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+              activeTab === "csc-services"
+                ? "bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10"
+                : "hover:bg-slate-100 text-slate-600"
+            }`}
+          >
+            <Sliders size={16} /> {currentLang === "hi" ? "सीएससी सेवाएं" : "CSC Services"}
           </button>
           <button
             onClick={() => {
@@ -1862,6 +2400,484 @@ const AdminDashboard = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 8: Repair Services & Pricing CRUD Manager */}
+          {activeTab === "repair-services" && (
+            <div className="flex flex-col gap-6 w-full animate-fadeIn">
+              <div className="flex justify-between items-center flex-wrap gap-4">
+                <div>
+                  <h3 className="font-heading text-lg font-bold text-slate-900">
+                    {currentLang === "hi" ? "मोबाइल रिपेयर सेवाएं और मूल्य निर्धारण" : "Mobile Repair Services & Pricing"}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {currentLang === "hi" 
+                      ? "सेवा श्रेणियां, ब्रांड और व्यक्तिगत मॉडल कीमतों को गतिशील रूप से प्रबंधित करें।" 
+                      : "Dynamically manage service categories, brands, and individual model pricing."}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingService(null);
+                    setSrvKey("");
+                    setSrvCategory("");
+                    setSrvTitleEn("");
+                    setSrvTitleHi("");
+                    setSrvDescEn("");
+                    setSrvDescHi("");
+                    srvTitleEnDirty.current = false;
+                    srvTitleHiManual.current = false;
+                    srvDescEnDirty.current = false;
+                    srvDescHiManual.current = false;
+                    setShowServiceModal(true);
+                  }}
+                  className="px-4 py-2 text-xs font-bold bg-gradient-to-r from-brand-cyan to-brand-blue text-white rounded-lg hover:brightness-110 shadow-lg flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus size={16} /> {currentLang === "hi" ? "नई सेवा जोड़ें" : "Add New Service"}
+                </button>
+              </div>
+
+              {/* 3-Column Manager Layout */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                
+                {/* Column 1: Service Categories */}
+                <div className="glass-card p-5 rounded-2xl flex flex-col gap-4 shadow-sm h-[600px]">
+                  <h4 className="font-heading text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 flex justify-between items-center">
+                    <span>1. {currentLang === "hi" ? "सेवा श्रेणी" : "Service Category"}</span>
+                    <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold text-[10px]">
+                      {repairPricingList.length}
+                    </span>
+                  </h4>
+                  <div className="flex-grow overflow-y-auto pr-1 flex flex-col gap-2">
+                    {repairPricingList.map((service) => (
+                      <div
+                        key={service._id}
+                        onClick={() => {
+                          setActiveService(service);
+                          setActiveBrand("");
+                        }}
+                        className={`p-3.5 rounded-xl cursor-pointer transition-all border text-left ${
+                          activeService?._id === service._id
+                            ? "bg-brand-cyan/10 border-brand-cyan/30 text-brand-cyan font-bold"
+                            : "bg-white/5 border-slate-100 hover:bg-slate-50 text-slate-700 font-normal"
+                        }`}
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-grow min-w-0">
+                            <p className="font-bold text-xs truncate">
+                              {currentLang === "hi" ? service.title.hi : service.title.en}
+                            </p>
+                            <p className="text-[10px] text-slate-500 mt-1 truncate font-normal">
+                              {service.category} ({service.serviceKey})
+                            </p>
+                          </div>
+                          <div className="flex gap-1 flex-shrink-0">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditServiceClick(service);
+                              }}
+                              className="p-1 text-brand-cyan hover:bg-brand-cyan/5 rounded border-0 cursor-pointer"
+                              title="Edit Service"
+                            >
+                              <Edit size={12} />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteService(service._id);
+                              }}
+                              className="p-1 text-rose-500 hover:bg-rose-50 rounded border-0 cursor-pointer"
+                              title="Delete Service"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {repairPricingList.length === 0 && (
+                      <p className="text-center text-xs text-slate-400 py-8">
+                        {currentLang === "hi" ? "कोई सेवा उपलब्ध नहीं है" : "No services available"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Column 2: Brands */}
+                <div className="glass-card p-5 rounded-2xl flex flex-col gap-4 shadow-sm h-[600px]">
+                  <h4 className="font-heading text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 flex justify-between items-center">
+                    <span>2. {currentLang === "hi" ? "ब्रांड" : "Brands"}</span>
+                    {activeService && (
+                      <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold text-[10px]">
+                        {Object.keys(activeService.brands || {}).length}
+                      </span>
+                    )}
+                  </h4>
+
+                  {!activeService ? (
+                    <div className="flex-grow flex items-center justify-center text-center p-6">
+                      <p className="text-xs text-slate-400">
+                        {currentLang === "hi" 
+                          ? "👈 ब्रांड देखने और प्रबंधित करने के लिए एक सेवा चुनें।" 
+                          : "👈 Select a service to view and manage brands."}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex-grow flex flex-col gap-4 min-h-0">
+                      <form onSubmit={handleAddBrand} className="flex gap-2">
+                        <input
+                          type="text"
+                          className="flex-grow px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan text-xs"
+                          placeholder={currentLang === "hi" ? "उदा. Apple, Samsung" : "e.g. Apple, Samsung"}
+                          value={newBrandName}
+                          onChange={(e) => setNewBrandName(e.target.value)}
+                          required
+                        />
+                        <button
+                          type="submit"
+                          className="px-3 py-2 bg-brand-cyan hover:bg-brand-cyan/90 text-white rounded-xl text-xs font-bold shadow cursor-pointer transition-all border-0 flex-shrink-0"
+                        >
+                          {currentLang === "hi" ? "जोड़ें" : "Add"}
+                        </button>
+                      </form>
+
+                      <div className="flex-grow overflow-y-auto pr-1 flex flex-col gap-2">
+                        {Object.keys(activeService.brands || {}).map((brandName) => (
+                          <div
+                            key={brandName}
+                            onClick={() => {
+                              if (editingBrandName !== brandName) {
+                                setActiveBrand(brandName);
+                              }
+                            }}
+                            className={`p-3 rounded-xl cursor-pointer transition-all border text-left flex justify-between items-center gap-2 ${
+                              activeBrand === brandName
+                                ? "bg-brand-cyan/10 border-brand-cyan/30 text-brand-cyan font-bold"
+                                : "bg-white/5 border-slate-100 hover:bg-slate-50 text-slate-700 font-normal"
+                            }`}
+                          >
+                            {editingBrandName === brandName ? (
+                              <div className="flex items-center gap-1.5 w-full" onClick={(e) => e.stopPropagation()}>
+                                <input
+                                  type="text"
+                                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded text-slate-900 text-xs focus:border-brand-cyan outline-none"
+                                  value={newBrandName}
+                                  onChange={(e) => setNewBrandName(e.target.value)}
+                                  autoFocus
+                                />
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRenameBrand(brandName, newBrandName);
+                                  }}
+                                  className="px-2 py-1 bg-brand-cyan text-white text-[10px] rounded border-0 cursor-pointer font-bold"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingBrandName("");
+                                    setNewBrandName("");
+                                  }}
+                                  className="px-2 py-1 bg-slate-200 text-slate-600 text-[10px] rounded border-0 cursor-pointer font-bold"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <span className="font-bold text-xs truncate">{brandName}</span>
+                                <div className="flex gap-1 flex-shrink-0">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditingBrandName(brandName);
+                                      setNewBrandName(brandName);
+                                    }}
+                                    className="p-1 text-brand-cyan hover:bg-brand-cyan/5 rounded border-0 cursor-pointer"
+                                    title="Rename Brand"
+                                  >
+                                    <Edit size={12} />
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteBrand(brandName);
+                                    }}
+                                    className="p-1 text-rose-500 hover:bg-rose-50 rounded border-0 cursor-pointer"
+                                    title="Delete Brand"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                        {Object.keys(activeService.brands || {}).length === 0 && (
+                          <p className="text-center text-xs text-slate-400 py-8 font-semibold">
+                            {currentLang === "hi" ? "कोई ब्रांड पंजीकृत नहीं है" : "No brands registered"}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Column 3: Models & Pricing */}
+                <div className="glass-card p-5 rounded-2xl flex flex-col gap-4 shadow-sm h-[600px]">
+                  <h4 className="font-heading text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 flex justify-between items-center">
+                    <span>3. {currentLang === "hi" ? "मॉडल और कीमतें" : "Models & Prices"}</span>
+                    {activeService && activeBrand && (
+                      <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold text-[10px]">
+                        {Object.keys(activeService.brands[activeBrand] || {}).length}
+                      </span>
+                    )}
+                  </h4>
+
+                  {!activeService || !activeBrand ? (
+                    <div className="flex-grow flex items-center justify-center text-center p-6">
+                      <p className="text-xs text-slate-400">
+                        {currentLang === "hi" 
+                          ? "👈 मॉडल और कीमतें प्रबंधित करने के लिए एक ब्रांड चुनें।" 
+                          : "👈 Select a brand to manage models and pricing."}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex-grow flex flex-col gap-4 min-h-0">
+                      <form onSubmit={handleAddModel} className="flex flex-col gap-2 p-3 bg-slate-50/50 border border-slate-100 rounded-xl">
+                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
+                          {currentLang === "hi" ? "नया मॉडल जोड़ें" : "Add New Model"}
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan text-xs"
+                            placeholder={currentLang === "hi" ? "मॉडल (उदा. iPhone 13 Pro)" : "Model (e.g. iPhone 13 Pro)"}
+                            value={newModelName}
+                            onChange={(e) => setNewModelName(e.target.value)}
+                            required
+                          />
+                          <input
+                            type="number"
+                            className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan text-xs"
+                            placeholder={currentLang === "hi" ? "कीमत (₹)" : "Price (₹)"}
+                            value={newModelPrice}
+                            onChange={(e) => setNewModelPrice(e.target.value)}
+                            required
+                          />
+                        </div>
+                        <button
+                          type="submit"
+                          className="w-full py-2 bg-brand-cyan hover:bg-brand-cyan/90 text-white rounded-xl text-xs font-bold shadow cursor-pointer transition-all border-0"
+                        >
+                          {currentLang === "hi" ? "मॉडल सहेजें" : "Save Model"}
+                        </button>
+                      </form>
+
+                      <div className="flex-grow overflow-y-auto pr-1 flex flex-col gap-2">
+                        {Object.entries(activeService.brands[activeBrand] || {}).map(([modelName, price]) => (
+                          <div
+                            key={modelName}
+                            className="p-3 rounded-xl border border-slate-100 bg-white/5 flex justify-between items-center gap-2"
+                          >
+                            <div className="flex-grow min-w-0 text-left">
+                              {editingModelName === modelName ? (
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-xs truncate max-w-[120px] text-slate-800">{modelName}</span>
+                                  <input
+                                    type="number"
+                                    className="w-20 px-2 py-1 bg-white border border-slate-200 rounded text-slate-900 text-xs focus:border-brand-cyan outline-none"
+                                    value={editingModelPrice}
+                                    onChange={(e) => setEditingModelPrice(e.target.value)}
+                                    autoFocus
+                                  />
+                                  <button
+                                    onClick={() => handleEditModelPrice(modelName, editingModelPrice)}
+                                    className="px-2 py-1 bg-brand-cyan text-white text-[10px] rounded border-0 cursor-pointer font-bold"
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingModelName("")}
+                                    className="px-2 py-1 bg-slate-200 text-slate-600 text-[10px] rounded border-0 cursor-pointer font-bold"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              ) : (
+                                <p className="font-bold text-xs text-slate-800 truncate">{modelName}</p>
+                              )}
+                            </div>
+                            
+                            {editingModelName !== modelName && (
+                              <div className="flex items-center gap-3">
+                                <span className="font-bold text-xs text-brand-cyan font-mono">₹{price}</span>
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() => {
+                                      setEditingModelName(modelName);
+                                      setEditingModelPrice(price.toString());
+                                    }}
+                                    className="p-1 text-brand-cyan hover:bg-brand-cyan/5 rounded border-0 cursor-pointer"
+                                    title="Edit Price"
+                                  >
+                                    <Edit size={12} />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteModel(modelName)}
+                                    className="p-1 text-rose-500 hover:bg-rose-50 rounded border-0 cursor-pointer"
+                                    title="Delete Model"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        {Object.keys(activeService.brands[activeBrand] || {}).length === 0 && (
+                          <p className="text-center text-xs text-slate-400 py-8 font-semibold">
+                            {currentLang === "hi" ? "कोई मॉडल सूचीबद्ध नहीं है" : "No models listed"}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              <div className="p-5 bg-blue-50/50 border border-blue-100 rounded-2xl shadow-sm text-left">
+                <h5 className="font-heading text-xs font-bold text-blue-800 mb-2 uppercase tracking-wide">
+                  💡 {currentLang === "hi" ? "व्यवस्थापक मार्गदर्शिका (Directions for Admin):" : "Directions for Admin:"}
+                </h5>
+                <ul className="text-xs text-blue-700 list-disc list-inside space-y-1">
+                  <li>{currentLang === "hi" ? "चरण 1: बाईं ओर 'नई सेवा जोड़ें' पर क्लिक करके रिपेयर सेवा श्रेणी बनाएं या संपादित करें।" : "Step 1: Create or edit a repair service category using 'Add New Service' on the left."}</li>
+                  <li>{currentLang === "hi" ? "चरण 2: संबंधित सेवा पर क्लिक करें, फिर बीच के कॉलम में उस सेवा के लिए समर्थित ब्रांड (उदा. Apple, Samsung) जोड़ें।" : "Step 2: Click on a service, then add supported brands (e.g. Apple, Samsung) for that service in the middle column."}</li>
+                  <li>{currentLang === "hi" ? "चरण 3: किसी ब्रांड पर क्लिक करें, फिर दाएं कॉलम में व्यक्तिगत फोन मॉडल और उनकी संबंधित रिपेयरिंग कीमतों को जोड़ें/संपादित करें।" : "Step 3: Click on a brand, then add/edit individual phone models and their respective repair prices in the right column."}</li>
+                  <li>{currentLang === "hi" ? "मॉडल की कीमतों में बदलाव तुरंत सहेज लिए जाते हैं और ग्राहक बुकिंग विजार्ड में लाइव हो जाते हैं।" : "Model pricing edits are saved instantly and reflect live in the customer booking wizard."}</li>
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {/* Tab: CSC Services Catalog Manager */}
+          {activeTab === "csc-services" && (
+            <div className="flex flex-col gap-6 w-full animate-fadeIn">
+              <div className="flex justify-between items-center flex-wrap gap-4">
+                <div>
+                  <h3 className="font-heading text-lg font-bold text-slate-900">
+                    {currentLang === "hi" ? "सीएससी सेवाएं सूची" : "CSC Services Catalog"}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {currentLang === "hi"
+                      ? "सीएससी पोर्टल पर प्रदर्शित सरकारी डिजिटल सेवाओं, शुल्कों और आवश्यक दस्तावेजों को प्रबंधित करें।"
+                      : "Manage digital government services, fees, and required documents shown on the CSC portal."}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingCscService(null);
+                    setCscTitleEn("");
+                    setCscTitleHi("");
+                    setCscDescEn("");
+                    setCscDescHi("");
+                    setCscFeeEn("");
+                    setCscFeeHi("");
+                    setCscDocsEn("");
+                    setCscDocsHi("");
+                    setCscIcon("FileText");
+                    // Reset translation flags
+                    cscTitleEnDirty.current = false;
+                    cscTitleHiManual.current = false;
+                    cscDescEnDirty.current = false;
+                    cscDescHiManual.current = false;
+                    setShowCscModal(true);
+                  }}
+                  className="px-4 py-2.5 text-xs font-bold bg-brand-cyan hover:bg-brand-cyan/90 text-white rounded-xl flex items-center gap-1.5 shadow cursor-pointer transition-all border-0"
+                >
+                  <Plus size={14} /> {currentLang === "hi" ? "नई सेवा जोड़ें" : "Add New Service"}
+                </button>
+              </div>
+
+              {/* CSC Services Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {cscServicesList.map((service) => {
+                  const IconComponent = LucideIcons[service.icon] || LucideIcons.FileText;
+                  return (
+                    <div
+                      key={service._id}
+                      className="flex flex-col p-6 bg-white border border-slate-200/80 rounded-2xl gap-3 relative shadow-sm hover:shadow-md transition-all text-left"
+                    >
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="bg-blue-50 border border-blue-100 p-2.5 rounded-xl flex justify-center items-center">
+                          <IconComponent size={20} className="text-blue-600" />
+                        </div>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => handleEditCscClick(service)}
+                            className="p-1.5 text-brand-cyan hover:bg-brand-cyan/5 rounded border-0 cursor-pointer transition-all"
+                            title="Edit Service"
+                          >
+                            <Edit size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCscService(service._id)}
+                            className="p-1.5 text-rose-500 hover:bg-rose-50 rounded border-0 cursor-pointer transition-all"
+                            title="Delete Service"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-1">
+                        <h4 className="font-heading text-base font-bold text-slate-800">
+                          {service.title[currentLang]}
+                        </h4>
+                        <p className="text-xs text-slate-600 leading-relaxed min-h-[40px]">
+                          {service.desc[currentLang]}
+                        </p>
+                      </div>
+
+                      <div className="border-t border-slate-100 pt-3 mt-1 flex flex-col gap-1.5">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                            {currentLang === 'hi' ? 'शुल्क: ' : 'Fee: '}
+                          </span>
+                          <span className="text-xs font-bold text-slate-800">
+                            {service.fee[currentLang]}
+                          </span>
+                        </div>
+                        {service.documents && ((service.documents.en && service.documents.en.length > 0) || (service.documents.hi && service.documents.hi.length > 0)) && (
+                          <>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1.5">
+                              {currentLang === 'hi' ? 'आवश्यक दस्तावेज:' : 'Required Documents:'}
+                            </p>
+                            <ul className="list-none p-0 m-0 flex flex-col gap-1">
+                              {(service.documents[currentLang] || []).map((doc, dIdx) => (
+                                <li key={dIdx} className="text-xs text-slate-700 flex items-center gap-1.5">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 flex-shrink-0" />
+                                  <span className="truncate">{doc}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                {cscServicesList.length === 0 && (
+                  <div className="col-span-full text-center py-12 text-slate-400 font-semibold bg-white border border-slate-100 rounded-2xl">
+                    {currentLang === "hi" ? "कोई सीएससी सेवाएं नहीं मिलीं।" : "No CSC services found."}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -2788,6 +3804,321 @@ const AdminDashboard = () => {
                 </>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: Repair Service Add / Edit Dialog */}
+      {showServiceModal && (
+        <div className="fixed top-0 left-0 w-screen h-screen bg-slate-950/80 flex justify-center items-center z-[500] backdrop-blur-md overflow-y-auto p-4 animate-fadeIn">
+          <div className="w-full max-w-[600px] p-6 md:p-8 max-h-[90vh] overflow-y-auto glass-card rounded-2xl shadow-2xl">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-heading text-lg font-bold text-slate-900">
+                {editingService
+                  ? currentLang === "hi" ? "रिपेयर सेवा संपादित करें" : "Edit Repair Service"
+                  : currentLang === "hi" ? "नई रिपेयर सेवा जोड़ें" : "Add New Repair Service"}
+              </h3>
+              <button
+                onClick={() => setShowServiceModal(false)}
+                className="bg-transparent border-0 text-slate-400 hover:text-slate-600 cursor-pointer flex transition-all"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveService} className="flex flex-col gap-4 text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Service Key (Unique URL string, lowercase) *
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                    placeholder="e.g. screen_repair"
+                    value={srvKey}
+                    onChange={(e) => setSrvKey(e.target.value.toLowerCase().replace(/\s+/g, "_"))}
+                    required
+                    disabled={!!editingService}
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Category Name (Backend Category Identifier) *
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                    placeholder="e.g. Display repair"
+                    value={srvCategory}
+                    onChange={(e) => setSrvCategory(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Title (English) *
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                    placeholder="e.g. Screen / Folder Replacement"
+                    value={srvTitleEn}
+                    onChange={(e) => {
+                      setSrvTitleEn(e.target.value);
+                      srvTitleEnDirty.current = true;
+                    }}
+                    required
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Title (Hindi) *
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                    placeholder="उदा. स्क्रीन फोल्डर बदलना"
+                    value={srvTitleHi}
+                    onChange={(e) => {
+                      setSrvTitleHi(e.target.value);
+                      srvTitleHiManual.current = true;
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Description (English) *
+                  </label>
+                  <textarea
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-xs"
+                    placeholder="e.g. Fix broken, flickering, color bleeding displays"
+                    rows="3"
+                    value={srvDescEn}
+                    onChange={(e) => {
+                      setSrvDescEn(e.target.value);
+                      srvDescEnDirty.current = true;
+                    }}
+                    required
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Description (Hindi) *
+                  </label>
+                  <textarea
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-xs"
+                    placeholder="उदा. टूटी हुई या झिलमिलाती स्क्रीन ठीक करें"
+                    rows="3"
+                    value={srvDescHi}
+                    onChange={(e) => {
+                      setSrvDescHi(e.target.value);
+                      srvDescHiManual.current = true;
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 mt-4 font-heading font-bold text-sm bg-gradient-to-r from-brand-cyan to-brand-blue text-white rounded-full hover:brightness-110 shadow-lg cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading
+                  ? t("common:submitting", "Submitting...")
+                  : editingService
+                    ? currentLang === "hi" ? "सहेजें" : "Save Changes"
+                    : currentLang === "hi" ? "सृजन करें" : "Create Service"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* MODAL 5: CSC Service Add / Edit Dialog */}
+      {showCscModal && (
+        <div className="fixed top-0 left-0 w-screen h-screen bg-slate-950/80 flex justify-center items-center z-[500] backdrop-blur-md overflow-y-auto p-4 animate-fadeIn">
+          <div className="w-full max-w-[650px] p-6 md:p-8 max-h-[90vh] overflow-y-auto glass-card rounded-2xl shadow-2xl">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-heading text-lg font-bold text-slate-900">
+                {editingCscService
+                  ? currentLang === "hi" ? "सीएससी सेवा संपादित करें" : "Edit CSC Service"
+                  : currentLang === "hi" ? "नई सीएससी सेवा जोड़ें" : "Add New CSC Service"}
+              </h3>
+              <button
+                onClick={() => setShowCscModal(false)}
+                className="bg-transparent border-0 text-slate-400 hover:text-slate-600 cursor-pointer flex transition-all"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCscService} className="flex flex-col gap-4 text-left">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Title (English) *
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                    placeholder="e.g. Aadhaar Services"
+                    value={cscTitleEn}
+                    onChange={(e) => {
+                      setCscTitleEn(e.target.value);
+                      cscTitleEnDirty.current = true;
+                    }}
+                    required
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Title (Hindi) *
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                    placeholder="उदा. आधार सेवाएं"
+                    value={cscTitleHi}
+                    onChange={(e) => {
+                      setCscTitleHi(e.target.value);
+                      cscTitleHiManual.current = true;
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Description (English) *
+                  </label>
+                  <textarea
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-xs"
+                    placeholder="e.g. biometric updates and lamination"
+                    rows="3"
+                    value={cscDescEn}
+                    onChange={(e) => {
+                      setCscDescEn(e.target.value);
+                      cscDescEnDirty.current = true;
+                    }}
+                    required
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Description (Hindi) *
+                  </label>
+                  <textarea
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-xs"
+                    placeholder="उदा. बायोमेट्रिक अपडेट और लेमिनेशन"
+                    rows="3"
+                    value={cscDescHi}
+                    onChange={(e) => {
+                      setCscDescHi(e.target.value);
+                      cscDescHiManual.current = true;
+                    }}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Fee (English) *
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                    placeholder="e.g. ₹30 - ₹100"
+                    value={cscFeeEn}
+                    onChange={(e) => setCscFeeEn(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Fee (Hindi) *
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                    placeholder="उदा. ₹30 - ₹100"
+                    value={cscFeeHi}
+                    onChange={(e) => setCscFeeHi(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Required Documents (English, comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                    placeholder="e.g. Aadhaar Card, Photo, Signature"
+                    value={cscDocsEn}
+                    onChange={(e) => setCscDocsEn(e.target.value)}
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                    Required Documents (Hindi, comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all text-sm"
+                    placeholder="उदा. आधार कार्ड, फोटो, हस्ताक्षर"
+                    value={cscDocsHi}
+                    onChange={(e) => setCscDocsHi(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col">
+                <label className="block mb-1.5 text-xs font-semibold text-slate-700">
+                  Icon component (Lucide Icon name) *
+                </label>
+                <select
+                  className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 outline-none cursor-pointer text-sm focus:border-brand-cyan focus:ring-2 focus:ring-brand-cyan/10 transition-all"
+                  value={cscIcon}
+                  onChange={(e) => setCscIcon(e.target.value)}
+                >
+                  <option value="FileText">FileText (Default Document)</option>
+                  <option value="Shield">Shield (Secure/Aadhaar)</option>
+                  <option value="CreditCard">CreditCard (Card/PAN/Voter)</option>
+                  <option value="Landmark">Landmark (Government/Bank/Ration)</option>
+                  <option value="Printer">Printer (Welfare/Print)</option>
+                  <option value="Scale">Scale (Affidavit/Legal)</option>
+                  <option value="User">User (Registration)</option>
+                  <option value="BookOpen">BookOpen (Educational/Marksheet)</option>
+                </select>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 mt-4 font-heading font-bold text-sm bg-gradient-to-r from-brand-cyan to-brand-blue text-white rounded-full hover:brightness-110 shadow-lg cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading
+                  ? t("common:submitting", "Submitting...")
+                  : editingCscService
+                    ? currentLang === "hi" ? "सहेजें" : "Save Changes"
+                    : currentLang === "hi" ? "सृजन करें" : "Create Service"}
+              </button>
+            </form>
           </div>
         </div>
       )}

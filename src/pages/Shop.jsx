@@ -279,7 +279,15 @@ const Shop = () => {
 
       {/* 2-Row Horizontal Scrollable Categories Filter */}
       <div className="mb-10 w-full">
-        <div className="grid grid-rows-2 grid-flow-col gap-4 overflow-x-auto scrollbar-none pb-2">
+        <div className="flex justify-between items-center mb-3">
+          <span className="text-[10px] font-heading font-extrabold uppercase text-slate-400 tracking-wider">
+            {currentLang === "hi" ? "श्रेणियां (बाएं-दाएं स्क्रॉल करें)" : "Categories (Scroll horizontally ↔)"}
+          </span>
+          <span className="text-[10px] text-blue-600 font-bold uppercase tracking-wider animate-pulse flex items-center gap-1">
+            {currentLang === "hi" ? "स्लाइड करें ↔" : "Swipe ↔"}
+          </span>
+        </div>
+        <div className="grid grid-rows-2 grid-flow-col gap-4 overflow-x-auto pb-3">
           {/* 'All Categories' Button */}
           <button
             onClick={() => handleCategorySelect("")}

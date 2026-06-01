@@ -36,6 +36,8 @@ const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const OrderReturn = lazy(() => import('./pages/OrderReturn'));
 const OrderReplace = lazy(() => import('./pages/OrderReplace'));
+const RepairCancel = lazy(() => import('./pages/RepairCancel'));
+
 
 function App() {
   useEffect(() => {
@@ -177,6 +179,15 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
+                  <Route
+                    path="/repairs/:id/cancel"
+                    element={
+                      <ProtectedRoute allowedRoles={['user']}>
+                        <RepairCancel />
+                      </ProtectedRoute>
+                    }
+                  />
+
                   <Route
                     path="/order-tracking/history"
                     element={

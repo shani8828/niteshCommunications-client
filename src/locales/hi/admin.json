@@ -34,5 +34,7 @@
   "registered_at": "पंजीकरण तिथि",
   "activity_summary": "गतिविधि विवरण",
   "view_activity": "इतिहास देखें",
-  "search_placeholder": "10-डिजिट फ़ोन नंबर दर्ज करें..."
+  "search_placeholder": "10-डिजिट फ़ोन नंबर दर्ज करें...",
+  "payouts": "भुगतान / कटौती",
+  "net_effective": "कुल शुद्ध आय (Net Effective)"
 }

@@ -6,7 +6,7 @@ import { useCart } from '../context/CartContext';
 import { showToast } from '../utils/toast';
 import Loader from '../components/common/Loader';
 import api from '../utils/api';
-import { User, ShoppingBag, MapPin, Phone, Mail, Edit, Save, ArrowRight, Compass, Heart, Trash2 } from 'lucide-react';
+import { User, ShoppingBag, MapPin, Phone, Mail, Edit, Save, ArrowRight, Compass, Heart, Trash2, Wrench } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Profile = () => {
@@ -17,8 +17,17 @@ const Profile = () => {
   const location = useLocation();
 
   const [activeTab, setActiveTab] = useState('orders');
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState(() => {
+    const cached = localStorage.getItem('my_orders_cache');
+    return cached ? JSON.parse(cached) : [];
+  });
+  const [repairs, setRepairs] = useState(() => {
+    const cached = localStorage.getItem('my_repairs_cache');
+    return cached ? JSON.parse(cached) : [];
+  });
   const [loading, setLoading] = useState(true);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [repairsLoading, setRepairsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
   // Profile Form States
@@ -53,26 +62,59 @@ const Profile = () => {
   }, [user]);
 
   const fetchMyOrders = async () => {
+    setOrdersLoading(true);
     try {
       const response = await api.get('/orders/my-orders');
       setOrders(response.data || []);
+      localStorage.setItem('my_orders_cache', JSON.stringify(response.data || []));
     } catch (err) {
       console.error('Error fetching orders:', err);
       showToast.error(isHindi ? 'ऑर्डर इतिहास लोड करने में विफल' : 'Failed to load order history');
     } finally {
+      setOrdersLoading(false);
       setLoading(false);
+    }
+  };
+
+  const fetchMyRepairs = async () => {
+    if (!user || (!user.mobile && !user.phone)) return;
+    setRepairsLoading(true);
+    try {
+      const userPhone = user.mobile || user.phone;
+      const response = await api.get(`/repairs/my/${userPhone}`);
+      setRepairs(response.data || []);
+      localStorage.setItem('my_repairs_cache', JSON.stringify(response.data || []));
+    } catch (err) {
+      console.error('Error fetching repairs:', err);
+      showToast.error(isHindi ? 'रिपेयर बुकिंग लोड करने में विफल' : 'Failed to load repair bookings');
+    } finally {
+      setRepairsLoading(false);
     }
   };
 
   useEffect(() => {
     if (user) {
       fetchMyOrders();
+      fetchMyRepairs();
 
-      // Poll user orders silently in the background every 30 seconds to fetch latest MongoDB status
+      // Poll user orders & repairs silently in the background every 30 seconds to fetch latest MongoDB status
       const pollInterval = setInterval(() => {
         api.get('/orders/my-orders')
-          .then((response) => setOrders(response.data || []))
+          .then((response) => {
+            setOrders(response.data || []);
+            localStorage.setItem('my_orders_cache', JSON.stringify(response.data || []));
+          })
           .catch((err) => console.error('Silent background orders refresh failed:', err));
+
+        const userPhone = user.mobile || user.phone;
+        if (userPhone) {
+          api.get(`/repairs/my/${userPhone}`)
+            .then((response) => {
+              setRepairs(response.data || []);
+              localStorage.setItem('my_repairs_cache', JSON.stringify(response.data || []));
+            })
+            .catch((err) => console.error('Silent background repairs refresh failed:', err));
+        }
       }, 30000);
 
       return () => clearInterval(pollInterval);
@@ -167,6 +209,30 @@ const Profile = () => {
     }
   };
 
+  const handleCancelRepair = async (rep) => {
+    if (rep.paymentMethod === 'Online' && rep.paymentStatus === 'Paid') {
+      navigate(`/repairs/${rep._id}/cancel`);
+    } else {
+      const confirmCancel = window.confirm(
+        isHindi
+          ? 'क्या आप सचमुच इस रिपेयर बुकिंग को रद्द करना चाहते हैं?'
+          : 'Are you sure you want to cancel this repair booking?'
+      );
+      if (!confirmCancel) return;
+
+      setActionLoading(true);
+      try {
+        await api.post(`/repairs/${rep._id}/cancel`);
+        showToast.success(isHindi ? 'रिपेयर बुकिंग सफलतापूर्वक रद्द की गई!' : 'Repair booking cancelled successfully!');
+        fetchMyRepairs();
+      } catch (err) {
+        showToast.error(err.response?.data?.message || 'Cancellation failed');
+      } finally {
+        setActionLoading(false);
+      }
+    }
+  };
+
   if (loading && !user) return <Loader fullPage />;
 
   return (
@@ -216,6 +282,14 @@ const Profile = () => {
           >
             <Heart size={16} /> {isHindi ? 'मेरी विशलिस्ट' : 'My Wishlist'}
           </button>
+          <button
+            onClick={() => setActiveTab('repairs')}
+            className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+              activeTab === 'repairs' ? 'bg-blue-50 text-blue-600 border border-blue-50' : 'hover:bg-slate-100 text-slate-600'
+            }`}
+          >
+            <Wrench size={16} /> {isHindi ? 'रिपेयर बुकिंग्स' : 'Repair Bookings'}
+          </button>
         </aside>
 
         {/* Content Panel */}
@@ -227,7 +301,11 @@ const Profile = () => {
                 {isHindi ? 'ऑर्डर इतिहास' : 'Order History'}
               </h3>
 
-              {orders.length === 0 ? (
+              {ordersLoading && orders.length === 0 ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="animate-spin h-6 w-6 border-2 border-blue-600 border-t-transparent rounded-full" />
+                </div>
+              ) : orders.length === 0 ? (
                 <div className="p-12 text-center bg-slate-50/50 border border-slate-200/60 rounded-2xl flex flex-col items-center gap-4">
                   <ShoppingBag size={36} className="text-slate-300" />
                   <p className="text-sm text-slate-500">
@@ -257,9 +335,23 @@ const Profile = () => {
                           </span>
                         </div>
                         
-                        <p className="text-xs text-slate-500 font-medium">
-                          {ord.items.map((item) => `${item.product?.name[currentLang] || 'Item'} (x${item.quantity})`).join(', ')}
-                        </p>
+                        <div className="flex flex-wrap gap-x-2 gap-y-1 text-xs text-slate-500 font-semibold mt-1">
+                          {ord.items.map((item, idx) => (
+                            <span key={item._id || idx} className="flex items-center gap-1">
+                              {item.product ? (
+                                <Link
+                                  to={`/products/${item.product.slug || item.product.name.en.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')}`}
+                                  className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                                >
+                                  {item.product.name[currentLang] || item.product.name['en']} (x{item.quantity})
+                                </Link>
+                              ) : (
+                                <span className="text-slate-500">Item (x{item.quantity})</span>
+                              )}
+                              {idx < ord.items.length - 1 && <span className="text-slate-400">,</span>}
+                            </span>
+                          ))}
+                        </div>
                         
                         <div className="flex items-center gap-4 mt-1 text-xs">
                           <span className="font-bold text-slate-700">₹{ord.totalAmount}</span>
@@ -505,6 +597,118 @@ const Profile = () => {
                             <span>{isHindi ? 'कार्ट में जोड़ें' : 'Add to Cart'}</span>
                           </button>
                         </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 4: Repair Bookings */}
+          {activeTab === 'repairs' && (
+            <div className="flex flex-col gap-6 w-full animate-fadeIn">
+              <h3 className="font-heading text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
+                {isHindi ? 'रिपेयर बुकिंग इतिहास' : 'Repair Booking History'}
+              </h3>
+
+              {repairsLoading && repairs.length === 0 ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="animate-spin h-6 w-6 border-2 border-blue-600 border-t-transparent rounded-full" />
+                </div>
+              ) : repairs.length === 0 ? (
+                <div className="p-12 text-center bg-slate-50/50 border border-slate-200/60 rounded-2xl flex flex-col items-center gap-4">
+                  <Wrench size={36} className="text-slate-300" />
+                  <p className="text-sm text-slate-500">
+                    {isHindi ? 'आपने अभी तक कोई रिपेयर बुकिंग नहीं की है।' : 'You have not booked any repairs yet.'}
+                  </p>
+                  <Link
+                    to="/repairs"
+                    className="px-6 py-2.5 font-heading font-bold text-xs bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all border-0 shadow-sm"
+                  >
+                    {isHindi ? 'रिपेयर बुक करें' : 'Book a Repair'}
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4">
+                  {repairs.map((rep) => (
+                    <div
+                      key={rep._id}
+                      className="p-6 bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+                    >
+                      <div className="flex flex-col gap-1.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] bg-blue-50 text-blue-600 font-bold px-2 py-0.5 rounded border border-blue-100 uppercase tracking-wide">
+                            Booking ID: {rep._id.slice(-6).toUpperCase()}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-semibold">
+                            {new Date(rep.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+
+                        <h4 className="font-heading text-sm font-bold text-slate-800 mt-1 truncate">
+                          {rep.deviceBrand} {rep.deviceModel}
+                        </h4>
+                        <span className="text-xs text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded w-fit">
+                          {rep.serviceCategory}
+                        </span>
+
+                        <p className="text-xs text-slate-500 mt-1 break-words">
+                          <span className="font-semibold text-slate-700">{isHindi ? 'समस्या: ' : 'Problem: '}</span>
+                          {rep.problemDescription}
+                        </p>
+
+                        <div className="flex items-center gap-4 mt-2 text-xs">
+                          <span className="font-bold text-slate-800">₹{rep.estimatedPrice}</span>
+                          <span className="text-slate-400 font-semibold">|</span>
+                          <span className="text-slate-500 font-semibold">{isHindi ? `भुगतान: ${rep.paymentMethod}` : `Payment: ${rep.paymentMethod}`}</span>
+                        </div>
+                        
+                        {rep.notes && (
+                          <div className="mt-2 bg-amber-50/50 border border-amber-100 rounded-xl p-2.5 text-xs text-amber-800 break-words">
+                            <span className="font-bold">{isHindi ? 'नोट: ' : 'Admin Note: '}</span>
+                            {rep.notes}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-start sm:items-end flex-col gap-2.5 w-full sm:w-auto flex-shrink-0 mt-3 sm:mt-0">
+                        <div className="flex gap-2">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                              rep.paymentStatus === 'Paid'
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : rep.paymentStatus === 'Refunded'
+                                ? 'bg-amber-100 text-amber-700'
+                                : rep.paymentStatus === 'Failed'
+                                ? 'bg-rose-100 text-rose-700'
+                                : 'bg-amber-100 text-amber-700'
+                            }`}
+                          >
+                            Payment: {rep.paymentStatus}
+                          </span>
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                              rep.status === 'Delivered' || rep.status === 'Repaired'
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : rep.status === 'Cancelled'
+                                ? 'bg-rose-100 text-rose-700'
+                                : 'bg-blue-100 text-blue-700'
+                            }`}
+                          >
+                            Status: {rep.status}
+                          </span>
+                        </div>
+
+                        {['Pending', 'Approved'].includes(rep.status) && (
+                          <button
+                            type="button"
+                            onClick={() => handleCancelRepair(rep)}
+                            className="px-3.5 py-1.5 text-xs font-bold text-rose-600 hover:text-white bg-rose-50 hover:bg-rose-600 border border-rose-200 hover:border-rose-600 rounded-xl cursor-pointer transition-all w-full sm:w-auto text-center"
+                          >
+                            {isHindi ? 'बुकिंग रद्द करें' : 'Cancel Booking'}
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}

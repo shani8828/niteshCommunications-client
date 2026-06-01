@@ -24,215 +24,6 @@ import {
 } from "lucide-react";
 import QuickLinksBanner from "../components/common/QuickLinksBanner";
 
-// Configured Brand, Model & Price database for repairs
-const repairPricingData = {
-  display_repair: {
-    category: "Display repair",
-    title: {
-      en: "Screen / Folder Replacement",
-      hi: "स्क्रीन और फोल्डर रिप्लेसमेंट",
-    },
-    desc: {
-      en: "Fix broken, flickering, color bleeding, or non-responsive touchscreen folders.",
-      hi: "टूटे हुए, टिमटिमाते, रंग बदलने वाले, या काम न करने वाले टचस्क्रीन फोल्डर को बदलें।",
-    },
-    icon: Smartphone,
-    brands: {
-      Apple: {
-        "iPhone 11": 2999,
-        "iPhone 12": 4999,
-        "iPhone 13": 6999,
-        "iPhone 14": 8999,
-      },
-      Samsung: {
-        "Galaxy M31 / M51": 1899,
-        "Galaxy A52 / A72": 3499,
-        "Galaxy S21 / S22": 7999,
-      },
-      "Xiaomi / Redmi": {
-        "Redmi Note 10 / 11": 1699,
-        "Redmi Note 12 / 12 Pro": 2499,
-        "Xiaomi 11 Lite": 3199,
-      },
-      OnePlus: {
-        "Nord CE / CE 2": 2799,
-        "OnePlus 8 / 8T": 5499,
-        "OnePlus 9R / 9 Pro": 7499,
-      },
-      Realme: {
-        "Realme 8 / 9": 1599,
-        "Realme GT Master": 2999,
-      },
-    },
-  },
-  battery_replacement: {
-    category: "Battery replacement",
-    title: { en: "Battery Replacement", hi: "मोबाइल बैटरी बदलना" },
-    desc: {
-      en: "Replace old, bloated, draining, or heating phone batteries with fresh cells.",
-      hi: "पुरानी, सूजी हुई, जल्दी डिस्चार्ज होने वाली या गर्म होने वाली मोबाइल बैटरी को नई सेल से बदलें।",
-    },
-    icon: Battery,
-    brands: {
-      Apple: {
-        "iPhone 11": 1499,
-        "iPhone 12": 1999,
-        "iPhone 13": 2499,
-        "iPhone 14": 2999,
-      },
-      Samsung: {
-        "Galaxy M31 / M51": 899,
-        "Galaxy A52 / A72": 1099,
-        "Galaxy S21 / S22": 1499,
-      },
-      "Xiaomi / Redmi": {
-        "Redmi Note 10 / 11": 799,
-        "Redmi Note 12 / 12 Pro": 999,
-        "Xiaomi 11 Lite": 1199,
-      },
-      OnePlus: {
-        "Nord CE / CE 2": 999,
-        "OnePlus 8 / 8T": 1299,
-        "OnePlus 9R / 9 Pro": 1499,
-      },
-      Realme: {
-        "Realme 8 / 9": 799,
-        "Realme GT Master": 999,
-      },
-    },
-  },
-  charging_issue: {
-    category: "Charging issue",
-    title: {
-      en: "Charging Port Jack Repair",
-      hi: "चार्जिंग जैक और पोर्ट मरम्मत",
-    },
-    desc: {
-      en: "Fix loose connection, slow charging, or unrecognised USB connection issues.",
-      hi: "ढीले कनेक्शन, धीमी चार्जिंग, या न पहचानी जाने वाली यूएसबी कनेक्शन समस्याओं को ठीक करें।",
-    },
-    icon: Zap,
-    brands: {
-      Apple: {
-        "iPhone 11": 999,
-        "iPhone 12": 1299,
-        "iPhone 13": 1499,
-      },
-      Samsung: {
-        "Galaxy M Series": 399,
-        "Galaxy A Series": 499,
-        "Galaxy S Series": 799,
-      },
-      "Xiaomi / Redmi": {
-        "Redmi Note Series": 349,
-        "Xiaomi Premium Series": 499,
-      },
-      OnePlus: {
-        "Nord Series": 399,
-        "OnePlus Flagship Series": 599,
-      },
-      Realme: {
-        "Realme Number Series": 349,
-        "Realme GT Series": 499,
-      },
-    },
-  },
-  hardware_repair: {
-    category: "Hardware repair",
-    title: {
-      en: "Motherboard Chip-Level Repair",
-      hi: "मदरबोर्ड और आईसी चिप-लेवल रिपेयर",
-    },
-    desc: {
-      en: "Micro-soldering, water damage recovery, network IC, and CPU reballing.",
-      hi: "माइक्रो-सोल्डरिंग, पानी से खराब हुए फोन की रिकवरी, नेटवर्क आईसी और सीपीयू रीबॉलिंग।",
-    },
-    icon: Cpu,
-    brands: {
-      Apple: {
-        "iPhone 11 / 12": 2499,
-        "iPhone 13 / 14": 3999,
-      },
-      Samsung: {
-        "Galaxy A / M Series": 1299,
-        "Galaxy S Series": 2499,
-      },
-      "Xiaomi / Redmi": {
-        "Redmi Note Series": 999,
-        "Xiaomi Premium Series": 1499,
-      },
-      OnePlus: {
-        "Nord Series": 1299,
-        "OnePlus Flagship Series": 2299,
-      },
-      Realme: {
-        "Realme Number Series": 999,
-        "Realme GT Series": 1499,
-      },
-    },
-  },
-  speaker_repair: {
-    category: "Speaker repair",
-    title: {
-      en: "Speaker, Mic & Audio Fix",
-      hi: "स्पीकर, माइक और ऑडियो फिक्स",
-    },
-    desc: {
-      en: "Repair crackling ear speaker, low volume, silent main speaker, or faulty mic.",
-      hi: "फटने वाली आवाज, कम वॉल्यूम, बंद मुख्य स्पीकर, या दोषपूर्ण माइक को ठीक करें।",
-    },
-    icon: Volume2,
-    brands: {
-      Apple: {
-        "iPhone 11 / 12": 799,
-        "iPhone 13 / 14": 999,
-      },
-      Samsung: {
-        "Galaxy A / M Series": 349,
-        "Galaxy S Series": 599,
-      },
-      "Xiaomi / Redmi": {
-        "Redmi Note Series": 249,
-        "Xiaomi Premium Series": 399,
-      },
-      OnePlus: {
-        "Nord Series": 349,
-        "OnePlus Flagship Series": 499,
-      },
-      Realme: {
-        "Realme Number Series": 249,
-        "Realme GT Series": 399,
-      },
-    },
-  },
-  software_issue: {
-    category: "Software issue",
-    title: { en: "Software Flash & OS Boot", hi: "सॉफ्टवेयर फ्लैश और ओएस बूट" },
-    desc: {
-      en: "Bypass boot loops, logo stuck, pattern lock, FRP Google lock bypass.",
-      hi: "बूट लूप, लोगो पर अटकना, पैटर्न लॉक, एफआरपी गूगल लॉक बाईपास।",
-    },
-    icon: Wrench,
-    brands: {
-      Apple: {
-        "All iOS Devices (OS restoration)": 499,
-      },
-      Samsung: {
-        "All Models (OS Flash / FRP bypass)": 399,
-      },
-      "Xiaomi / Redmi": {
-        "All Models (FRP / Account / Bootloop)": 299,
-      },
-      OnePlus: {
-        "All Models (OxygenOS Flash / Brick recovery)": 399,
-      },
-      Realme: {
-        "All Models (ROM Flash / Lock Bypass)": 299,
-      },
-    },
-  },
-};
-
 const RepairService = () => {
   const { t, i18n } = useTranslation(["repair", "common", "notifications"]);
   const { user } = useAuth();
@@ -260,11 +51,28 @@ const RepairService = () => {
     );
   }, [currentLang]);
 
+  // Dynamic Repair Pricing Data
+  const [repairPricingData, setRepairPricingData] = useState(null);
+
   // Interactive Selection Wizard State
   const [selectedServiceKey, setSelectedServiceKey] = useState(null);
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [selectedModel, setSelectedModel] = useState(null);
   const [confirmBookFromHome, setConfirmBookFromHome] = useState(false);
+
+  // Fetch repair pricing data from backend on mount
+  useEffect(() => {
+    const fetchPricing = async () => {
+      try {
+        const response = await api.get("/repairs/pricing-data");
+        setRepairPricingData(response.data);
+      } catch (err) {
+        console.error("Error loading repair pricing data:", err);
+        showToast.error("Failed to load repair services. Please try again.");
+      }
+    };
+    fetchPricing();
+  }, []);
 
   // Booking Form State
   const [name, setName] = useState("");
@@ -305,7 +113,7 @@ const RepairService = () => {
         SHOP_LAT,
         SHOP_LON,
         coordinates.latitude,
-        coordinates.longitude
+        coordinates.longitude,
       );
       setDistance(dist);
       setOutOfRange(dist > 15);
@@ -317,13 +125,21 @@ const RepairService = () => {
 
   // Enforce payment method limits based on price
   useEffect(() => {
-    if (selectedServiceKey && selectedBrand && selectedModel) {
-      const price = repairPricingData[selectedServiceKey].brands[selectedBrand][selectedModel];
+    if (
+      repairPricingData &&
+      selectedServiceKey &&
+      selectedBrand &&
+      selectedModel
+    ) {
+      const price =
+        repairPricingData[selectedServiceKey].brands[selectedBrand][
+          selectedModel
+        ];
       if (price > 5000) {
         setPaymentType("Online");
       }
     }
-  }, [selectedServiceKey, selectedBrand, selectedModel]);
+  }, [selectedServiceKey, selectedBrand, selectedModel, repairPricingData]);
 
   // Prevent background scrolling when modal is active
   useEffect(() => {
@@ -433,7 +249,7 @@ const RepairService = () => {
       showToast.error(
         currentLang === "hi"
           ? "क्षमा करें, आपका पता हमारी 15 किमी होम पिकअप सेवा सीमा से बाहर है।"
-          : "Sorry, your address is out of our 15km home pickup service range."
+          : "Sorry, your address is out of our 15km home pickup service range.",
       );
       return;
     }
@@ -476,7 +292,7 @@ const RepairService = () => {
         showToast.success(
           currentLang === "hi"
             ? "रिपेयर सफलतापूर्वक बुक किया गया!"
-            : "Repair booked successfully!"
+            : "Repair booked successfully!",
         );
 
         // Reset form options
@@ -500,7 +316,11 @@ const RepairService = () => {
           amount: data.razorpayOrder.amount,
           currency: data.razorpayOrder.currency,
           name: "NITESH COMMUNICATIONS",
-          description: "Payment for Repair Booking - " + selectedBrand + " " + selectedModel,
+          description:
+            "Payment for Repair Booking - " +
+            selectedBrand +
+            " " +
+            selectedModel,
           order_id: data.razorpayOrder.id,
           prefill: {
             name: name,
@@ -535,7 +355,7 @@ const RepairService = () => {
               showToast.success(
                 currentLang === "hi"
                   ? "रिपेयर सफलतापूर्वक बुक किया गया!"
-                  : "Repair booked successfully!"
+                  : "Repair booked successfully!",
               );
 
               // Reset form options
@@ -546,7 +366,8 @@ const RepairService = () => {
               setPaymentType("COD");
             } catch (verifyErr) {
               const verifyErrorMessage =
-                verifyErr.response?.data?.message || "Signature verification failed";
+                verifyErr.response?.data?.message ||
+                "Signature verification failed";
               showToast.error(verifyErrorMessage);
             } finally {
               setLoading(false);
@@ -582,6 +403,10 @@ const RepairService = () => {
     setOutOfRange(false);
   };
 
+  if (!repairPricingData) {
+    return <Loader fullPage />;
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white relative">
       {loading && <Loader fullPage />}
@@ -615,7 +440,6 @@ const RepairService = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {Object.entries(repairPricingData).map(([key, item]) => {
-              const Icon = item.icon;
               const isSelected = selectedServiceKey === key;
               return (
                 <button
@@ -627,22 +451,17 @@ const RepairService = () => {
                     setSelectedModel(null);
                     setConfirmBookFromHome(false);
                   }}
-                  className={`p-5 rounded-2xl border text-left flex flex-col gap-3 transition-all cursor-pointer outline-none ${
+                  className={`p-5 rounded-2xl border text-left flex flex-col gap-2 transition-all cursor-pointer outline-none ${
                     isSelected
                       ? "border-blue-600 bg-blue-50/40 shadow-sm"
                       : "border-slate-200/80 bg-white hover:border-blue-200 hover:bg-slate-50/30"
                   }`}
                 >
-                  <div
-                    className={`p-2.5 rounded-xl inline-flex self-start ${isSelected ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600"}`}
-                  >
-                    <Icon size={20} />
-                  </div>
                   <div>
                     <h4 className="font-heading text-sm font-bold text-slate-800 leading-tight">
                       {item.title[currentLang]}
                     </h4>
-                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed line-clamp-2">
+                    <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed line-clamp-2">
                       {item.desc[currentLang]}
                     </p>
                   </div>
@@ -737,12 +556,18 @@ const RepairService = () => {
                   </div>
                   <div className="flex justify-between text-xs text-slate-500 font-semibold border-t border-slate-200/60 pt-2">
                     <span>
-                      {currentLang === "hi" ? "भुगतान प्रकार" : "Payment Method"}
+                      {currentLang === "hi"
+                        ? "भुगतान प्रकार"
+                        : "Payment Method"}
                     </span>
                     <span className="text-slate-900 font-bold">
                       {bookingSuccess.paymentMethod === "Online"
-                        ? (currentLang === "hi" ? "ऑनलाइन भुगतान" : "Online Payment")
-                        : (currentLang === "hi" ? "कैश ऑन डिलीवरी" : "Cash on Delivery")}
+                        ? currentLang === "hi"
+                          ? "ऑनलाइन भुगतान"
+                          : "Online Payment"
+                        : currentLang === "hi"
+                          ? "कैश ऑन डिलीवरी"
+                          : "Cash on Delivery"}
                     </span>
                   </div>
                   <div className="flex justify-between text-xs text-slate-500 font-semibold border-t border-slate-200/60 pt-2">
@@ -885,7 +710,10 @@ const RepairService = () => {
                 {outOfRange && (
                   <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl text-xs text-left max-w-md mx-auto mb-2 flex flex-col gap-1">
                     <span className="font-bold flex items-center gap-1">
-                      ⚠️ {currentLang === "hi" ? "होम पिकअप अनुपलब्ध" : "Home Pickup Unavailable"}
+                      ⚠️{" "}
+                      {currentLang === "hi"
+                        ? "होम पिकअप अनुपलब्ध"
+                        : "Home Pickup Unavailable"}
                     </span>
                     <span>
                       {currentLang === "hi"
@@ -1102,7 +930,12 @@ const RepairService = () => {
                       {coordinates ? (
                         outOfRange ? (
                           <div className="mt-2 bg-rose-50 border border-rose-200 text-rose-800 p-3 rounded-xl text-[11px] leading-relaxed animate-fadeIn">
-                            <strong>⚠️ {currentLang === "hi" ? "दूरी सीमा से बाहर:" : "Out of Pickup Range:"}</strong>{" "}
+                            <strong>
+                              ⚠️{" "}
+                              {currentLang === "hi"
+                                ? "दूरी सीमा से बाहर:"
+                                : "Out of Pickup Range:"}
+                            </strong>{" "}
                             {currentLang === "hi"
                               ? `आपका पता दुकान से ${distance} किमी दूर है, जो 15 किमी पिकअप सीमा से बाहर है। होम डिलीवरी संभव नहीं है।`
                               : `Your address is ${distance} km from our shop, which exceeds the 15km free pickup limit. Please visit our shop.`}
@@ -1142,9 +975,12 @@ const RepairService = () => {
                     {/* Payment Method Selection */}
                     <div className="flex flex-col gap-2 bg-slate-50 border border-slate-200/60 p-3.5 rounded-xl mt-1">
                       <label className="block text-xs font-bold text-slate-700">
-                        {currentLang === "hi" ? "भुगतान का विकल्प चुनें" : "Select Payment Method"} *
+                        {currentLang === "hi"
+                          ? "भुगतान का विकल्प चुनें"
+                          : "Select Payment Method"}{" "}
+                        *
                       </label>
-                      
+
                       <div className="flex flex-col gap-2.5 mt-1">
                         <label className="flex items-center gap-2.5 cursor-pointer text-xs font-semibold text-slate-700">
                           <input
@@ -1153,14 +989,20 @@ const RepairService = () => {
                             value="COD"
                             checked={paymentType === "COD"}
                             onChange={() => setPaymentType("COD")}
-                            disabled={repairPricingData[selectedServiceKey].brands[selectedBrand][selectedModel] > 5000}
+                            disabled={
+                              repairPricingData[selectedServiceKey].brands[
+                                selectedBrand
+                              ][selectedModel] > 5000
+                            }
                             className="w-4 h-4 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
                           />
                           <span>
-                            {currentLang === "hi" ? "कैश ऑन डिलीवरी (COD)" : "Cash on Delivery (COD)"}
+                            {currentLang === "hi"
+                              ? "कैश ऑन डिलीवरी (COD)"
+                              : "Cash on Delivery (COD)"}
                           </span>
                         </label>
-                        
+
                         <label className="flex items-center gap-2.5 cursor-pointer text-xs font-semibold text-slate-700">
                           <input
                             type="radio"
@@ -1171,12 +1013,16 @@ const RepairService = () => {
                             className="w-4 h-4 text-blue-600 focus:ring-blue-500"
                           />
                           <span>
-                            {currentLang === "hi" ? "ऑनलाइन भुगतान" : "Online Payment"}
+                            {currentLang === "hi"
+                              ? "ऑनलाइन भुगतान"
+                              : "Online Payment"}
                           </span>
                         </label>
                       </div>
 
-                      {repairPricingData[selectedServiceKey].brands[selectedBrand][selectedModel] > 5000 && (
+                      {repairPricingData[selectedServiceKey].brands[
+                        selectedBrand
+                      ][selectedModel] > 5000 && (
                         <p className="text-[10px] text-amber-600 font-semibold mt-1">
                           {currentLang === "hi"
                             ? "₹5,000 से अधिक की लागत होने के कारण केवल ऑनलाइन भुगतान का विकल्प उपलब्ध है।"
@@ -1195,10 +1041,14 @@ const RepairService = () => {
                           ? "बुकिंग दर्ज हो रही है..."
                           : "Processing Booking..."
                         : !coordinates
-                        ? (currentLang === "hi" ? "पहले स्थान सत्यापित करें" : "Verify Location First")
-                        : outOfRange
-                        ? (currentLang === "hi" ? "दूरी सीमा से बाहर (पिकअप अवरुद्ध)" : "Out of Range (Pickup Blocked)")
-                        : `${currentLang === "hi" ? "बुक रिपेयर" : "Confirm Booking"} (₹${repairPricingData[selectedServiceKey].brands[selectedBrand][selectedModel]})`}
+                          ? currentLang === "hi"
+                            ? "पहले स्थान सत्यापित करें"
+                            : "Verify Location First"
+                          : outOfRange
+                            ? currentLang === "hi"
+                              ? "दूरी सीमा से बाहर (पिकअप अवरुद्ध)"
+                              : "Out of Range (Pickup Blocked)"
+                            : `${currentLang === "hi" ? "बुक रिपेयर" : "Confirm Booking"} (₹${repairPricingData[selectedServiceKey].brands[selectedBrand][selectedModel]})`}
                     </button>
                   </form>
                 )}

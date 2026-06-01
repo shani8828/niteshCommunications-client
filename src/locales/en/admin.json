@@ -34,5 +34,7 @@
   "registered_at": "Registered On",
   "activity_summary": "Activity Summary",
   "view_activity": "View History",
-  "search_placeholder": "Search 10-digit phone number..."
+  "search_placeholder": "Search 10-digit phone number...",
+  "payouts": "Payouts / Deductions",
+  "net_effective": "Net Effective"
 }
