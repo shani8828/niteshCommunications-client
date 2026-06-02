@@ -1,47 +1,61 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useCart } from '../context/CartContext';
-import { useAuth } from '../context/AuthContext';
-import { useBreadcrumbs } from '../context/BreadcrumbContext';
-import Loader from '../components/common/Loader';
-import api from '../utils/api';
-import { showToast } from '../utils/toast';
-import { getCachedData, setCachedData } from '../utils/cache';
-import { Star, Heart, ShoppingCart, ShieldAlert, ArrowLeft, Send } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import { useBreadcrumbs } from "../context/BreadcrumbContext";
+import Loader from "../components/common/Loader";
+import api from "../utils/api";
+import { showToast } from "../utils/toast";
+import { getCachedData, setCachedData } from "../utils/cache";
+import {
+  Star,
+  Heart,
+  ShoppingCart,
+  ShieldAlert,
+  ArrowLeft,
+  Send,
+  Share2,
+} from "lucide-react";
 
-const updateMetaTags = ({ title, description, image, url, type = 'website' }) => {
+const updateMetaTags = ({
+  title,
+  description,
+  image,
+  url,
+  type = "website",
+}) => {
   document.title = title;
 
   const getOrCreateMetaTag = (attrName, attrValue, contentVal) => {
     let element = document.querySelector(`meta[${attrName}='${attrValue}']`);
     if (!element) {
-      element = document.createElement('meta');
-      element.setAttribute(attrName, attrValue); 
+      element = document.createElement("meta");
+      element.setAttribute(attrName, attrValue);
       document.head.appendChild(element);
     }
-    element.setAttribute('content', contentVal);
+    element.setAttribute("content", contentVal);
   };
 
-  getOrCreateMetaTag('name', 'description', description);
+  getOrCreateMetaTag("name", "description", description);
 
   // Open Graph
-  getOrCreateMetaTag('property', 'og:title', title);
-  getOrCreateMetaTag('property', 'og:description', description);
-  getOrCreateMetaTag('property', 'og:type', type);
-  if (url) getOrCreateMetaTag('property', 'og:url', url);
-  if (image) getOrCreateMetaTag('property', 'og:image', image);
+  getOrCreateMetaTag("property", "og:title", title);
+  getOrCreateMetaTag("property", "og:description", description);
+  getOrCreateMetaTag("property", "og:type", type);
+  if (url) getOrCreateMetaTag("property", "og:url", url);
+  if (image) getOrCreateMetaTag("property", "og:image", image);
 
   // Twitter Card
-  getOrCreateMetaTag('name', 'twitter:card', 'summary_large_image');
-  getOrCreateMetaTag('name', 'twitter:title', title);
-  getOrCreateMetaTag('name', 'twitter:description', description);
-  if (image) getOrCreateMetaTag('name', 'twitter:image', image);
+  getOrCreateMetaTag("name", "twitter:card", "summary_large_image");
+  getOrCreateMetaTag("name", "twitter:title", title);
+  getOrCreateMetaTag("name", "twitter:description", description);
+  if (image) getOrCreateMetaTag("name", "twitter:image", image);
 };
 
 const ProductDetails = () => {
   const { slug } = useParams();
-  const { t, i18n } = useTranslation(['product', 'common', 'notifications']);
+  const { t, i18n } = useTranslation(["product", "common", "notifications"]);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { addToCart, toggleWishlist, wishlist, addRecentlyViewed } = useCart();
@@ -52,10 +66,10 @@ const ProductDetails = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [activeImage, setActiveImage] = useState('');
+  const [activeImage, setActiveImage] = useState("");
 
   const [reviewRating, setReviewRating] = useState(5);
-  const [reviewComment, setReviewComment] = useState('');
+  const [reviewComment, setReviewComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
 
   useEffect(() => {
@@ -75,18 +89,18 @@ const ProductDetails = () => {
       try {
         const response = await api.get(`/products/slug/${slug}`);
         const data = response.data;
-        
+
         setProduct(data.product);
         setRelated(data.related || []);
         setReviews(data.reviews || []);
         setActiveImage(data.product.images[0]);
-        
+
         addRecentlyViewed(data.product);
         setCachedData(cacheKey, data, 5 * 60 * 1000); // Cache product details for 5 minutes
       } catch (err) {
         console.error(err);
-        showToast.error('Product not found');
-        navigate('/shop');
+        showToast.error("Product not found");
+        navigate("/shop");
       } finally {
         setLoading(false);
       }
@@ -96,147 +110,157 @@ const ProductDetails = () => {
 
   useEffect(() => {
     if (product) {
-      const currentLang = i18n.language || 'hi';
+      const currentLang = i18n.language || "hi";
       setCrumbs([
-        { label: t('common:shop'), link: '/shop' },
-        { label: product.name[currentLang] || product.name.en }
+        { label: t("common:shop"), link: "/shop" },
+        { label: product.name[currentLang] || product.name.en },
       ]);
     }
   }, [product, i18n.language, setCrumbs, t]);
 
   useEffect(() => {
     if (product) {
-      const currentLang = i18n.language || 'hi';
-      const prodName = product.name[currentLang] || product.name.en;
-      const prodDesc = product.description[currentLang] || product.description.en;
-      const brand = product.brand || 'Nitesh Communications';
-      const storeName = 'Nitesh Communications';
-      
+      const prodNameEn = product.name?.en || "";
+      const prodNameHi = product.name?.hi || "";
+      const prodName = prodNameHi && prodNameHi !== prodNameEn 
+        ? `${prodNameEn} (${prodNameHi})` 
+        : prodNameEn;
+      const currentLang = i18n.language || "hi";
+      const prodDesc = product.description?.[currentLang] || product.description?.en || "";
+      const brand = product.brand || "Nitesh Communications";
+      const storeName = "Nitesh Communications";
+
       const title = `${prodName} | ${brand} | ${storeName}`;
-      const description = `Buy ${prodName} at best price. Check specifications, images, availability and offers. Fast delivery available.`;
-      const image = product.images?.[0] || '';
+      const description = `Buy ${prodNameEn} at best price. ${prodNameHi ? `${prodNameHi} सबसे कम दाम पर खरीदें।` : ''} Check specifications, images, availability and offers. Fast delivery available.`;
+      const image = product.images?.[0] || "";
       const url = `${window.location.origin}/products/${product.slug}`;
 
       // Update meta tags
-      updateMetaTags({ title, description, image, url, type: 'product' });
+      updateMetaTags({ title, description, image, url, type: "product" });
 
       // Update Canonical Link
       let canonicalLink = document.querySelector("link[rel='canonical']");
       if (!canonicalLink) {
-        canonicalLink = document.createElement('link');
-        canonicalLink.setAttribute('rel', 'canonical');
+        canonicalLink = document.createElement("link");
+        canonicalLink.setAttribute("rel", "canonical");
         document.head.appendChild(canonicalLink);
       }
-      canonicalLink.setAttribute('href', url);
+      canonicalLink.setAttribute("href", url);
 
       // JSON-LD Product Schema
       const productSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'Product',
-        'name': prodName,
-        'image': product.images,
-        'description': prodDesc,
-        'sku': product.sku || product._id,
-        'mpn': product._id,
-        'brand': {
-          '@type': 'Brand',
-          'name': brand
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: prodName,
+        image: product.images,
+        description: prodDesc,
+        sku: product.sku || product._id,
+        mpn: product._id,
+        brand: {
+          "@type": "Brand",
+          name: brand,
         },
-        'offers': {
-          '@type': 'Offer',
-          'url': url,
-          'priceCurrency': 'INR',
-          'price': product.price,
-          'priceValidUntil': '2030-12-31',
-          'itemCondition': 'https://schema.org/NewCondition',
-          'availability': product.stock > 0 
-            ? 'https://schema.org/InStock' 
-            : 'https://schema.org/OutOfStock',
-          'seller': {
-            '@type': 'Organization',
-            'name': 'Nitesh Communications'
-          }
-        }
+        offers: {
+          "@type": "Offer",
+          url: url,
+          priceCurrency: "INR",
+          price: product.price,
+          priceValidUntil: "2030-12-31",
+          itemCondition: "https://schema.org/NewCondition",
+          availability:
+            product.stock > 0
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+          seller: {
+            "@type": "Organization",
+            name: "Nitesh Communications",
+          },
+        },
       };
 
       if (reviews.length > 0) {
         productSchema.review = reviews.map((rev) => ({
-          '@type': 'Review',
-          'reviewRating': {
-            '@type': 'Rating',
-            'ratingValue': rev.rating,
-            'bestRating': '5'
+          "@type": "Review",
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: rev.rating,
+            bestRating: "5",
           },
-          'author': {
-            '@type': 'Person',
-            'name': rev.user?.name || 'Customer'
+          author: {
+            "@type": "Person",
+            name: rev.user?.name || "Customer",
           },
-          'reviewBody': rev.comment,
-          'datePublished': rev.createdAt ? rev.createdAt.split('T')[0] : new Date().toISOString().split('T')[0]
+          reviewBody: rev.comment,
+          datePublished: rev.createdAt
+            ? rev.createdAt.split("T")[0]
+            : new Date().toISOString().split("T")[0],
         }));
 
         productSchema.aggregateRating = {
-          '@type': 'AggregateRating',
-          'ratingValue': product.ratingsAverage || 5,
-          'reviewCount': product.ratingsCount || reviews.length
+          "@type": "AggregateRating",
+          ratingValue: product.ratingsAverage || 5,
+          reviewCount: product.ratingsCount || reviews.length,
         };
       }
 
       // Breadcrumb Schema
       const breadcrumbSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        'itemListElement': [
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
           {
-            '@type': 'ListItem',
-            'position': 1,
-            'name': 'Home',
-            'item': window.location.origin
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: window.location.origin,
           },
           {
-            '@type': 'ListItem',
-            'position': 2,
-            'name': 'Shop',
-            'item': `${window.location.origin}/shop`
+            "@type": "ListItem",
+            position: 2,
+            name: "Shop",
+            item: `${window.location.origin}/shop`,
           },
           {
-            '@type': 'ListItem',
-            'position': 3,
-            'name': product.category?.name[currentLang] || product.category?.name?.en || 'Category',
-            'item': `${window.location.origin}/shop?category=${product.category?.slug || product.category?._id}`
+            "@type": "ListItem",
+            position: 3,
+            name:
+              product.category?.name[currentLang] ||
+              product.category?.name?.en ||
+              "Category",
+            item: `${window.location.origin}/shop?category=${product.category?.slug || product.category?._id}`,
           },
           {
-            '@type': 'ListItem',
-            'position': 4,
-            'name': prodName,
-            'item': url
-          }
-        ]
+            "@type": "ListItem",
+            position: 4,
+            name: prodName,
+            item: url,
+          },
+        ],
       };
 
-      let prodScript = document.getElementById('product-jsonld');
+      let prodScript = document.getElementById("product-jsonld");
       if (!prodScript) {
-        prodScript = document.createElement('script');
-        prodScript.id = 'product-jsonld';
-        prodScript.setAttribute('type', 'application/ld+json');
+        prodScript = document.createElement("script");
+        prodScript.id = "product-jsonld";
+        prodScript.setAttribute("type", "application/ld+json");
         document.head.appendChild(prodScript);
       }
       prodScript.textContent = JSON.stringify(productSchema);
 
-      let breadcrumbScript = document.getElementById('breadcrumb-jsonld');
+      let breadcrumbScript = document.getElementById("breadcrumb-jsonld");
       if (!breadcrumbScript) {
-        breadcrumbScript = document.createElement('script');
-        breadcrumbScript.id = 'breadcrumb-jsonld';
-        breadcrumbScript.setAttribute('type', 'application/ld+json');
+        breadcrumbScript = document.createElement("script");
+        breadcrumbScript.id = "breadcrumb-jsonld";
+        breadcrumbScript.setAttribute("type", "application/ld+json");
         document.head.appendChild(breadcrumbScript);
       }
       breadcrumbScript.textContent = JSON.stringify(breadcrumbSchema);
     }
 
     return () => {
-      const prodScript = document.getElementById('product-jsonld');
+      const prodScript = document.getElementById("product-jsonld");
       if (prodScript) prodScript.remove();
-      const breadcrumbScript = document.getElementById('breadcrumb-jsonld');
+      const breadcrumbScript = document.getElementById("breadcrumb-jsonld");
       if (breadcrumbScript) breadcrumbScript.remove();
     };
   }, [product, reviews, i18n.language]);
@@ -244,7 +268,7 @@ const ProductDetails = () => {
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     if (!reviewComment.trim()) {
-      showToast.error(t('product:comment'));
+      showToast.error(t("product:comment"));
       return;
     }
     setSubmittingReview(true);
@@ -254,23 +278,74 @@ const ProductDetails = () => {
         comment: reviewComment,
       });
 
-      showToast.success('Review added successfully!');
-      setReviewComment('');
-      
+      showToast.success("Review added successfully!");
+      setReviewComment("");
+
       const refreshResponse = await api.get(`/products/slug/${slug}`);
       setReviews(refreshResponse.data.reviews || []);
-      
+
       // Update cached data with the refreshed response
-      setCachedData(`product_detail_${slug}`, refreshResponse.data, 5 * 60 * 1000);
+      setCachedData(
+        `product_detail_${slug}`,
+        refreshResponse.data,
+        5 * 60 * 1000,
+      );
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Failed to submit review';
+      const errorMessage =
+        err.response?.data?.message || "Failed to submit review";
       showToast.error(errorMessage);
     } finally {
       setSubmittingReview(false);
     }
   };
 
-  const currentLang = i18n.language || 'hi';
+  const currentLang = i18n.language || "hi";
+
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+    const shareTitle = product.name[currentLang] || product.name.en;
+    const fullDesc =
+      product.description[currentLang] || product.description.en || "";
+    const shareText =
+      fullDesc.length > 150 ? `${fullDesc.slice(0, 150)}...` : fullDesc;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.error("Error sharing:", err);
+          fallbackCopy(shareUrl);
+        }
+      }
+    } else {
+      fallbackCopy(shareUrl);
+    }
+  };
+
+  const fallbackCopy = (url) => {
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        showToast.success(
+          currentLang === "hi"
+            ? "लिंक क्लिपबोर्ड पर कॉपी हो गया!"
+            : "Product link copied to clipboard!",
+        );
+      })
+      .catch((err) => {
+        console.error("Could not copy text: ", err);
+        showToast.error(
+          currentLang === "hi"
+            ? "लिंक कॉपी करने में विफल!"
+            : "Failed to copy link!",
+        );
+      });
+  };
 
   if (loading) return <Loader fullPage />;
   if (!product) return null;
@@ -282,16 +357,32 @@ const ProductDetails = () => {
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white">
       {/* Back button */}
-      <Link to="/shop" className="inline-flex items-center gap-2 text-xs font-semibold text-blue-600 hover:underline mb-6">
-        <ArrowLeft size={14} /> {t('common:back')}
-      </Link>
+      <button
+        onClick={() => navigate(-1)}
+        className="inline-flex items-center gap-2 text-xs font-semibold text-blue-600 hover:underline mb-6 bg-transparent border-0 cursor-pointer p-0"
+      >
+        <ArrowLeft size={14} /> {t("common:back")}
+      </button>
 
       {/* Main product columns */}
       <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-10">
         {/* Left Column: Image Gallery */}
         <div className="flex flex-col gap-4">
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl h-[350px] flex justify-center items-center overflow-hidden">
-            <img src={activeImage} alt={product.name.en} className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply" loading="lazy" />
+          <div className="relative bg-slate-50 border border-slate-200 rounded-2xl h-[350px] flex justify-center items-center overflow-hidden">
+            <img
+              src={activeImage}
+              alt={product.name.en}
+              className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply"
+              loading="lazy"
+            />
+
+            <button
+              onClick={handleShare}
+              className="w-11 h-11 rounded-full flex justify-center items-center cursor-pointer border border-slate-200 bg-white hover:bg-slate-50 transition-colors absolute top-4 right-4"
+              title={currentLang === "hi" ? "शेयर करें" : "Share"}
+            >
+              <Share2 size={20} className="text-slate-500" />
+            </button>
           </div>
           {product.images.length > 1 && (
             <div className="flex gap-3 overflow-x-auto pb-1">
@@ -300,10 +391,15 @@ const ProductDetails = () => {
                   key={idx}
                   onClick={() => setActiveImage(img)}
                   className={`w-16 h-16 rounded-xl bg-slate-50 border-2 overflow-hidden flex justify-center items-center cursor-pointer transition-all ${
-                    activeImage === img ? 'border-blue-600' : 'border-slate-200'
+                    activeImage === img ? "border-blue-600" : "border-slate-200"
                   }`}
                 >
-                  <img src={img} alt="Thumbnail" className="max-w-full max-h-full object-contain mix-blend-multiply" loading="lazy" />
+                  <img
+                    src={img}
+                    alt="Thumbnail"
+                    className="max-w-full max-h-full object-contain mix-blend-multiply"
+                    loading="lazy"
+                  />
                 </button>
               ))}
             </div>
@@ -318,7 +414,7 @@ const ProductDetails = () => {
           <h1 className="font-heading text-2xl sm:text-3xl font-extrabold text-slate-800 mt-2">
             {product.name[currentLang]}
           </h1>
-          
+
           {/* Ratings display */}
           <div className="flex items-center gap-2">
             <div className="flex">
@@ -326,22 +422,32 @@ const ProductDetails = () => {
                 <Star
                   key={idx}
                   size={16}
-                  fill={idx < Math.round(product.ratingsAverage) ? '#f59e0b' : 'none'}
+                  fill={
+                    idx < Math.round(product.ratingsAverage)
+                      ? "#f59e0b"
+                      : "none"
+                  }
                   color="#f59e0b"
                 />
               ))}
             </div>
-            <span className="text-xs text-slate-400 font-semibold">{product.ratingsAverage} ({product.ratingsCount} reviews)</span>
+            <span className="text-xs text-slate-400 font-semibold">
+              {product.ratingsAverage} ({product.ratingsCount} reviews)
+            </span>
           </div>
 
           <hr className="border-t border-slate-100 w-full" />
 
           {/* Pricing Box */}
           <div className="flex items-center gap-3">
-            <span className="text-3xl font-extrabold text-blue-600">₹{product.price}</span>
+            <span className="text-3xl font-extrabold text-blue-600">
+              ₹{product.price}
+            </span>
             {product.originalPrice > product.price && (
               <>
-                <span className="text-lg text-slate-400 line-through">₹{product.originalPrice}</span>
+                <span className="text-lg text-slate-400 line-through">
+                  ₹{product.originalPrice}
+                </span>
                 <span className="bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded">
                   Save {savingsPercent}%
                 </span>
@@ -349,25 +455,27 @@ const ProductDetails = () => {
             )}
           </div>
 
-          <p className="text-sm text-slate-600 leading-relaxed">{product.description[currentLang]}</p>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            {product.description[currentLang]}
+          </p>
 
           {/* Stock Availability */}
           <div className="flex gap-2 items-center text-sm">
             <span className="text-slate-500 font-semibold">Availability:</span>
             <span
               className={`font-bold ${
-                product.availabilityStatus === 'In Stock'
-                  ? 'text-emerald-600'
-                  : product.availabilityStatus === 'Low Stock'
-                  ? 'text-amber-600'
-                  : 'text-rose-600'
+                product.availabilityStatus === "In Stock"
+                  ? "text-emerald-600"
+                  : product.availabilityStatus === "Low Stock"
+                    ? "text-amber-600"
+                    : "text-rose-600"
               }`}
             >
-              {product.availabilityStatus === 'In Stock'
-                ? t('product:in_stock')
-                : product.availabilityStatus === 'Low Stock'
-                ? t('product:low_stock')
-                : t('product:out_of_stock')}
+              {product.availabilityStatus === "In Stock"
+                ? t("product:in_stock")
+                : product.availabilityStatus === "Low Stock"
+                  ? t("product:low_stock")
+                  : t("product:out_of_stock")}
             </span>
           </div>
 
@@ -375,15 +483,19 @@ const ProductDetails = () => {
           <div className="w-full flex items-center gap-2 bg-blue-50/50 border border-blue-100/50 rounded-xl px-4 py-3 text-xs text-blue-800">
             <ShieldAlert size={16} className="text-blue-600 flex-shrink-0" />
             <span>
-              Policy: <strong>{product.returnPolicy}</strong> options apply for this accessory.
+              Policy: <strong>{product.returnPolicy}</strong> options apply for
+              this accessory.
             </span>
           </div>
 
           {/* Action CTA Buttons */}
           <div className="flex gap-4 w-full flex-wrap mt-6">
             {product.stock === 0 ? (
-              <button className="flex-1 py-3 font-heading font-bold text-sm bg-slate-100 text-slate-400 border border-slate-200 rounded-full cursor-not-allowed" disabled>
-                {t('product:out_of_stock')}
+              <button
+                className="flex-1 py-3 font-heading font-bold text-sm bg-slate-100 text-slate-400 border border-slate-200 rounded-full cursor-not-allowed"
+                disabled
+              >
+                {t("product:out_of_stock")}
               </button>
             ) : (
               <>
@@ -392,16 +504,16 @@ const ProductDetails = () => {
                   className="flex-1 py-3 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer flex justify-center items-center gap-2 border-0"
                 >
                   <ShoppingCart size={16} />
-                  {t('product:add_to_cart')}
+                  {t("product:add_to_cart")}
                 </button>
                 <button
                   onClick={() => {
                     addToCart(product);
-                    navigate('/cart');
+                    navigate("/cart");
                   }}
                   className="flex-1 py-3 font-heading font-bold text-sm bg-white text-blue-600 border border-blue-200 rounded-full hover:bg-blue-50 cursor-pointer flex justify-center items-center"
                 >
-                  {t('product:buy_now')}
+                  {t("product:buy_now")}
                 </button>
               </>
             )}
@@ -409,11 +521,21 @@ const ProductDetails = () => {
             <button
               onClick={() => toggleWishlist(product)}
               className={`w-11 h-11 rounded-full flex justify-center items-center cursor-pointer border transition-colors ${
-                isWishlisted ? 'border-rose-300 bg-rose-50/50' : 'border-slate-200 bg-white hover:bg-slate-50'
+                isWishlisted
+                  ? "border-rose-300 bg-rose-50/50"
+                  : "border-slate-200 bg-white hover:bg-slate-50"
               }`}
-              title={currentLang === 'hi' ? "विशलिस्ट में जोड़ें/हटाएं" : "Add/Remove from Wishlist"}
+              title={
+                currentLang === "hi"
+                  ? "विशलिस्ट में जोड़ें/हटाएं"
+                  : "Add/Remove from Wishlist"
+              }
             >
-              <Heart size={20} fill={isWishlisted ? '#ef4444' : 'none'} color={isWishlisted ? '#ef4444' : '#94a3b8'} />
+              <Heart
+                size={20}
+                fill={isWishlisted ? "#ef4444" : "none"}
+                color={isWishlisted ? "#ef4444" : "#94a3b8"}
+              />
             </button>
           </div>
         </div>
@@ -423,23 +545,32 @@ const ProductDetails = () => {
       <div className="flex flex-col md:flex-row gap-10 mt-16 pt-10 border-t border-slate-100">
         {/* Left Column: List Reviews */}
         <div className="flex-1 w-full">
-          <h3 className="font-heading text-lg font-bold text-slate-800 mb-6">{t('product:reviews')}</h3>
+          <h3 className="font-heading text-lg font-bold text-slate-800 mb-6">
+            {t("product:reviews")}
+          </h3>
           {reviews.length === 0 ? (
-            <p className="text-xs text-slate-400">{t('product:no_reviews')}</p>
+            <p className="text-xs text-slate-400">{t("product:no_reviews")}</p>
           ) : (
             <div className="flex flex-col gap-4">
               {reviews.map((rev) => (
-                <div key={rev._id} className="p-4 rounded-xl border border-slate-100 bg-slate-50">
+                <div
+                  key={rev._id}
+                  className="p-4 rounded-xl border border-slate-100 bg-slate-50"
+                >
                   <div className="flex justify-between items-center text-xs">
-                    <span className="font-semibold text-slate-700">{rev.user.name}</span>
-                    <span className="text-slate-400">{new Date(rev.createdAt).toLocaleDateString()}</span>
+                    <span className="font-semibold text-slate-700">
+                      {rev.user?.name || "Customer"}
+                    </span>
+                    <span className="text-slate-400">
+                      {new Date(rev.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                   <div className="flex my-1">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
                         size={12}
-                        fill={i < rev.rating ? '#f59e0b' : 'none'}
+                        fill={i < rev.rating ? "#f59e0b" : "none"}
                         color="#f59e0b"
                       />
                     ))}
@@ -455,25 +586,34 @@ const ProductDetails = () => {
         <div className="w-full md:w-[320px] flex-shrink-0">
           {user ? (
             <div className="p-6 bg-white border border-slate-200 rounded-2xl">
-              <h3 className="font-heading text-base font-bold text-blue-600 mb-4">{t('product:write_review')}</h3>
-              <form onSubmit={handleReviewSubmit} className="flex flex-col gap-4">
+              <h3 className="font-heading text-base font-bold text-blue-600 mb-4">
+                {t("product:write_review")}
+              </h3>
+              <form
+                onSubmit={handleReviewSubmit}
+                className="flex flex-col gap-4"
+              >
                 <div className="flex flex-col">
-                  <label className="block mb-1.5 text-xs font-semibold text-slate-500">{t('product:rating')}</label>
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-500">
+                    {t("product:rating")}
+                  </label>
                   <select
                     className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none cursor-pointer text-xs"
                     value={reviewRating}
                     onChange={(e) => setReviewRating(Number(e.target.value))}
                   >
-                    <option value="5">5 Stars - Excellent</option>
-                    <option value="4">4 Stars - Very Good</option>
-                    <option value="3">3 Stars - Good</option>
-                    <option value="2">2 Stars - Fair</option>
-                    <option value="1">1 Star - Poor</option>
+                    <option value="5">5 Stars - 🌕</option>
+                    <option value="4">4 Stars - 🌖</option>
+                    <option value="3">3 Stars - 🌗</option>
+                    <option value="2">2 Stars - 🌘</option>
+                    <option value="1">1 Star - 🌑</option>
                   </select>
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="block mb-1.5 text-xs font-semibold text-slate-500">{t('product:comment')}</label>
+                  <label className="block mb-1.5 text-xs font-semibold text-slate-500">
+                    {t("product:comment")}
+                  </label>
                   <textarea
                     className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 outline-none text-xs"
                     rows="3"
@@ -489,17 +629,23 @@ const ProductDetails = () => {
                   disabled={submittingReview}
                   className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Send size={12} /> {submittingReview ? t('common:submitting', 'Submitting...') : t('common:submit')}
+                  <Send size={12} />{" "}
+                  {submittingReview
+                    ? t("common:submitting", "Submitting...")
+                    : t("common:submit")}
                 </button>
               </form>
             </div>
           ) : (
             <div className="p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center">
               <p className="text-xs text-slate-500 leading-relaxed">
-                Please{' '}
-                <Link to="/login" className="text-blue-600 hover:underline font-semibold">
+                Please{" "}
+                <Link
+                  to="/login"
+                  className="text-blue-600 hover:underline font-semibold"
+                >
                   Login
-                </Link>{' '}
+                </Link>{" "}
                 to write a customer review.
               </p>
             </div>
@@ -510,16 +656,30 @@ const ProductDetails = () => {
       {/* Related Products Section */}
       {related.length > 0 && (
         <div className="mt-16">
-          <h3 className="font-heading text-lg font-bold text-slate-800 mb-6">{t('product:related_products')}</h3>
+          <h3 className="font-heading text-lg font-bold text-slate-800 mb-6">
+            {t("product:related_products")}
+          </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {related.map((item) => (
-              <div key={item._id} className="p-3 text-center bg-white border border-slate-200 rounded-xl hover:shadow-sm">
+              <div
+                key={item._id}
+                className="p-3 text-center bg-white border border-slate-200 rounded-xl hover:shadow-sm"
+              >
                 <Link to={`/products/${item.slug || item._id}`}>
                   <div className="h-[110px] flex justify-center items-center overflow-hidden bg-slate-50 border border-slate-100 rounded-lg mb-2">
-                    <img src={item.images[0]} alt={item.name.en} className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply" loading="lazy" />
+                    <img
+                      src={item.images[0]}
+                      alt={item.name.en}
+                      className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply"
+                      loading="lazy"
+                    />
                   </div>
-                  <h4 className="font-heading text-xs font-semibold text-slate-700 truncate">{item.name[currentLang]}</h4>
-                  <p className="text-xs font-bold text-blue-600 mt-1">₹{item.price}</p>
+                  <h4 className="font-heading text-xs font-semibold text-slate-700 truncate">
+                    {item.name[currentLang]}
+                  </h4>
+                  <p className="text-xs font-bold text-blue-600 mt-1">
+                    ₹{item.price}
+                  </p>
                 </Link>
               </div>
             ))}

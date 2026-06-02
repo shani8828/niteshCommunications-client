@@ -10,6 +10,7 @@ import {
   Facebook,
   MessageCircle,
 } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 const Footer = () => {
   const { t, i18n } = useTranslation();
@@ -108,7 +109,7 @@ const Footer = () => {
               <Instagram size={18} />
             </a>
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/share/18r5kc8pKq/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-700 transition-colors p-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg flex items-center justify-center"
@@ -117,13 +118,13 @@ const Footer = () => {
               <Facebook size={18} />
             </a>
             <a
-              href="https://wa.me"
+              href="https://whatsapp.com/channel/0029VaDyFpZ9mrGiKnPD0g2c"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-700 transition-colors p-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg flex items-center justify-center"
               title="WhatsApp Channel"
             >
-              <MessageCircle size={18} />
+              <FaWhatsapp size={18} />
             </a>
           </div>
         </div>

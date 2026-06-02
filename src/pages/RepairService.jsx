@@ -33,9 +33,7 @@ const RepairService = () => {
   // SEO & Head Metadata
   useEffect(() => {
     document.title =
-      currentLang === "hi"
-        ? "मोबाइल रिपेयरिंग सेवाएं | Nitesh Communications"
-        : "Mobile Repair Services | Nitesh Communications";
+      "Mobile Repair Services | मोबाइल रिपेयरिंग सेवाएं | Nitesh Communications";
 
     let metaDesc = document.querySelector("meta[name='description']");
     if (!metaDesc) {
@@ -45,9 +43,7 @@ const RepairService = () => {
     }
     metaDesc.setAttribute(
       "content",
-      currentLang === "hi"
-        ? "अयोध्या में विशेषज्ञ मोबाइल स्क्रीन रिप्लेसमेंट, बैटरी रिप्लेसमेंट, सॉफ्टवेयर फ्लैशिंग और ग्लास रिपेयर सेवाएं।"
-        : "Expert screen replacement, battery replacement, software flashing, and glass repair services in Ayodhya.",
+      "Expert mobile screen replacement, battery replacement, software flashing, and glass repair services in Ayodhya. अयोध्या में विशेषज्ञ मोबाइल स्क्रीन रिप्लेसमेंट, बैटरी रिप्लेसमेंट और रिपेयरिंग सेवाएं।"
     );
   }, [currentLang]);
 

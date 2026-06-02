@@ -13,6 +13,7 @@ import ScrollToTop from './components/common/ScrollToTop';
 import Breadcrumbs from './components/common/Breadcrumbs';
 import Loader from './components/common/Loader';
 import CookieConsent from './components/common/CookieConsent';
+import LanguageToggle from './components/common/LanguageToggle';
 
 // Pages (Lazy Loaded for maximum performance)
 const Home = lazy(() => import('./pages/Home'));
@@ -111,6 +112,9 @@ function App() {
             <div className="app-container">
               {/* Header Multilingual navigation */}
               <Navbar />
+
+              {/* Floating Language Toggle */}
+              <LanguageToggle />
 
               {/* Breadcrumbs Navigation */}
               <Breadcrumbs />

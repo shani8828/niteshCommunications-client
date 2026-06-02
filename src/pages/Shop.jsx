@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useCart } from "../context/CartContext";
 import Loader from "../components/common/Loader";
@@ -46,8 +46,10 @@ const Shop = () => {
   const [minPriceInput, setMinPriceInput] = useState("0");
   const [maxPriceInput, setMaxPriceInput] = useState("100000");
   const [sort, setSort] = useState(sortParam);
-  const [page, setPage] = useState((page) => 1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const observerTarget = useRef(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const [searchText, setSearchText] = useState(searchParam);
@@ -85,9 +87,7 @@ const Shop = () => {
   // SEO updates
   useEffect(() => {
     document.title =
-      currentLang === "hi"
-        ? "दुकान - उत्पाद सूची | Nitesh Communications"
-        : "Shop - Product Catalog | Nitesh Communications";
+      "Shop - Product Catalog | दुकान - उत्पाद सूची | Nitesh Communications";
 
     let metaDesc = document.querySelector("meta[name='description']");
     if (!metaDesc) {
@@ -97,9 +97,7 @@ const Shop = () => {
     }
     metaDesc.setAttribute(
       "content",
-      currentLang === "hi"
-        ? "स्मार्टफोन, मोबाइल एक्सेसरीज, ईयरफोन, मूल एडाप्टर और पुरुषों के कपड़े सर्वश्रेष्ठ मूल्य पर खरीदें।"
-        : "Browse and buy premium smartphones, mobile accessories, earphones, and premium men's clothing.",
+      "Browse and buy premium smartphones, mobile accessories, earphones, and premium clothing at Nitesh Communications. बेहतरीन स्मार्टफोन, मोबाइल एक्सेसरीज, ईयरफोन और कपड़े खरीदें।"
     );
 
     let canonicalLink = document.querySelector("link[rel='canonical']");
@@ -194,56 +192,93 @@ const Shop = () => {
 
   useEffect(() => {
     const fetchProds = async () => {
-      const cacheKey = `shop_products_p_${page}_s_${sort}_min_${minPrice}_max_${maxPrice}_k_${search}_c_${selectedCategory}_b_${selectedBrand}`;
+      const isFirstPage = page === 1;
+      const cacheKey = `shop_products_l15_p_${page}_s_${sort}_min_${minPrice}_max_${maxPrice}_k_${search}_c_${selectedCategory}_b_${selectedBrand}`;
       const cached = getCachedData(cacheKey);
+
+      if (isFirstPage) {
+        setProducts([]);
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
       if (cached) {
-        let fetchedProducts = cached.products;
-        if (
-          !selectedCategory &&
-          !selectedBrand &&
-          !search &&
-          sort === "newest"
-        ) {
-          fetchedProducts = shuffleArray(fetchedProducts);
+        const newProducts = cached.products || [];
+        const totalPages = cached.pages || 1;
+
+        if (isFirstPage) {
+          setProducts(newProducts);
+        } else {
+          setProducts((prev) => {
+            const existingIds = new Set(prev.map((p) => p._id));
+            const filteredNew = newProducts.filter((p) => !existingIds.has(p._id));
+            return [...prev, ...filteredNew];
+          });
         }
-        setProducts(fetchedProducts);
-        setTotalPages(cached.pages);
+        setHasMore(page < totalPages && newProducts.length > 0);
         setLoading(false);
+        setLoadingMore(false);
         return;
       }
-      setLoading(true);
+
       try {
-        let url = `/products?page=${page}&sort=${sort}&minPrice=${minPrice}&maxPrice=${maxPrice}`;
+        let url = `/products?page=${page}&limit=15&sort=${sort}&minPrice=${minPrice}&maxPrice=${maxPrice}`;
         if (search) url += `&keyword=${search}`;
         if (selectedCategory) url += `&category=${selectedCategory}`;
         if (selectedBrand) url += `&brand=${encodeURIComponent(selectedBrand)}`;
 
         const response = await api.get(url);
+        const newProducts = response.data.products || [];
+        const totalPages = response.data.pages || 1;
+
         setCachedData(
           cacheKey,
-          { products: response.data.products, pages: response.data.pages },
-          5 * 60 * 1000,
-        ); // Cache products for 5 minutes
+          { products: newProducts, pages: totalPages },
+          5 * 60 * 1000
+        );
 
-        let fetchedProducts = response.data.products;
-        if (
-          !selectedCategory &&
-          !selectedBrand &&
-          !search &&
-          sort === "newest"
-        ) {
-          fetchedProducts = shuffleArray(fetchedProducts);
+        if (isFirstPage) {
+          setProducts(newProducts);
+        } else {
+          setProducts((prev) => {
+            const existingIds = new Set(prev.map((p) => p._id));
+            const filteredNew = newProducts.filter((p) => !existingIds.has(p._id));
+            return [...prev, ...filteredNew];
+          });
         }
-        setProducts(fetchedProducts);
-        setTotalPages(response.data.pages);
+        setHasMore(page < totalPages && newProducts.length > 0);
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
+        setLoadingMore(false);
       }
     };
     fetchProds();
   }, [page, search, selectedCategory, selectedBrand, maxPrice, minPrice, sort]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading && !loadingMore) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasMore, loading, loadingMore]);
 
   const handleCategorySelect = (id) => {
     const nextCat = id === selectedCategory ? "" : id;
@@ -263,6 +298,25 @@ const Shop = () => {
     setSort("newest");
     setPage(1);
   };
+
+  const renderSkeletons = (count = 6) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+      {Array.from({ length: count }).map((_, idx) => (
+        <div
+          key={idx}
+          className="p-4 flex flex-col gap-3 bg-white border border-slate-200 rounded-2xl animate-pulse w-full"
+        >
+          <div className="bg-slate-100 rounded-xl h-[170px] w-full" />
+          <div className="flex justify-between items-center mt-1">
+            <div className="h-3 bg-slate-200 rounded w-1/3" />
+          </div>
+          <div className="h-4 bg-slate-200 rounded w-3/4 mt-1" />
+          <div className="h-5 bg-slate-200 rounded w-1/4 mt-1 mb-3" />
+          <div className="h-8 bg-slate-200 rounded-lg w-full" />
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white">
@@ -488,27 +542,7 @@ const Shop = () => {
         {/* Right Column Products Grid */}
         <div className="w-full">
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 flex flex-col gap-3 bg-white border border-slate-200 rounded-2xl animate-pulse"
-                >
-                  {/* Image Skeleton */}
-                  <div className="bg-slate-100 rounded-xl h-[170px] w-full" />
-                  {/* Category */}
-                  <div className="flex justify-between items-center mt-1">
-                    <div className="h-3 bg-slate-200 rounded w-1/3" />
-                  </div>
-                  {/* Title */}
-                  <div className="h-4 bg-slate-200 rounded w-3/4 mt-1" />
-                  {/* Price */}
-                  <div className="h-5 bg-slate-200 rounded w-1/4 mt-1 mb-3" />
-                  {/* Button */}
-                  <div className="h-8 bg-slate-200 rounded-lg w-full" />
-                </div>
-              ))}
-            </div>
+            renderSkeletons(6)
           ) : products.length === 0 ? (
             <div className="text-center py-16 text-slate-500">
               <p className="text-sm">No products match your filter options.</p>
@@ -608,39 +642,17 @@ const Shop = () => {
                 })}
               </div>
 
-              {/* Pagination Panel */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-1.5 mt-10">
-                  <button
-                    disabled={page === 1}
-                    onClick={() => setPage(page - 1)}
-                    className="p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    <ChevronLeft size={16} />
-                  </button>
-                  {Array.from({ length: totalPages }, (_, idx) => idx + 1).map(
-                    (pNum) => (
-                      <button
-                        key={pNum}
-                        onClick={() => setPage(pNum)}
-                        className={`w-9 h-9 rounded-lg font-heading font-bold text-xs cursor-pointer border ${
-                          page === pNum
-                            ? "bg-blue-600 border-blue-600 text-white"
-                            : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
-                        }`}
-                      >
-                        {pNum}
-                      </button>
-                    ),
-                  )}
-                  <button
-                    disabled={page === totalPages}
-                    onClick={() => setPage(page + 1)}
-                    className="p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    <ChevronRight size={16} />
-                  </button>
+              {/* Sentinel observer element for infinite scroll */}
+              {hasMore && (
+                <div ref={observerTarget} className="w-full flex justify-center items-center mt-6 min-h-[50px]">
+                  {loadingMore && renderSkeletons(3)}
                 </div>
+              )}
+
+              {!hasMore && products.length > 0 && (
+                <p className="text-center text-xs text-slate-400 mt-8 font-semibold">
+                  {currentLang === "hi" ? "हमारे स्टोर में और भी उत्पाद जोड़े जा रहे हैं। बने रहिये!" : "More products are being added in our store. Stay tuned!"}
+                </p>
               )}
             </>
           )}

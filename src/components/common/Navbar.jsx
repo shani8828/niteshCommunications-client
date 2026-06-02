@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
@@ -8,26 +8,29 @@ import {
   X,
   ShoppingCart,
   User as UserIcon,
-  Globe,
   LogOut,
   Heart,
   ShoppingBag,
   Settings,
+  Search,
 } from "lucide-react";
+import GlobalSearch from "./GlobalSearch";
 
 const Navbar = () => {
   const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
   const { cartCount } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
-  // Toggle English <-> Hindi languages
-  const toggleLanguage = () => {
-    const nextLang = i18n.language === "hi" ? "en" : "hi";
-    i18n.changeLanguage(nextLang);
-  };
+  useEffect(() => {
+    setMobileSearchOpen(false);
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
 
   const handleLogout = async () => {
     await logout();
@@ -73,7 +76,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex gap-8">
+        <nav className="hidden md:flex gap-6 lg:gap-8">
           <NavLink to="/" className={getLinkClass}>
             {t("home")}
           </NavLink>
@@ -88,18 +91,13 @@ const Navbar = () => {
           </NavLink>
         </nav>
 
+        {/* Global Search Component */}
+        <div className="hidden sm:block flex-1 max-w-[280px] mx-4">
+          <GlobalSearch />
+        </div>
+
         {/* Controls Section */}
         <div className="flex items-center gap-5">
-          {/* Multilingual Globe Toggle */}
-          <button
-            onClick={toggleLanguage}
-            className="bg-transparent border-0 text-slate-600 hover:text-blue-600 cursor-pointer flex items-center gap-1 text-sm font-semibold"
-          >
-            <Globe size={18} />
-            <span className="text-xs">
-              {i18n.language === "hi" ? "EN" : "हिंदी"}
-            </span>
-          </button>
 
           {/* Cart Icon Link - Only visible when logged in */}
           {user && (
@@ -198,6 +196,15 @@ const Navbar = () => {
             </div>
           )}
 
+          {/* Mobile Search Toggle Icon */}
+          <button
+            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+            className="bg-transparent border-0 text-slate-600 hover:text-blue-600 cursor-pointer flex items-center sm:hidden p-1.5 rounded-full hover:bg-slate-50 transition-colors"
+            title="Search"
+          >
+            {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
+          </button>
+
           {/* Mobile Menu Hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -211,6 +218,10 @@ const Navbar = () => {
       {/* Mobile Drawer Overlay */}
       {mobileMenuOpen && (
         <div className="absolute top-[60px] left-0 right-0 z-[90] flex flex-col gap-3 p-6 bg-white border border-slate-100 shadow-xl rounded-b-2xl md:hidden">
+          {/* Mobile Global Search input */}
+          <div className="sm:hidden w-full pb-2">
+            <GlobalSearch />
+          </div>
           <NavLink
             to="/"
             onClick={() => setMobileMenuOpen(false)}
@@ -322,6 +333,20 @@ const Navbar = () => {
               </div>
             </>
           )}
+        </div>
+      )}
+      {/* Mobile Search Overlay */}
+      {mobileSearchOpen && (
+        <div className="absolute top-full left-0 right-0 z-[95] bg-white border-b border-slate-200 px-6 py-3.5 shadow-lg sm:hidden flex items-center gap-3 animate-fade-in">
+          <div className="flex-1">
+            <GlobalSearch />
+          </div>
+          <button
+            onClick={() => setMobileSearchOpen(false)}
+            className="text-slate-400 hover:text-slate-600 bg-transparent border-0 cursor-pointer p-1.5 hover:bg-slate-100 rounded-full flex items-center"
+          >
+            <X size={18} />
+          </button>
         </div>
       )}
     </header>

@@ -14,9 +14,8 @@ const CscService = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = currentLang === "hi"
-      ? "सीएससी डिजिटल सरकारी सेवाएं | Nitesh Communications"
-      : "CSC Digital Government Services | Nitesh Communications";
+    document.title =
+      "CSC Digital Government Services | सीएससी डिजिटल सरकारी सेवाएं | Nitesh Communications";
 
     let metaDesc = document.querySelector("meta[name='description']");
     if (!metaDesc) {
@@ -26,9 +25,7 @@ const CscService = () => {
     }
     metaDesc.setAttribute(
       "content",
-      currentLang === "hi"
-        ? "आधार सुधार, पैन कार्ड आवेदन, बैंकिंग सेवाएं और अयोध्या में सरकारी योजनाओं के फॉर्म प्रिंटिंग।"
-        : "Aadhaar correction, PAN card application, banking services, and government scheme printing in Ayodhya."
+      "Aadhaar correction, PAN card application, banking services, and government schemes in Ayodhya. आधार सुधार, पैन कार्ड आवेदन, बैंकिंग और सरकारी डिजिटल सेवाएं।"
     );
 
     let canonicalLink = document.querySelector("link[rel='canonical']");

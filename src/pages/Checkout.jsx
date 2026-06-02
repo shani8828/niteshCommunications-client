@@ -242,7 +242,8 @@ const Checkout = () => {
           return;
         }
 
-        const rzpKey = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_dummy_key_id";
+        const rzpKey =
+          import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_dummy_key_id";
 
         const options = {
           key: rzpKey,
@@ -281,9 +282,20 @@ const Checkout = () => {
             }
           },
           modal: {
-            ondismiss: () => {
-              showToast.warning("Payment window closed. Order is pending.");
-              navigate(`/order-tracking/${data.order._id}`);
+            ondismiss: async () => {
+              setLoading(true);
+              try {
+                await api.delete(`/orders/pending/${data.order._id}`);
+              } catch (err) {
+                console.error("Error discarding pending order:", err);
+              } finally {
+                setLoading(false);
+              }
+              showToast.warning(
+                currentLang === "hi"
+                  ? "भुगतान रद्द कर दिया गया। आप फिर से प्रयास कर सकते हैं या COD चुन सकते हैं।"
+                  : "Payment cancelled. You can try again or choose Cash on Delivery (COD).",
+              );
             },
           },
         };
@@ -301,7 +313,7 @@ const Checkout = () => {
   };
 
   const currentLang = i18n.language || "hi";
-
+  const tax = cartSubtotal * 0.0236;
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white relative">
       {loading && <Loader fullPage />}
@@ -321,7 +333,7 @@ const Checkout = () => {
             </h3>
             <div className="flex flex-col">
               <label className="block mb-1.5 text-xs font-semibold text-slate-500">
-                {t("common:phone")} *
+                {currentLang == "hi" ? "मोबाइल नंबर " : "Phone Number"} *
               </label>
               <input
                 type="tel"
@@ -621,10 +633,10 @@ const Checkout = () => {
               ₹{cartSubtotal}
             </span>
           </div>
-          <div className="flex justify-between items-center text-xs text-slate-600 mb-3">
+          {/* <div className="flex justify-between items-center text-xs text-slate-600 mb-3">
             <span>{t("cart:taxes")}</span>
-            <span className="text-emerald-600 font-bold">₹ 0</span>
-          </div>
+            <span className="text-emerald-600 font-bold">₹ {tax}</span>
+          </div> */}
           <div className="flex justify-between items-center text-xs text-slate-600 mb-4">
             <span>{t("cart:delivery_charges")}</span>
             <span className="text-emerald-600 font-bold">{t("cart:free")}</span>
@@ -634,7 +646,9 @@ const Checkout = () => {
 
           <div className="flex justify-between items-center text-sm font-bold text-slate-800">
             <span>{t("cart:total")}</span>
-            <span className="text-lg text-blue-600">₹{cartSubtotal}</span>
+            <span className="text-lg text-blue-600">
+              ₹{cartSubtotal.toFixed(2)}
+            </span>
           </div>
         </div>
       </div>
