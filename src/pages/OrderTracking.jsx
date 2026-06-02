@@ -85,7 +85,7 @@ const OrderTracking = () => {
       }
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_dummy_key_id',
+        key: data.razorpayKeyId || 'rzp_test_dummy_key_id',
         amount: data.razorpayOrder.amount,
         currency: data.razorpayOrder.currency,
         name: 'NITESH COMMUNICATIONS',

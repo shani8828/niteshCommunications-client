@@ -305,7 +305,7 @@ const RepairService = () => {
           return;
         }
 
-        const rzpKey = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_dummy_key_id";
+        const rzpKey = data.razorpayKeyId || "rzp_test_dummy_key_id";
 
         const options = {
           key: rzpKey,
