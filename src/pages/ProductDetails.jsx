@@ -17,7 +17,7 @@ const updateMetaTags = ({ title, description, image, url, type = 'website' }) =>
     let element = document.querySelector(`meta[${attrName}='${attrValue}']`);
     if (!element) {
       element = document.createElement('meta');
-      element.setAttribute(attrName, attrValue);
+      element.setAttribute(attrName, attrValue); 
       document.head.appendChild(element);
     }
     element.setAttribute('content', contentVal);

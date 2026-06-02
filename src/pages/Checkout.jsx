@@ -242,7 +242,7 @@ const Checkout = () => {
           return;
         }
 
-        const rzpKey = "rzp_test_dummy_key_id";
+        const rzpKey = import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_dummy_key_id";
 
         const options = {
           key: rzpKey,
