@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { showToast } from '../utils/toast';
 
 const CartContext = createContext();
@@ -35,7 +35,7 @@ export const CartProvider = ({ children }) => {
   /**
    * Add Item to Cart
    */
-  const addToCart = (product, quantity = 1) => {
+  const addToCart = useCallback((product, quantity = 1) => {
     if (product.stock === 0) {
       showToast.error('Sorry, this product is out of stock!');
       return;
@@ -71,20 +71,20 @@ export const CartProvider = ({ children }) => {
     });
 
     showToast[toastType](toastMessage);
-  };
+  }, []);
 
   /**
    * Remove Item from Cart
    */
-  const removeFromCart = (productId) => {
+  const removeFromCart = useCallback((productId) => {
     setCartItems((prev) => prev.filter((item) => item.product._id !== productId));
     showToast.success('Item removed from cart');
-  };
+  }, []);
 
   /**
    * Update quantity of cart item
    */
-  const updateQuantity = (productId, qty) => {
+  const updateQuantity = useCallback((productId, qty) => {
     let warningMsg = null;
     setCartItems((prev) =>
       prev.map((item) => {
@@ -101,19 +101,19 @@ export const CartProvider = ({ children }) => {
     if (warningMsg) {
       showToast.warning(warningMsg);
     }
-  };
+  }, []);
 
   /**
    * Clear Cart
    */
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     setCartItems([]);
-  };
+  }, []);
 
   /**
    * Toggle product in wishlist
    */
-  const toggleWishlist = (product) => {
+  const toggleWishlist = useCallback((product) => {
     let exists = false;
     setWishlist((prev) => {
       const found = prev.find((p) => p._id === product._id);
@@ -130,18 +130,18 @@ export const CartProvider = ({ children }) => {
     } else {
       showToast.success('Added to Wishlist!');
     }
-  };
+  }, []);
 
   /**
    * Log product in recently viewed history
    */
-  const addRecentlyViewed = (product) => {
+  const addRecentlyViewed = useCallback((product) => {
     setRecentlyViewed((prev) => {
       const filtered = prev.filter((p) => p._id !== product._id);
       // Keep only last 5 products
       return [product, ...filtered].slice(0, 5);
     });
-  };
+  }, []);
 
   // Calculations
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);

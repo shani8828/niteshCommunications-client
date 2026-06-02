@@ -37,7 +37,7 @@ const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const OrderReturn = lazy(() => import('./pages/OrderReturn'));
 const OrderReplace = lazy(() => import('./pages/OrderReplace'));
-const RepairCancel = lazy(() => import('./pages/RepairCancel'));
+const RepairCancel = lazy(() => import('./components/repair/RepairCancel'));
 
 
 function App() {

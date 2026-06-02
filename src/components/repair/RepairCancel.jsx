@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useBreadcrumbs } from '../context/BreadcrumbContext';
-import Loader from '../components/common/Loader';
-import { showToast } from '../utils/toast';
-import api from '../utils/api';
+import { useBreadcrumbs } from '../../context/BreadcrumbContext';
+import Loader from '../common/Loader';
+import { showToast } from '../../utils/toast';
+import api from '../../utils/api';
 import { ArrowLeft, CreditCard, ShieldAlert } from 'lucide-react';
 
 const RepairCancel = () => {

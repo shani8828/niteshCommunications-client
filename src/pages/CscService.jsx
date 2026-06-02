@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "../context/AuthContext";
-import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
 import api from "../utils/api";
+import { showToast } from "../utils/toast";
+import { getCachedData, setCachedData } from "../utils/cache";
 import QuickLinksBanner from "../components/common/QuickLinksBanner";
+import CscServicesGrid from "../components/csc/CscServicesGrid";
 
 const CscService = () => {
   const { t, i18n } = useTranslation();
@@ -13,6 +14,7 @@ const CscService = () => {
   const [servicesList, setServicesList] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // SEO Updates
   useEffect(() => {
     document.title =
       "CSC Digital Government Services | सीएससी डिजिटल सरकारी सेवाएं | Nitesh Communications";
@@ -37,11 +39,20 @@ const CscService = () => {
     canonicalLink.setAttribute("href", `${window.location.origin}/csc`);
   }, [currentLang]);
 
+  // Fetch CSC Services
   useEffect(() => {
     const fetchServices = async () => {
+      const cacheKey = "csc_services_list";
+      const cached = getCachedData(cacheKey);
+      if (cached) {
+        setServicesList(cached);
+        setLoading(false);
+        return;
+      }
       try {
         const res = await api.get("/csc/services");
         setServicesList(res.data || []);
+        setCachedData(cacheKey, res.data || [], 10 * 60 * 1000); // Cache for 10 minutes
       } catch (err) {
         console.error(err);
         showToast.error("Failed to load CSC services / सीएससी सेवाएं लोड करने में विफल");
@@ -64,58 +75,8 @@ const CscService = () => {
         </p>
       </div>
 
-      <div className="flex flex-col gap-6">
-        <h3 className="font-heading text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
-          {currentLang === 'hi' ? 'सभी डिजिटल सेवाएं और दस्तावेज' : 'All Digital Services & Documents'}
-        </h3>
-        {servicesList.length === 0 && !loading ? (
-          <div className="text-center py-12 text-slate-500 font-semibold">
-            {currentLang === 'hi' ? 'कोई सेवा उपलब्ध नहीं है।' : 'No services available.'}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {servicesList.map((item) => {
-              return (
-                <div
-                  key={item._id}
-                  className="flex flex-col p-6 bg-white border border-slate-200/80 rounded-2xl transition-all hover:shadow-md hover:border-blue-200/80 gap-3 relative group"
-                >
-                  <div className="flex justify-end items-start gap-4">
-                    <span className="text-[10px] bg-slate-50 text-slate-500 font-bold px-2.5 py-1 rounded-full border border-slate-200/60">
-                      {currentLang === 'hi' ? 'शुल्क: ' : 'Fee: '}{item.fee[currentLang]}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <h4 className="font-heading text-base font-bold text-slate-800">
-                      {item.title[currentLang]}
-                    </h4>
-                    <p className="text-xs text-slate-600 leading-relaxed min-h-[40px]">
-                      {item.desc[currentLang]}
-                    </p>
-                  </div>
-
-                  {item.documents && ((item.documents.en && item.documents.en.length > 0) || (item.documents.hi && item.documents.hi.length > 0)) && (
-                    <div className="border-t border-slate-100 pt-3 mt-1 flex flex-col gap-1.5">
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                        {currentLang === 'hi' ? 'आवश्यक दस्तावेज:' : 'Required Documents:'}
-                      </p>
-                      <ul className="list-none p-0 m-0 flex flex-col gap-1">
-                        {(item.documents[currentLang] || []).map((doc, dIdx) => (
-                          <li key={dIdx} className="text-xs text-slate-700 flex items-center gap-1.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-blue-500 flex-shrink-0" />
-                            <span>{doc}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      <CscServicesGrid servicesList={servicesList} loading={loading} currentLang={currentLang} />
+      
       <QuickLinksBanner currentType="csc" />
     </div>
   );

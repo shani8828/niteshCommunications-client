@@ -33,7 +33,7 @@ const AdminLogin = () => {
 
   const handleAutofillDemo = () => {
     setMobile('9125949456');
-    setPassword('Nitesh@123');
+    setPassword('Nitesh@17581');
   };
 
   return (

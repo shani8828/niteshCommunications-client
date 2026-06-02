@@ -1,8 +1,8 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
-import { AlertCircle, Home, ShoppingBag } from 'lucide-react';
+import React from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
+import { AlertCircle, Home, ShoppingBag } from "lucide-react";
 
 const NotFound = () => {
   const { t } = useTranslation();
@@ -13,7 +13,7 @@ const NotFound = () => {
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+          transition={{ type: "spring", stiffness: 200, damping: 15 }}
           className="w-20 h-20 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 shadow-inner"
         >
           <AlertCircle size={40} />
@@ -25,15 +25,19 @@ const NotFound = () => {
           transition={{ delay: 0.2 }}
           className="flex flex-col gap-2"
         >
-          <h1 className="text-7xl font-extrabold text-slate-900 leading-none">404</h1>
+          <h1 className="text-7xl font-extrabold text-slate-900 leading-none">
+            404
+          </h1>
           <h2 className="text-xl font-bold text-slate-800 mt-2">
             पेज नहीं मिला / Page Not Found
           </h2>
           <p className="text-xs text-slate-500 leading-relaxed max-w-sm mt-1">
-            क्षमा करें, जिस पेज को आप ढूंढ रहे हैं वह मौजूद नहीं है या हटा दिया गया है।
+            क्षमा करें, जिस पेज को आप ढूंढ रहे हैं वह मौजूद नहीं है या हटा दिया
+            गया है।
             <br />
             <span className="text-[11px] text-slate-400 font-normal">
-              Sorry, the page you are looking for does not exist or has been moved.
+              Sorry, the page you are looking for does not exist or has been
+              moved.
             </span>
           </p>
         </motion.div>
