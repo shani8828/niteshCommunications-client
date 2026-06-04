@@ -13,7 +13,7 @@ import RepairFaq from "../components/repair/RepairFaq";
 const RepairService = () => {
   const { t, i18n } = useTranslation(["repair", "common"]);
   const { user } = useAuth();
-  const currentLang = i18n.language || "hi";
+  const currentLang = i18n.language || "en";
   const location = useLocation();
 
   // SEO & Head Metadata
@@ -29,7 +29,7 @@ const RepairService = () => {
     }
     metaDesc.setAttribute(
       "content",
-      "Expert mobile screen replacement, battery replacement, software flashing, and glass repair services in Ayodhya. अयोध्या में विशेषज्ञ मोबाइल स्क्रीन रिप्लेसमेंट, बैटरी रिप्लेसमेंट और रिपेयरिंग सेवाएं।"
+      "Expert mobile screen replacement, battery replacement, software flashing, and glass repair services in Ayodhya. अयोध्या में विशेषज्ञ मोबाइल स्क्रीन रिप्लेसमेंट, बैटरी रिप्लेसमेंट और रिपेयरिंग सेवाएं।",
     );
   }, [currentLang]);
 
@@ -70,28 +70,13 @@ const RepairService = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white relative">
-      {/* Header Banner Section */}
-      <div className="text-center mb-12 flex flex-col items-center gap-2">
-        <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-800 mt-1">
-          {currentLang === "hi"
-            ? "स्मार्टफोन रिपेयरिंग सेंटर"
-            : "Smartphone Repairing Centre"}
-        </h2>
-        <p className="text-sm text-slate-500 max-w-xl mx-auto leading-relaxed">
-          {currentLang === "hi"
-            ? "स्क्रीन, बैटरी रिप्लेसमेंट, सॉफ्टवेयर फ़िक्स और चिप-लेवल मदरबोर्ड रिपेयर के लिए अयोध्या का सबसे भरोसेमंद केंद्र।"
-            : "Ayodhya's most trusted shop for screens, battery replacements, software fixes, and chip-level motherboard repairs."}
-        </p>
-      </div>
-
       {/* Main Categories Selector Grid */}
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-3xl shadow-sm">
+        <div className=" ">
           <h3 className="font-heading text-base font-bold text-slate-800 mb-6 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
-              1
-            </span>
-            {currentLang === "hi" ? "मरम्मत सेवा चुनें" : "Select Repair Service"}
+            {currentLang === "hi"
+              ? "मरम्मत सेवा चुनें"
+              : "Select Repair Service"}
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">

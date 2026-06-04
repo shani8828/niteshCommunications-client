@@ -9,7 +9,7 @@ import { Check, Clock, Package, Truck, Smile, ShieldAlert } from 'lucide-react';
  */
 const OrderTimeline = ({ currentStatus, timeline = [] }) => {
   const { t, i18n } = useTranslation(['common']);
-  const currentLang = i18n.language || 'hi';
+  const currentLang = i18n.language || 'en';
 
   const isReturnFlow = currentStatus === 'Return Requested' || currentStatus === 'Returned';
   const isReplaceFlow = currentStatus === 'Replacement Requested' || currentStatus === 'Replaced';

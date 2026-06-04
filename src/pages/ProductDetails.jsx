@@ -65,7 +65,7 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState("");
 
-  const currentLang = i18n.language || "hi";
+  const currentLang = i18n.language || "en";
 
   useEffect(() => {
     const fetchDetail = async () => {

@@ -50,7 +50,7 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'hi', // default language set to Hindi
+    lng: 'en', // default language set to English
     fallbackLng: 'en',
     ns: ['common', 'auth', 'cart', 'admin', 'product', 'repair', 'csc', 'notifications'],
     defaultNS: 'common',

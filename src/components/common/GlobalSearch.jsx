@@ -6,7 +6,7 @@ import api from "../../utils/api";
 
 const GlobalSearch = () => {
   const { i18n } = useTranslation();
-  const currentLang = i18n.language || "hi";
+  const currentLang = i18n.language || "en";
   const navigate = useNavigate();
 
   const [query, setQuery] = useState("");

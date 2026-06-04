@@ -35,7 +35,7 @@ const Profile = () => {
   const [repairsLoading, setRepairsLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const currentLang = i18n.language || 'hi';
+  const currentLang = i18n.language || 'en';
   const isHindi = currentLang === 'hi';
 
   useEffect(() => {

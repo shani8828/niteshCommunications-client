@@ -36,7 +36,7 @@ const Shop = () => {
   const observerTarget = useRef(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const currentLang = i18n.language || "hi";
+  const currentLang = i18n.language || "en";
 
   // Sync SearchParams with local states
   useEffect(() => {
@@ -69,7 +69,7 @@ const Shop = () => {
     }
     metaDesc.setAttribute(
       "content",
-      "Browse and buy premium smartphones, mobile accessories, earphones, and premium clothing at Nitesh Communications. बेहतरीन स्मार्टफोन, मोबाइल एक्सेसरीज, ईयरफोन और कपड़े खरीदें।"
+      "Browse and buy premium smartphones, mobile accessories, earphones, and premium clothing at Nitesh Communications. बेहतरीन स्मार्टफोन, मोबाइल एक्सेसरीज, ईयरफोन और कपड़े खरीदें।",
     );
 
     let canonicalLink = document.querySelector("link[rel='canonical']");
@@ -111,7 +111,7 @@ const Shop = () => {
       }
       try {
         const response = await api.get(
-          `/products?category=${selectedCategory}&limit=200`
+          `/products?category=${selectedCategory}&limit=200`,
         );
         if (response.data && response.data.products) {
           const brands = response.data.products
@@ -119,7 +119,7 @@ const Shop = () => {
             .filter((b) => b && b.trim() !== "")
             .map((b) => b.trim());
           const uniqueBrands = Array.from(new Set(brands)).sort((a, b) =>
-            a.localeCompare(b)
+            a.localeCompare(b),
           );
           setAvailableBrands(uniqueBrands);
         }
@@ -153,7 +153,9 @@ const Shop = () => {
         } else {
           setProducts((prev) => {
             const existingIds = new Set(prev.map((p) => p._id));
-            const filteredNew = newProducts.filter((p) => !existingIds.has(p._id));
+            const filteredNew = newProducts.filter(
+              (p) => !existingIds.has(p._id),
+            );
             return [...prev, ...filteredNew];
           });
         }
@@ -176,7 +178,7 @@ const Shop = () => {
         setCachedData(
           cacheKey,
           { products: newProducts, pages: totalPages },
-          5 * 60 * 1000
+          5 * 60 * 1000,
         );
 
         if (isFirstPage) {
@@ -184,7 +186,9 @@ const Shop = () => {
         } else {
           setProducts((prev) => {
             const existingIds = new Set(prev.map((p) => p._id));
-            const filteredNew = newProducts.filter((p) => !existingIds.has(p._id));
+            const filteredNew = newProducts.filter(
+              (p) => !existingIds.has(p._id),
+            );
             return [...prev, ...filteredNew];
           });
         }
@@ -207,7 +211,7 @@ const Shop = () => {
           setPage((prevPage) => prevPage + 1);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     const currentTarget = observerTarget.current;
@@ -280,8 +284,8 @@ const Shop = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white">
-      <div className="text-center mb-12 flex flex-col items-center gap-2">
+    <div className="max-w-6xl mx-auto px-6 pt-2 md:pt-4 lg:pt-8 pb-20 bg-white">
+      {/* <div className="text-center mb-12 flex flex-col items-center gap-2">
         <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-800 mt-1">
           {t("common:shop")}
         </h2>
@@ -290,7 +294,7 @@ const Shop = () => {
             ? "पुरुषों के कपड़े, स्टेशनरी, फाइल फोल्डर, ब्लूटूथ इयरफ़ोन, चार्जर, बैटरी, हेडफ़ोन,फ़ोन ग्लास, फ़ोन आदि उपलब्ध हैं।"
             : "Men's Clothes, Stationary, File Folders, Bluetooth Earphone, Charger, Battery, Headphone, Phone Glasses, Phones are available."}
         </p>
-      </div>
+      </div> */}
 
       {/* Header filters containing search bar & category horizontal scroll lists */}
       <ShopFiltersHeader
@@ -343,7 +347,9 @@ const Shop = () => {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.map((product) => {
-                  const isWishlisted = wishlist.some((p) => p._id === product._id);
+                  const isWishlisted = wishlist.some(
+                    (p) => p._id === product._id,
+                  );
                   return (
                     <ProductCard
                       key={product._id}
@@ -360,7 +366,10 @@ const Shop = () => {
 
               {/* Sentinel observer element for infinite scroll */}
               {hasMore && (
-                <div ref={observerTarget} className="w-full flex justify-center items-center mt-6 min-h-[50px]">
+                <div
+                  ref={observerTarget}
+                  className="w-full flex justify-center items-center mt-6 min-h-[50px]"
+                >
                   {loadingMore && renderSkeletons(3)}
                 </div>
               )}

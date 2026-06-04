@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const CookieConsent = () => {
   const { i18n } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
-  const currentLang = i18n.language || 'hi';
+  const currentLang = i18n.language || 'en';
   const isHindi = currentLang === 'hi';
 
   useEffect(() => {

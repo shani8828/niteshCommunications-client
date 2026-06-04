@@ -8,6 +8,7 @@ import {
   ShoppingBag,
   Users,
   Sliders,
+  Printer,
 } from "lucide-react";
 
 const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) => {
@@ -116,6 +117,19 @@ const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) 
         }`}
       >
         <Sliders size={16} /> {currentLang === "hi" ? "सीएससी सेवाएं" : "CSC Services"}
+      </button>
+      <button
+        onClick={() => {
+          setActiveTab("printouts");
+          loadTabData("printouts");
+        }}
+        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+          activeTab === "printouts"
+            ? "bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10"
+            : "hover:bg-slate-100 text-slate-600"
+        }`}
+      >
+        <Printer size={16} /> {currentLang === "hi" ? "प्रिंटआउट" : "Printouts"}
       </button>
       <button
         onClick={() => {

@@ -37,7 +37,7 @@ const ShopFiltersHeader = ({
       <div className="mb-10 w-full">
         <div className="flex justify-between items-center mb-3">
           <span className="text-[10px] font-heading font-extrabold uppercase text-slate-400 tracking-wider">
-            {currentLang === "hi" ? "श्रेणियां (बाएं-दाएं स्क्रॉल करें)" : "Categories (Scroll horizontally ↔)"}
+            {currentLang === "hi" ? "श्रेणियां" : "Categories"}
           </span>
           <span className="text-[10px] text-blue-600 font-bold uppercase tracking-wider animate-pulse flex items-center gap-1">
             {currentLang === "hi" ? "स्लाइड करें ↔" : "Swipe ↔"}
@@ -47,10 +47,10 @@ const ShopFiltersHeader = ({
           {/* 'All Categories' Button */}
           <button
             onClick={() => onCategorySelect("")}
-            className={`flex flex-col items-center gap-1.5 p-2 bg-white border rounded-2xl hover:shadow-md transition-all cursor-pointer text-center h-[90px] w-[90px] min-w-[90px] justify-between ${
+            className={`flex flex-col items-center gap-1 p-1 bg-white  rounded-lg hover:scale-105 transition-all cursor-pointer text-center   justify-between ${
               selectedCategory === ""
                 ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-100"
-                : "border-slate-200"
+                : " "
             }`}
           >
             <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex-shrink-0 flex items-center justify-center mt-0.5">
@@ -72,13 +72,13 @@ const ShopFiltersHeader = ({
             <button
               key={cat._id}
               onClick={() => onCategorySelect(cat.slug || cat._id)}
-              className={`flex flex-col items-center gap-1.5 p-2 bg-white border rounded-2xl hover:shadow-md transition-all cursor-pointer text-center h-[90px] w-[90px] min-w-[90px] justify-between ${
+              className={`flex flex-col items-center gap-1 p-1 bg-transparent rounded-lg  hover:scale-105 transition-all cursor-pointer text-center   justify-between ${
                 selectedCategory === (cat.slug || cat._id)
                   ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-100"
-                  : "border-slate-200"
+                  : " "
               }`}
             >
-              <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex-shrink-0 overflow-hidden flex items-center justify-center mt-0.5">
+              <div className="w-10 h-10 rounded-lg bg-slate-50   flex-shrink-0 overflow-hidden flex items-center justify-center mt-0.5">
                 <img
                   src={cat.image}
                   alt={cat.name.en}
@@ -102,19 +102,8 @@ const ShopFiltersHeader = ({
         </div>
       </div>
 
-      {/* Top Bar (Search & Sort) */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4 mb-8 items-center">
-        <div className="relative flex-1 w-full max-w-lg">
-          <Search size={16} className="absolute top-3.5 left-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder={t("product:search_placeholder")}
-            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-        </div>
-
+      {/* Top Bar (Sort & Filters) */}
+      <div className="flex justify-end gap-4 mb-8 items-center w-full">
         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
           <button
             type="button"

@@ -5,7 +5,7 @@ import i18next from "i18next";
  * @param {boolean} fullPage - If true, displays a dark glassmorphic overlay over the entire viewport.
  */
 const Loader = ({ fullPage = false }) => {
-  const currentLang = i18next.language;
+  const currentLang = i18next.language || "en";
   if (fullPage) {
     return (
       <div className="fixed top-0 left-0 w-screen h-screen bg-slate-900/40 flex justify-center items-center z-[9999] backdrop-blur-md">

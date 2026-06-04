@@ -14,7 +14,7 @@ const Cart = () => {
   const { user } = useAuth();
   const { cartItems, removeFromCart, updateQuantity, cartSubtotal } = useCart();
 
-  const currentLang = i18n.language || "hi";
+  const currentLang = i18n.language || "en";
 
   if (cartItems.length === 0) {
     return (

@@ -52,7 +52,7 @@ const Checkout = () => {
     addressDetails: "",
   });
 
-  const currentLang = i18n.language || "hi";
+  const currentLang = i18n.language || "en";
 
   useEffect(() => {
     if (coordinates) {

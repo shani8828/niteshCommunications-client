@@ -31,7 +31,6 @@ const Navbar = () => {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
-
   const handleLogout = async () => {
     await logout();
     setUserDropdownOpen(false);
@@ -54,9 +53,9 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-[100] bg-white/90 backdrop-blur-md border-b border-slate-100 px-6 py-3 shadow-sm">
-      <div className="max-w-6xl mx-auto flex justify-between items-center">
+      <div className="w-full flex justify-between items-center gap-4">
         {/* Branding Logo */}
-        <Link to="/" className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3 pl-0">
           <img
             src="/branding/logo.png"
             alt="Nitesh Communications"
@@ -67,7 +66,7 @@ const Navbar = () => {
           />
           <div className="hidden md:flex flex-col">
             <span className="font-heading font-extrabold text-lg text-blue-600 tracking-tight leading-tight">
-              {t("brand")}
+              Nitesh Com.
             </span>
             <span className="font-sans text-[10px] text-slate-500 max-w-[220px] truncate">
               {t("tagline")}
@@ -75,143 +74,157 @@ const Navbar = () => {
           </div>
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex gap-6 lg:gap-8">
-          <NavLink to="/" className={getLinkClass}>
-            {t("home")}
-          </NavLink>
-          <NavLink to="/shop" className={getLinkClass} onMouseEnter={() => import("../../pages/Shop")}>
-            {t("shop")}
-          </NavLink>
-          <NavLink to="/repairs" className={getLinkClass} onMouseEnter={() => import("../../pages/RepairService")}>
-            {t("repair")}
-          </NavLink>
-          <NavLink to="/csc" className={getLinkClass} onMouseEnter={() => import("../../pages/CscService")}>
-            {t("csc")}
-          </NavLink>
-        </nav>
-
-        {/* Global Search Component */}
-        <div className="hidden sm:block flex-1 max-w-[280px] mx-4">
-          <GlobalSearch />
-        </div>
-
-        {/* Controls Section */}
-        <div className="flex items-center gap-5">
-
-          {/* Cart Icon Link - Only visible when logged in */}
-          {user && (
-            <Link
-              to="/cart"
-              className="text-slate-600 hover:text-blue-600 relative flex items-center"
+        {/* Right Section containing Nav, Search, and Controls */}
+        <div className="flex items-center justify-end gap-6 md:gap-8 lg:gap-10 flex-1">
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex gap-6 lg:gap-8 flex-shrink-0">
+            <NavLink to="/" className={getLinkClass}>
+              {t("home")}
+            </NavLink>
+            <NavLink
+              to="/shop"
+              className={getLinkClass}
+              onMouseEnter={() => import("../../pages/Shop")}
             >
-              <ShoppingCart size={20} />
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-rose-600 text-white rounded-full px-1.5 py-0.5 text-[9px] font-extrabold">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-          )}
+              {t("shop")}
+            </NavLink>
+            <NavLink
+              to="/repairs"
+              className={getLinkClass}
+              onMouseEnter={() => import("../../pages/RepairService")}
+            >
+              {t("repair")}
+            </NavLink>
+            <NavLink
+              to="/csc"
+              className={getLinkClass}
+              onMouseEnter={() => import("../../pages/CscService")}
+            >
+              {t("csc")}
+            </NavLink>
+          </nav>
 
-          {/* User Auth Profiles Dropdown */}
-          {user ? (
-            <div className="relative hidden md:block">
-              <button
-                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 text-slate-700 cursor-pointer flex items-center gap-2 hover:bg-slate-100 transition-all"
+          {/* Global Search Component */}
+          <div className="hidden sm:block flex-grow max-w-[280px]">
+            <GlobalSearch />
+          </div>
+
+          {/* Controls Section */}
+          <div className="flex items-center gap-5 flex-shrink-0">
+            {/* Cart Icon Link - Only visible when logged in */}
+            {user && (
+              <Link
+                to="/cart"
+                className="text-slate-600 hover:text-blue-600 relative flex items-center"
               >
-                <UserIcon size={16} />
-                <span className="hidden sm:inline text-xs font-medium">
-                  {user.name.split(" ")[0]}
-                </span>
-              </button>
+                <ShoppingCart size={20} />
+                {cartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-rose-600 text-white rounded-full px-1.5 py-0.5 text-[9px] font-extrabold">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            )}
 
-              {userDropdownOpen && (
-                <div className="absolute top-12 right-0 min-w-[200px] p-4 z-[120] flex flex-col gap-3 bg-white border border-slate-100 shadow-xl rounded-2xl">
-                  <div className="text-xs text-slate-500">
-                    <p className="font-bold text-slate-800">{user.name}</p>
-                    <p className="text-[10px] bg-blue-50 text-blue-600 inline-block px-1.5 py-0.5 rounded mt-1 font-semibold uppercase">
-                      {user.role}
-                    </p>
-                  </div>
-                  <hr className="border-t border-slate-100" />
-                  {user.role === "admin" && (
+            {/* User Auth Profiles Dropdown */}
+            {user ? (
+              <div className="relative hidden md:block">
+                <button
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 text-slate-700 cursor-pointer flex items-center gap-2 hover:bg-slate-100 transition-all"
+                >
+                  <UserIcon size={16} />
+                  <span className="hidden sm:inline text-xs font-medium">
+                    {user.name.split(" ")[0]}
+                  </span>
+                </button>
+
+                {userDropdownOpen && (
+                  <div className="absolute top-12 right-0 min-w-[200px] p-4 z-[120] flex flex-col gap-3 bg-white border border-slate-100 shadow-xl rounded-2xl">
+                    <div className="text-xs text-slate-500">
+                      <p className="font-bold text-slate-800">{user.name}</p>
+                      <p className="text-[10px] bg-blue-50 text-blue-600 inline-block px-1.5 py-0.5 rounded mt-1 font-semibold uppercase">
+                        {user.role}
+                      </p>
+                    </div>
+                    <hr className="border-t border-slate-100" />
+                    {user.role === "admin" && (
+                      <Link
+                        to="/admin/dashboard"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
+                      >
+                        {t("admin_panel")}
+                      </Link>
+                    )}
                     <Link
-                      to="/admin/dashboard"
+                      to="/profile"
+                      state={{ tab: "profile" }}
                       onClick={() => setUserDropdownOpen(false)}
                       className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
                     >
-                      {t("admin_panel")}
+                      {t("profile")}
                     </Link>
-                  )}
-                  <Link
-                    to="/profile"
-                    state={{ tab: "profile" }}
-                    onClick={() => setUserDropdownOpen(false)}
-                    className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
-                  >
-                    {t("profile")}
-                  </Link>
-                  <Link
-                    to="/order-tracking/history"
-                    state={{ tab: "orders" }}
-                    onClick={() => setUserDropdownOpen(false)}
-                    className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
-                  >
-                    {t("order_summary")}
-                  </Link>
-                  <Link
-                    to="/profile"
-                    state={{ tab: "wishlist" }}
-                    onClick={() => setUserDropdownOpen(false)}
-                    className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
-                  >
-                    {t("wishlist")}
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 bg-transparent border-0 text-rose-600 text-sm cursor-pointer py-1 text-left w-full font-semibold"
-                  >
-                    <LogOut size={14} />
-                    {t("logout")}
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="hidden md:flex gap-3">
-              <Link
-                to="/login"
-                className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
-              >
-                {t("login")}
-              </Link>
-              <Link
-                to="/register"
-                className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-600/10"
-              >
-                {t("register")}
-              </Link>
-            </div>
-          )}
+                    <Link
+                      to="/order-tracking/history"
+                      state={{ tab: "orders" }}
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
+                    >
+                      {t("order_summary")}
+                    </Link>
+                    <Link
+                      to="/profile"
+                      state={{ tab: "wishlist" }}
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
+                    >
+                      {t("wishlist")}
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 bg-transparent border-0 text-rose-600 text-sm cursor-pointer py-1 text-left w-full font-semibold"
+                    >
+                      <LogOut size={14} />
+                      {t("logout")}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="hidden md:flex gap-3">
+                <Link
+                  to="/login"
+                  className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                >
+                  {t("login")}
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-600/10"
+                >
+                  {t("register")}
+                </Link>
+              </div>
+            )}
 
-          {/* Mobile Search Toggle Icon */}
-          <button
-            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-            className="bg-transparent border-0 text-slate-600 hover:text-blue-600 cursor-pointer flex items-center sm:hidden p-1.5 rounded-full hover:bg-slate-50 transition-colors"
-            title="Search"
-          >
-            {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
-          </button>
+            {/* Mobile Search Toggle Icon */}
+            <button
+              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+              className="bg-transparent border-0 text-slate-600 hover:text-blue-600 cursor-pointer flex items-center sm:hidden p-1.5 rounded-full hover:bg-slate-50 transition-colors"
+              title="Search"
+            >
+              {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
+            </button>
 
-          {/* Mobile Menu Hamburger */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="bg-transparent border-0 text-slate-700 cursor-pointer block md:hidden"
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+            {/* Mobile Menu Hamburger */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="bg-transparent border-0 text-slate-700 cursor-pointer block md:hidden"
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
       </div>
 

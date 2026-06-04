@@ -57,7 +57,13 @@ const ShopFilters = ({
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [minPriceInput, maxPriceInput, onPriceDebounce, initialMinPrice, initialMaxPrice]);
+  }, [
+    minPriceInput,
+    maxPriceInput,
+    onPriceDebounce,
+    initialMinPrice,
+    initialMaxPrice,
+  ]);
 
   const handleLocalReset = () => {
     setSearchText("");
@@ -72,10 +78,9 @@ const ShopFilters = ({
       <div className="mb-10 w-full">
         <div className="flex justify-between items-center mb-3">
           <span className="text-[10px] font-heading font-extrabold uppercase text-slate-400 tracking-wider">
-            {currentLang === "hi" ? "श्रेणियां (बाएं-दाएं स्क्रॉल करें)" : "Categories (Scroll horizontally ↔)"}
-          </span>
-          <span className="text-[10px] text-blue-600 font-bold uppercase tracking-wider animate-pulse flex items-center gap-1">
-            {currentLang === "hi" ? "स्लाइड करें ↔" : "Swipe ↔"}
+            {currentLang === "hi"
+              ? "श्रेणियां (बाएं-दाएं स्क्रॉल करें)"
+              : "Categories (Scroll horizontally ↔)"}
           </span>
         </div>
         <div className="grid grid-rows-2 grid-flow-col gap-4 overflow-x-auto pb-3">
@@ -107,13 +112,13 @@ const ShopFilters = ({
             <button
               key={cat._id}
               onClick={() => onCategorySelect(cat.slug || cat._id)}
-              className={`flex flex-col items-center gap-1.5 p-2 bg-white border rounded-2xl hover:shadow-md transition-all cursor-pointer text-center h-[90px] w-[90px] min-w-[90px] justify-between ${
+              className={`flex flex-col items-center gap-1.5 p-2 bg-white  hover:scale-105 transition-all cursor-pointer text-center h-[90px] w-[90px] min-w-[90px] justify-between ${
                 selectedCategory === (cat.slug || cat._id)
                   ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-100"
-                  : "border-slate-200"
+                  : ""
               }`}
             >
-              <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex-shrink-0 overflow-hidden flex items-center justify-center mt-0.5">
+              <div className="w-10 h-10   bg-slate-50  flex-shrink-0 overflow-hidden flex items-center justify-center mt-0.5">
                 <img
                   src={cat.image}
                   alt={cat.name.en}
@@ -139,7 +144,7 @@ const ShopFilters = ({
 
       {/* Top Bar (Search & Sort) */}
       <div className="flex flex-col sm:flex-row justify-between gap-4 mb-8 items-center">
-        <div className="relative flex-1 w-full max-w-lg">
+        {/* <div className="relative flex-1 w-full max-w-lg">
           <Search size={16} className="absolute top-3.5 left-4 text-slate-400" />
           <input
             type="text"
@@ -148,7 +153,7 @@ const ShopFilters = ({
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
-        </div>
+        </div> */}
 
         <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
           <button
@@ -241,7 +246,7 @@ const ShopFilters = ({
           </div>
 
           {/* Brand Filter */}
-          {selectedCategory && availableBrands.length > 0 && (
+          {/* {selectedCategory && availableBrands.length > 0 && (
             <>
               <hr className="border-t border-slate-200" />
               <div className="flex flex-col gap-3">
@@ -266,7 +271,7 @@ const ShopFilters = ({
                 </div>
               </div>
             </>
-          )}
+          )} */}
         </aside>
 
         {/* Content container placeholder for child mapping in parent grid layout */}

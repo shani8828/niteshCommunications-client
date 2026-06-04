@@ -16,7 +16,7 @@ import HomeSocials from "../components/home/HomeSocials";
 
 const Home = () => {
   const { t, i18n } = useTranslation();
-  const currentLang = i18n.language || "hi";
+  const currentLang = i18n.language || "en";
 
   useEffect(() => {
     document.title =

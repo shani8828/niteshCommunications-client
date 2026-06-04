@@ -15,6 +15,7 @@ import CscQueriesTab from "../components/admin/CscQueriesTab";
 import RepairServicesTab from "../components/admin/RepairServicesTab";
 import CscServicesTab from "../components/admin/CscServicesTab";
 import UsersTab from "../components/admin/UsersTab";
+import PrintoutsTab from "../components/admin/PrintoutsTab";
 
 // Layout Subcomponents
 import AdminSidebar from "../components/admin/layout/AdminSidebar";
@@ -24,7 +25,7 @@ import { showToast } from "../utils/toast";
 
 const AdminDashboard = () => {
   const { t, i18n } = useTranslation();
-  const currentLang = i18n.language || "hi";
+  const currentLang = i18n.language || "en";
 
   const [activeTab, setActiveTab] = useState("overview");
   const [analytics, setAnalytics] = useState(null);
@@ -36,6 +37,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [repairPricingList, setRepairPricingList] = useState([]);
   const [cscServicesList, setCscServicesList] = useState([]);
+  const [printouts, setPrintouts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const activeTabRef = useRef(activeTab);
@@ -139,6 +141,18 @@ const AdminDashboard = () => {
     }
   }, []);
 
+  const fetchPrintouts = useCallback(async () => {
+    try {
+      const response = await api.get("/printouts");
+      const printoutsData = response.data || [];
+      setPrintouts(printoutsData);
+      setCachedData("admin_printouts", printoutsData, 5 * 60 * 1000);
+    } catch (err) {
+      console.error(err);
+      showToast.error("Failed to fetch printouts");
+    }
+  }, []);
+
   const loadTabData = useCallback(async (tab, forceRefresh = false, silent = false) => {
     let hasCache = false;
 
@@ -189,6 +203,12 @@ const AdminDashboard = () => {
           setCscServicesList(cached);
           hasCache = true;
         }
+      } else if (tab === "printouts") {
+        const cached = getCachedData("admin_printouts");
+        if (cached) {
+          setPrintouts(cached);
+          hasCache = true;
+        }
       }
     }
 
@@ -211,6 +231,8 @@ const AdminDashboard = () => {
         await fetchRepairPricing();
       } else if (tab === "csc-services") {
         await fetchCscServices();
+      } else if (tab === "printouts") {
+        await fetchPrintouts();
       }
     } catch (err) {
       console.error(`Error loading tab data for ${tab}:`, err);
@@ -270,6 +292,20 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   }, [fetchRepairsAndCsc, t]);
+
+  const handleUpdatePrintoutStatus = useCallback(async (id, status) => {
+    setLoading(true);
+    try {
+      await api.put(`/printouts/${id}/status`, { status });
+      showToast.success(t("admin:success_status_update", "Status updated successfully"));
+      await fetchPrintouts();
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || t("admin:error_status_update", "Update failed");
+      showToast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchPrintouts, t]);
 
   useEffect(() => {
     loadTabData("overview");
@@ -406,6 +442,16 @@ const AdminDashboard = () => {
               t={t}
               currentLang={currentLang}
               fetchUsers={fetchUsers}
+            />
+          )}
+
+          {/* Tab: Printouts requests panel */}
+          {activeTab === "printouts" && (
+            <PrintoutsTab
+              printouts={printouts}
+              t={t}
+              currentLang={currentLang}
+              handleUpdatePrintoutStatus={handleUpdatePrintoutStatus}
             />
           )}
         </main>

@@ -25,7 +25,7 @@ const OrderTracking = () => {
   const [loading, setLoading] = useState(true);
   const [retrying, setRetrying] = useState(false);
 
-  const currentLang = i18n.language || "hi";
+  const currentLang = i18n.language || "en";
 
   const fetchOrderDetails = useCallback(async () => {
     try {

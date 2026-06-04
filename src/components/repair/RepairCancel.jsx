@@ -13,7 +13,7 @@ const RepairCancel = () => {
   const { t, i18n } = useTranslation(['cart', 'common']);
   const { setCrumbs } = useBreadcrumbs();
 
-  const currentLang = i18n.language || 'hi';
+  const currentLang = i18n.language || 'en';
   const isHindi = currentLang === 'hi';
 
   const [repair, setRepair] = useState(null);

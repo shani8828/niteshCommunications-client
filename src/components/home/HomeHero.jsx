@@ -76,20 +76,6 @@ const HomeHero = ({ t, currentLang }) => {
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center text-center gap-8 md:gap-10">
-        {/* Glassmorphic Badge */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50/80 backdrop-blur-md border border-blue-100/60 text-xs font-semibold text-blue-600 uppercase tracking-wider"
-        >
-          <span>
-            {currentLang === "hi"
-              ? "विश्वसनीय डिजिटल सेवा केंद्र"
-              : "Trusted Digital Service Hub"}
-          </span>
-        </motion.div>
-
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

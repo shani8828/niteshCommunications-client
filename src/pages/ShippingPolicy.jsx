@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 const ShippingPolicy = () => {
   const { i18n } = useTranslation();
-  const currentLang = i18n.language || 'hi';
+  const currentLang = i18n.language || 'en';
 
   const isHindi = currentLang === 'hi';
 

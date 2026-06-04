@@ -14,7 +14,7 @@ import { FaWhatsapp } from "react-icons/fa";
 
 const Footer = () => {
   const { t, i18n } = useTranslation();
-  const currentLang = i18n.language;
+  const currentLang = i18n.language || "en";
   return (
     <footer className="bg-slate-50 border-t border-slate-200 pt-16 pb-8 px-6 text-slate-600 mt-16">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
