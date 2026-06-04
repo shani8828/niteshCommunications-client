@@ -29,6 +29,35 @@ const ProfileEditTab = ({
     }
   }, [user]);
 
+  if (!user) {
+    return (
+      <div className="flex flex-col gap-6 w-full animate-fadeIn">
+        <div className="h-6 w-36 bg-slate-200 rounded animate-pulse mb-3" />
+        <div className="flex flex-col gap-5 p-6 md:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-sm animate-pulse">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="flex flex-col gap-2">
+              <div className="h-3 w-20 bg-slate-200 rounded" />
+              <div className="h-10 bg-slate-100 rounded-xl" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="h-3 w-24 bg-slate-200 rounded" />
+              <div className="h-10 bg-slate-100 rounded-xl" />
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="h-3 w-24 bg-slate-200 rounded" />
+            <div className="h-10 bg-slate-100 rounded-xl" />
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="h-3 w-28 bg-slate-200 rounded" />
+            <div className="h-20 bg-slate-100 rounded-xl" />
+          </div>
+          <div className="h-12 bg-slate-200 rounded-full mt-2" />
+        </div>
+      </div>
+    );
+  }
+
   const handleUseCurrentLocation = () => {
     if (!navigator.geolocation) {
       showToast.error(isHindi ? "लोकेशन का समर्थन नहीं है" : "Your browser does not support geolocation");
@@ -163,8 +192,16 @@ const ProfileEditTab = ({
           disabled={actionLoading}
           className="w-full py-3.5 mt-2 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-all"
         >
-          <Save size={16} />
-          <span>{isHindi ? 'प्रोफाइल सहेजें' : 'Save Details'}</span>
+          {actionLoading ? (
+            <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Save size={16} />
+          )}
+          <span>
+            {actionLoading
+              ? (isHindi ? 'सहेज रहे हैं...' : 'Saving...')
+              : (isHindi ? 'प्रोफाइल सहेजें' : 'Save Details')}
+          </span>
         </button>
       </form>
     </div>

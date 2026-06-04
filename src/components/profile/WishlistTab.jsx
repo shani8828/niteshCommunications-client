@@ -8,7 +8,42 @@ const WishlistTab = ({
   addToCart,
   isHindi,
   currentLang,
+  loading,
 }) => {
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6 w-full animate-fadeIn">
+        <div className="h-6 w-32 bg-slate-200 rounded animate-pulse mb-3" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm flex flex-col relative animate-pulse"
+            >
+              {/* Product Image Skeleton */}
+              <div className="aspect-square w-full bg-slate-50 flex items-center justify-center p-4">
+                <div className="bg-slate-100 rounded-xl h-full w-full" />
+              </div>
+
+              {/* Product Info Skeleton */}
+              <div className="p-4 flex flex-col flex-grow gap-3">
+                <div className="flex flex-col gap-2">
+                  <div className="h-3 w-16 bg-slate-200 rounded" />
+                  <div className="h-4 w-3/4 bg-slate-200 rounded" />
+                  <div className="h-3 w-full bg-slate-100 rounded" />
+                </div>
+                <div className="flex flex-col gap-3 mt-1">
+                  <div className="h-4 w-12 bg-slate-200 rounded" />
+                  <div className="h-8 w-full bg-slate-200 rounded-xl" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (wishlist.length === 0) {
     return (
       <div className="p-12 text-center bg-slate-50/50 border border-slate-200/60 rounded-2xl flex flex-col items-center gap-4 animate-fadeIn">
@@ -71,7 +106,7 @@ const WishlistTab = ({
                 <span className="text-[10px] text-blue-600 font-bold uppercase tracking-wider">
                   {typeof prod.category === 'object' ? (prod.category?.name[currentLang] || prod.category?.name?.en || 'N/A') : (prod.category || 'N/A')}
                 </span>
-                <Link to={`/products/${prod.slug || prod._id}`}>
+                <Link to={`/products/${prod.slug || prod._id}`} state={{ product: prod }}>
                   <h4 className="font-heading text-sm font-bold text-slate-800 hover:text-blue-600 line-clamp-1 transition-colors">
                     {prod.name[currentLang] || prod.name['en']}
                   </h4>

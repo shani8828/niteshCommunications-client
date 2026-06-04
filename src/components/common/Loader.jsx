@@ -8,18 +8,18 @@ const Loader = ({ fullPage = false }) => {
   const currentLang = i18next.language || "en";
   if (fullPage) {
     return (
-      <div className="fixed top-0 left-0 w-screen h-screen bg-slate-900/40 flex justify-center items-center z-[9999] backdrop-blur-md">
-        <div className="bg-white border border-slate-200/80 rounded-2xl p-10 flex flex-col items-center shadow-2xl gap-4">
+      <div className="fixed top-0 left-0 w-screen h-screen bg-white/1 flex justify-center items-center z-[9999] backdrop-blur-0">
+        <div className="w-full h-full bg-white/70 backdrop-blur-sm border border-slate-200/80 rounded-2xl p-10 flex flex-col items-center justify-center shadow-2xl gap-4">
           <div className="loader-spinner"></div>
           <p className="font-heading font-bold text-xl text-blue-600 tracking-wider mt-2">
             {currentLang === "hi"
               ? "नितेश कम्युनिकेशन्स"
-              : "NITESH COMMUNICATIONS"}
+              : "NITESH COM."}
           </p>
           <span className="font-sans text-xs text-slate-500 text-center">
             {currentLang === "hi"
-              ? "एक बार सेवा का अवसर अवश्य दें।"
-              : "Please give us a chance to serve you."}
+              ? "कृपया प्रतीक्षा करें! हम आपके लिए बेहतरीन बना रहे हैं।"
+              : "Stay tuned! We are cooking best to serve you..."}
           </span>
         </div>
       </div>

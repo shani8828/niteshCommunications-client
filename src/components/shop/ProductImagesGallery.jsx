@@ -15,7 +15,7 @@ const ProductImagesGallery = ({
         <img
           src={activeImage}
           alt={name.en || name}
-          className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply"
+          className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply rounded-lg"
           loading="lazy"
         />
 

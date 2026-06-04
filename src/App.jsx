@@ -38,7 +38,7 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const OrderReturn = lazy(() => import('./pages/OrderReturn'));
 const OrderReplace = lazy(() => import('./pages/OrderReplace'));
 const RepairCancel = lazy(() => import('./components/repair/RepairCancel'));
-
+// import Loader from './components/common/Loader';
 
 function App() {
   useEffect(() => {
@@ -138,7 +138,7 @@ function App() {
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/refund-policy" element={<RefundPolicy />} />
                   <Route path="/shipping-policy" element={<ShippingPolicy />} />
-
+{/* <Route path='/loader' element={<Loader fullPage/>}/> */}
                   {/* Separate logins for Admin & Partner */}
                   <Route path="/admin/admin_login" element={<AdminLogin />} />
 

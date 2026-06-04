@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -55,15 +55,56 @@ const ProductDetails = () => {
   const { slug } = useParams();
   const { t, i18n } = useTranslation(["product", "common", "notifications"]);
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { addToCart, toggleWishlist, wishlist, addRecentlyViewed } = useCart();
   const { setCrumbs } = useBreadcrumbs();
 
-  const [product, setProduct] = useState(null);
-  const [related, setRelated] = useState([]);
-  const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeImage, setActiveImage] = useState("");
+  const passedProduct = location.state?.product;
+
+  const [product, setProduct] = useState(() => {
+    if (passedProduct) return passedProduct;
+    const cacheKey = `product_detail_${slug}`;
+    const cached = getCachedData(cacheKey);
+    return cached ? cached.product : null;
+  });
+
+  const [related, setRelated] = useState(() => {
+    const cacheKey = `product_detail_${slug}`;
+    const cached = getCachedData(cacheKey);
+    return cached ? (cached.related || []) : [];
+  });
+
+  const [reviews, setReviews] = useState(() => {
+    const cacheKey = `product_detail_${slug}`;
+    const cached = getCachedData(cacheKey);
+    return cached ? (cached.reviews || []) : [];
+  });
+
+  // Track loading states for each section
+  const [productLoading, setProductLoading] = useState(() => {
+    if (passedProduct) return false;
+    const cacheKey = `product_detail_${slug}`;
+    const cached = getCachedData(cacheKey);
+    return !cached;
+  });
+  const [relatedLoading, setRelatedLoading] = useState(() => {
+    const cacheKey = `product_detail_${slug}`;
+    const cached = getCachedData(cacheKey);
+    return !cached;
+  });
+  const [reviewsLoading, setReviewsLoading] = useState(() => {
+    const cacheKey = `product_detail_${slug}`;
+    const cached = getCachedData(cacheKey);
+    return !cached;
+  });
+
+  const [activeImage, setActiveImage] = useState(() => {
+    if (passedProduct) return passedProduct.images?.[0] || "";
+    const cacheKey = `product_detail_${slug}`;
+    const cached = getCachedData(cacheKey);
+    return cached?.product?.images?.[0] || "";
+  });
 
   const currentLang = i18n.language || "en";
 
@@ -71,16 +112,23 @@ const ProductDetails = () => {
     const fetchDetail = async () => {
       const cacheKey = `product_detail_${slug}`;
       const cached = getCachedData(cacheKey);
-      if (cached) {
-        setProduct(cached.product);
-        setRelated(cached.related || []);
-        setReviews(cached.reviews || []);
-        setActiveImage(cached.product.images[0]);
-        addRecentlyViewed(cached.product);
-        setLoading(false);
-        return;
+
+      // If we don't have the product info at all, we show product skeleton
+      if (!passedProduct && !cached) {
+        setProductLoading(true);
+        setRelatedLoading(true);
+        setReviewsLoading(true);
+      } else if (!cached) {
+        // We have product details but need reviews/related
+        setRelatedLoading(true);
+        setReviewsLoading(true);
+      } else {
+        // Everything cached, no skeletons needed
+        setProductLoading(false);
+        setRelatedLoading(false);
+        setReviewsLoading(false);
       }
-      setLoading(true);
+
       try {
         const response = await api.get(`/products/slug/${slug}`);
         const data = response.data;
@@ -88,20 +136,28 @@ const ProductDetails = () => {
         setProduct(data.product);
         setRelated(data.related || []);
         setReviews(data.reviews || []);
-        setActiveImage(data.product.images[0]);
+
+        if (data.product?.images && (!activeImage || !passedProduct)) {
+          setActiveImage(data.product.images[0]);
+        }
 
         addRecentlyViewed(data.product);
         setCachedData(cacheKey, data, 5 * 60 * 1000); // Cache product details for 5 minutes
       } catch (err) {
         console.error(err);
-        showToast.error("Product not found");
-        navigate("/shop");
+        // Only error/redirect if we don't have ANY product data
+        if (!passedProduct && !cached) {
+          showToast.error("Product not found");
+          navigate("/shop");
+        }
       } finally {
-        setLoading(false);
+        setProductLoading(false);
+        setRelatedLoading(false);
+        setReviewsLoading(false);
       }
     };
     fetchDetail();
-  }, [slug]);
+  }, [slug, passedProduct]);
 
   useEffect(() => {
     if (product) {
@@ -305,7 +361,53 @@ const ProductDetails = () => {
     }
   }, [product, currentLang, fallbackCopy]);
 
-  if (loading) return <Loader fullPage />;
+  if (productLoading) {
+    return (
+      <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white animate-fadeIn">
+        {/* Back button skeleton */}
+        <div className="w-16 h-4 bg-slate-200 rounded animate-pulse mb-6" />
+
+        {/* Main product columns skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-10">
+          {/* Gallery skeleton */}
+          <div className="flex flex-col gap-4">
+            <div className="bg-slate-100 rounded-2xl h-[400px] w-full animate-pulse" />
+            <div className="flex gap-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="w-20 h-20 bg-slate-100 rounded-xl animate-pulse" />
+              ))}
+            </div>
+          </div>
+
+          {/* Specs skeleton */}
+          <div className="flex flex-col gap-4">
+            <div className="w-24 h-3 bg-slate-200 rounded animate-pulse" />
+            <div className="w-3/4 h-8 bg-slate-200 rounded animate-pulse" />
+            <div className="w-1/3 h-5 bg-slate-200 rounded animate-pulse mt-2" />
+            <div className="w-28 h-8 bg-slate-200 rounded animate-pulse mt-2" />
+            <div className="w-1/2 h-4 bg-slate-200 rounded animate-pulse mt-4" />
+            <div className="w-full h-24 bg-slate-100 rounded-xl animate-pulse mt-2" />
+            <div className="w-full h-12 bg-slate-200 rounded-xl animate-pulse mt-6" />
+          </div>
+        </div>
+
+        {/* Related Products skeleton */}
+        <div className="mt-16 animate-pulse">
+          <div className="h-6 w-40 bg-slate-200 rounded mb-6" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div key={idx} className="p-3 bg-white border border-slate-200 rounded-xl">
+                <div className="h-[110px] bg-slate-100 rounded-lg mb-2" />
+                <div className="h-3 bg-slate-200 rounded w-3/4 mx-auto mb-2" />
+                <div className="h-3 bg-slate-200 rounded w-1/3 mx-auto" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!product) return null;
 
   const isWishlisted = wishlist.some((p) => p._id === product._id);
@@ -355,6 +457,7 @@ const ProductDetails = () => {
         user={user}
         currentLang={currentLang}
         t={t}
+        loading={reviewsLoading}
       />
 
       {/* Related Products Section */}
@@ -362,6 +465,7 @@ const ProductDetails = () => {
         related={related}
         currentLang={currentLang}
         t={t}
+        loading={relatedLoading}
       />
     </div>
   );

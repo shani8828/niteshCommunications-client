@@ -11,8 +11,32 @@ const OrdersHistoryTab = ({
 }) => {
   if (ordersLoading && orders.length === 0) {
     return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin h-6 w-6 border-2 border-blue-600 border-t-transparent rounded-full" />
+      <div className="flex flex-col gap-6 w-full animate-fadeIn">
+        <div className="h-6 w-32 bg-slate-200 rounded animate-pulse mb-3" />
+        <div className="flex flex-col gap-4">
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="p-6 bg-white border border-slate-200/80 rounded-2xl shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-pulse"
+            >
+              <div className="flex flex-col gap-2 min-w-0 flex-1 w-full">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="h-4 w-32 bg-slate-200 rounded" />
+                  <div className="h-3 w-16 bg-slate-100 rounded" />
+                </div>
+                <div className="h-4 w-3/4 bg-slate-100 rounded mt-2" />
+                <div className="h-3 w-28 bg-slate-200 rounded mt-2" />
+              </div>
+              <div className="flex items-start sm:items-end flex-col gap-2.5 w-full sm:w-auto flex-shrink-0">
+                <div className="flex gap-2">
+                  <div className="h-4 w-20 bg-slate-100 rounded-full" />
+                  <div className="h-4 w-20 bg-slate-100 rounded-full" />
+                </div>
+                <div className="h-4 w-24 bg-slate-200 rounded mt-1.5" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

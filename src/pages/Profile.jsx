@@ -172,7 +172,6 @@ const Profile = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 pb-20 relative">
-      {actionLoading && <Loader fullPage />}
       <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
         <div className="text-left">
           <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-slate-800">
@@ -225,6 +224,7 @@ const Profile = () => {
               addToCart={addToCart}
               isHindi={isHindi}
               currentLang={currentLang}
+              loading={loading}
             />
           )}
 

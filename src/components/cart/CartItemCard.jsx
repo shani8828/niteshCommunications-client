@@ -22,7 +22,7 @@ const CartItemCard = ({
 
       {/* Title & Price */}
       <div className="flex-1 min-w-[150px] flex flex-col text-left">
-        <Link to={`/products/${item.product.slug || item.product._id}`}>
+        <Link to={`/products/${item.product.slug || item.product._id}`} state={{ product: item.product }}>
           <h4 className="font-heading text-sm font-semibold text-slate-800 truncate hover:text-blue-600 transition-colors">
             {item.product.name[currentLang] || item.product.name.en}
           </h4>

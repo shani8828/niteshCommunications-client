@@ -7,7 +7,7 @@ const translateToHindi = async (text) => {
   if (!text || !text.trim()) return "";
   try {
     const response = await fetch(
-      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=hi&dt=t&q=${encodeURIComponent(text.trim())}`
+      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=hi&dt=t&q=${encodeURIComponent(text.trim())}`,
     );
     if (!response.ok) throw new Error("Translation request failed");
     const data = await response.json();
@@ -21,7 +21,14 @@ const translateToHindi = async (text) => {
   }
 };
 
-const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, setLoading }) => {
+const ProductsTab = ({
+  products,
+  categories,
+  t,
+  currentLang,
+  fetchInventory,
+  setLoading,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -83,9 +90,11 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
 
   // Filters
   const filteredProducts = products.filter((prod) => {
-    const nameMatch = prod.name?.en?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      prod.name?.hi?.toLowerCase().includes(searchTerm.toLowerCase());
-    const catMatch = categoryFilter === "all" || prod.category?._id === categoryFilter;
+    const nameMatch =
+      prod.name?.en?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      prod.name?.hi?.toLowerCase().includes(searchTerm.toLowerCase());
+    const catMatch =
+      categoryFilter === "all" || prod.category?._id === categoryFilter;
     return nameMatch && catMatch;
   });
 
@@ -93,7 +102,10 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -140,14 +152,27 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
   };
 
   const handleDeleteProduct = async (id) => {
-    if (!window.confirm(t("admin:confirm_delete_product", "Are you sure you want to delete this product?"))) return;
+    if (
+      !window.confirm(
+        t(
+          "admin:confirm_delete_product",
+          "Are you sure you want to delete this product?",
+        ),
+      )
+    )
+      return;
     setLoading(true);
     try {
       await api.delete(`/products/${id}`);
-      showToast.success(t("admin:success_product_delete", "Product deleted successfully"));
+      showToast.success(
+        t("admin:success_product_delete", "Product deleted successfully"),
+      );
       fetchInventory();
     } catch (err) {
-      showToast.error(err.response?.data?.message || t("admin:error_product_delete", "Delete failed"));
+      showToast.error(
+        err.response?.data?.message ||
+          t("admin:error_product_delete", "Delete failed"),
+      );
     } finally {
       setLoading(false);
     }
@@ -156,7 +181,9 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
   const handleSaveProduct = async (e) => {
     e.preventDefault();
     if (existingImages.length === 0 && newImages.length === 0) {
-      showToast.error(t("admin:error_no_images", "Please upload at least one image"));
+      showToast.error(
+        t("admin:error_no_images", "Please upload at least one image"),
+      );
       return;
     }
 
@@ -185,7 +212,9 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
     }
 
     try {
-      const url = editingProduct ? `/products/${editingProduct._id}` : "/products";
+      const url = editingProduct
+        ? `/products/${editingProduct._id}`
+        : "/products";
       const method = editingProduct ? "put" : "post";
 
       await api({
@@ -195,11 +224,16 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      showToast.success(t("admin:success_product_save", "Product saved successfully!"));
+      showToast.success(
+        t("admin:success_product_save", "Product saved successfully!"),
+      );
       setShowProductModal(false);
       fetchInventory();
     } catch (err) {
-      showToast.error(err.response?.data?.message || t("admin:error_product_save", "Product save failed"));
+      showToast.error(
+        err.response?.data?.message ||
+          t("admin:error_product_save", "Product save failed"),
+      );
     } finally {
       setLoading(false);
     }
@@ -219,7 +253,11 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
           <Search size={16} className="text-slate-400" />
           <input
             type="text"
-            placeholder={currentLang === "hi" ? "उत्पाद का नाम खोजें..." : "Search by product name..."}
+            placeholder={
+              currentLang === "hi"
+                ? "उत्पाद का नाम खोजें..."
+                : "Search by product name..."
+            }
             className="border-0 outline-none text-xs w-full bg-transparent"
             value={searchTerm}
             onChange={(e) => {
@@ -231,7 +269,9 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
 
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
           <div className="flex items-center gap-1.5">
-            <span className="text-xs text-slate-500 font-semibold">Category:</span>
+            <span className="text-xs text-slate-500 font-semibold">
+              Category:
+            </span>
             <select
               value={categoryFilter}
               onChange={(e) => {
@@ -240,7 +280,9 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
               }}
               className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-brand-cyan"
             >
-              <option value="all">{currentLang === "hi" ? "सभी श्रेणियां" : "All Categories"}</option>
+              <option value="all">
+                {currentLang === "hi" ? "सभी श्रेणियां" : "All Categories"}
+              </option>
               {categories.map((cat) => (
                 <option key={cat._id} value={cat._id}>
                   {cat.name[currentLang] || cat.name.en}
@@ -261,17 +303,32 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-slate-50 text-slate-500 font-semibold text-xs border-b border-slate-200">
-              <th className="px-4 py-3 text-left">{t("admin:image_url", "Image")}</th>
-              <th className="px-4 py-3 text-left">{t("admin:product_name_en", "Product Name")}</th>
-              <th className="px-4 py-3 text-left">{t("admin:category", "Category")}</th>
-              <th className="px-4 py-3 text-left">{t("admin:price", "Price")}</th>
-              <th className="px-4 py-3 text-left">{t("admin:stock", "Stock")}</th>
-              <th className="px-4 py-3 text-left">{t("admin:actions", "Actions")}</th>
+              <th className="px-4 py-3 text-left">
+                {t("admin:image_url", "Image")}
+              </th>
+              <th className="px-4 py-3 text-left">
+                {t("admin:product_name_en", "Product Name")}
+              </th>
+              <th className="px-4 py-3 text-left">
+                {t("admin:category", "Category")}
+              </th>
+              <th className="px-4 py-3 text-left">
+                {t("admin:price", "Price")}
+              </th>
+              <th className="px-4 py-3 text-left">
+                {t("admin:stock", "Stock")}
+              </th>
+              <th className="px-4 py-3 text-left">
+                {t("admin:actions", "Actions")}
+              </th>
             </tr>
           </thead>
           <tbody>
             {currentProducts.map((prod) => (
-              <tr key={prod._id} className="hover:bg-slate-50/50 transition-colors">
+              <tr
+                key={prod._id}
+                className="hover:bg-slate-50/50 transition-colors"
+              >
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
                   <img
                     src={prod.images?.[0] || ""}
@@ -283,7 +340,8 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
                   {prod.name?.[currentLang] || prod.name?.en}
                 </td>
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
-                  {prod.category?.name?.[currentLang] || prod.category?.name?.en}
+                  {prod.category?.name?.[currentLang] ||
+                    prod.category?.name?.en}
                 </td>
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-900 font-bold">
                   ₹{prod.price}
@@ -293,8 +351,8 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
                     prod.stock === 0
                       ? "text-rose-500"
                       : prod.stock <= 5
-                      ? "text-amber-500"
-                      : "text-emerald-500"
+                        ? "text-amber-500"
+                        : "text-emerald-500"
                   }`}
                 >
                   {prod.stock}
@@ -370,7 +428,9 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
           <div className="relative w-full max-w-2xl bg-white border border-slate-100 rounded-3xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto flex flex-col gap-5 text-left">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-heading text-lg font-bold text-slate-900">
-                {editingProduct ? t("admin:edit_product") : t("admin:add_product")}
+                {editingProduct
+                  ? t("admin:edit_product")
+                  : t("admin:add_product")}
               </h3>
               <button
                 type="button"
@@ -381,7 +441,10 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
               </button>
             </div>
 
-            <form onSubmit={handleSaveProduct} className="flex flex-col gap-4 text-xs">
+            <form
+              onSubmit={handleSaveProduct}
+              className="flex flex-col gap-4 text-xs"
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* English name */}
                 <div className="flex flex-col gap-1.5">
@@ -461,7 +524,9 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Price */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-semibold text-slate-500">Price (₹) *</label>
+                  <label className="font-semibold text-slate-500">
+                    Price (₹) *
+                  </label>
                   <input
                     type="number"
                     required
@@ -474,7 +539,9 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
 
                 {/* Original Price */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-semibold text-slate-500">Original MRP (₹) *</label>
+                  <label className="font-semibold text-slate-500">
+                    Original MRP (₹) *
+                  </label>
                   <input
                     type="number"
                     required
@@ -487,7 +554,9 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
 
                 {/* Stock */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-semibold text-slate-500">Available Stock *</label>
+                  <label className="font-semibold text-slate-500">
+                    Available Stock *
+                  </label>
                   <input
                     type="number"
                     required
@@ -502,7 +571,9 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Category selector */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-semibold text-slate-500">Category *</label>
+                  <label className="font-semibold text-slate-500">
+                    Category *
+                  </label>
                   <select
                     value={prodCategory}
                     onChange={(e) => setProdCategory(e.target.value)}
@@ -518,7 +589,9 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
 
                 {/* Return/Replacement Policy */}
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-semibold text-slate-500">Return Policy *</label>
+                  <label className="font-semibold text-slate-500">
+                    Return Policy *
+                  </label>
                   <select
                     value={prodReturnPolicy}
                     onChange={(e) => setProdReturnPolicy(e.target.value)}
@@ -533,16 +606,29 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
 
               {/* Images management */}
               <div className="flex flex-col gap-2.5 mt-2">
-                <label className="font-semibold text-slate-500">Product Images</label>
+                <label className="font-semibold text-slate-500">
+                  Product Images (Max 5)
+                </label>
 
                 {editingProduct && existingImages.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-2">
                     {existingImages.map((imgUrl, index) => (
-                      <div key={index} className="relative w-16 h-16 rounded border border-slate-200 bg-slate-50 p-1 flex justify-center items-center">
-                        <img src={imgUrl} alt="Product" className="max-w-full max-h-full object-contain" />
+                      <div
+                        key={index}
+                        className="relative w-16 h-16 rounded border border-slate-200 bg-slate-50 p-1 flex justify-center items-center"
+                      >
+                        <img
+                          src={imgUrl}
+                          alt="Product"
+                          className="max-w-full max-h-full object-contain"
+                        />
                         <button
                           type="button"
-                          onClick={() => setExistingImages(existingImages.filter((_, i) => i !== index))}
+                          onClick={() =>
+                            setExistingImages(
+                              existingImages.filter((_, i) => i !== index),
+                            )
+                          }
                           className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 border-0 cursor-pointer"
                         >
                           <X size={10} />
@@ -565,9 +651,11 @@ const ProductsTab = ({ products, categories, t, currentLang, fetchInventory, set
                     <span className="text-slate-600 font-semibold">
                       {newImages.length > 0
                         ? `${newImages.length} files selected`
-                        : "Click or drag images to upload"}
+                        : "Click or drag images to upload (Max 5 images)"}
                     </span>
-                    <span className="text-[10px] text-slate-400">Supports JPG, PNG, WEBP</span>
+                    <span className="text-[10px] text-slate-400">
+                      Supports JPG, PNG, WEBP (Max 5 images)
+                    </span>
                   </div>
                 </div>
               </div>
