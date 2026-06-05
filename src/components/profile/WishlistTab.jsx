@@ -64,7 +64,7 @@ const WishlistTab = ({
   return (
     <div className="flex flex-col gap-6 w-full animate-fadeIn">
       <h3 className="font-heading text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
-        {isHindi ? 'मेरी विशलिस्ट' : 'My Wishlist'}
+        {isHindi ? 'विशलिस्ट' : 'Wishlist'}
       </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">

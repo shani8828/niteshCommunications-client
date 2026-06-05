@@ -14,6 +14,7 @@ import Breadcrumbs from './components/common/Breadcrumbs';
 import Loader from './components/common/Loader';
 import CookieConsent from './components/common/CookieConsent';
 import LanguageToggle from './components/common/LanguageToggle';
+import WishlistTab from './components/profile/WishlistTab';
 
 // Pages (Lazy Loaded for maximum performance)
 const Home = lazy(() => import('./pages/Home'));
@@ -138,6 +139,7 @@ function App() {
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/refund-policy" element={<RefundPolicy />} />
                   <Route path="/shipping-policy" element={<ShippingPolicy />} />
+                  <Route path="/wishlist" element={<WishlistTab />} />
 {/* <Route path='/loader' element={<Loader fullPage/>}/> */}
                   {/* Separate logins for Admin & Partner */}
                   <Route path="/admin/admin_login" element={<AdminLogin />} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
@@ -26,10 +26,56 @@ const Navbar = () => {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
+  const userDropdownRef = useRef(null);
+  const mobileMenuRef = useRef(null);
+  const mobileMenuTriggerRef = useRef(null);
+  const mobileSearchRef = useRef(null);
+  const mobileSearchTriggerRef = useRef(null);
+
   useEffect(() => {
     setMobileSearchOpen(false);
     setMobileMenuOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // User dropdown
+      if (
+        userDropdownOpen &&
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target)
+      ) {
+        setUserDropdownOpen(false);
+      }
+
+      // Mobile menu
+      if (
+        mobileMenuOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target) &&
+        mobileMenuTriggerRef.current &&
+        !mobileMenuTriggerRef.current.contains(event.target)
+      ) {
+        setMobileMenuOpen(false);
+      }
+
+      // Mobile search
+      if (
+        mobileSearchOpen &&
+        mobileSearchRef.current &&
+        !mobileSearchRef.current.contains(event.target) &&
+        mobileSearchTriggerRef.current &&
+        !mobileSearchTriggerRef.current.contains(event.target)
+      ) {
+        setMobileSearchOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [userDropdownOpen, mobileMenuOpen, mobileSearchOpen]);
 
   const handleLogout = async () => {
     await logout();
@@ -108,11 +154,19 @@ const Navbar = () => {
           <div className="hidden sm:block flex-grow max-w-[280px]">
             <GlobalSearch />
           </div>
-
+          {/* Mobile Search Toggle Icon */}
+          <button
+            ref={mobileSearchTriggerRef}
+            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+            className="bg-transparent border-0 text-slate-600 hover:text-blue-600 cursor-pointer flex items-center sm:hidden p-1.5 rounded-full hover:bg-slate-50 transition-colors"
+            title="Search"
+          >
+            {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
+          </button>
           {/* Controls Section */}
           <div className="flex items-center gap-5 flex-shrink-0">
             {/* Cart Icon Link - Only visible when logged in */}
-            {user && (
+            {user && user.role === "user" && (
               <Link
                 to="/cart"
                 className="text-slate-600 hover:text-blue-600 relative flex items-center"
@@ -128,7 +182,7 @@ const Navbar = () => {
 
             {/* User Auth Profiles Dropdown */}
             {user ? (
-              <div className="relative hidden md:block">
+              <div className="relative hidden md:block" ref={userDropdownRef}>
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                   className="bg-slate-50 border border-slate-200 rounded-full px-3 py-1.5 text-slate-700 cursor-pointer flex items-center gap-2 hover:bg-slate-100 transition-all"
@@ -157,30 +211,42 @@ const Navbar = () => {
                         {t("admin_panel")}
                       </Link>
                     )}
-                    <Link
-                      to="/profile"
-                      state={{ tab: "profile" }}
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
-                    >
-                      {t("profile")}
-                    </Link>
-                    <Link
-                      to="/order-tracking/history"
-                      state={{ tab: "orders" }}
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
-                    >
-                      {t("order_summary")}
-                    </Link>
-                    <Link
-                      to="/profile"
-                      state={{ tab: "wishlist" }}
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
-                    >
-                      {t("wishlist")}
-                    </Link>
+                    {user.role === "user" && (
+                      <>
+                        <Link
+                          to="/profile"
+                          state={{ tab: "profile" }}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
+                        >
+                          {t("profile")}
+                        </Link>
+                        <Link
+                          to="/order-tracking/history"
+                          state={{ tab: "orders" }}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
+                        >
+                          {t("order_summary")}
+                        </Link>
+                        <Link
+                          to="/cart"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
+                        >
+                          {t("cart")}
+                        </Link>
+                        <Link
+                          to="/profile"
+                          state={{ tab: "wishlist" }}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
+                        >
+                          {t("wishlist")}
+                        </Link>
+                      </>
+                    )}
+
                     <button
                       onClick={handleLogout}
                       className="flex items-center gap-2 bg-transparent border-0 text-rose-600 text-sm cursor-pointer py-1 text-left w-full font-semibold"
@@ -208,17 +274,9 @@ const Navbar = () => {
               </div>
             )}
 
-            {/* Mobile Search Toggle Icon */}
-            <button
-              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-              className="bg-transparent border-0 text-slate-600 hover:text-blue-600 cursor-pointer flex items-center sm:hidden p-1.5 rounded-full hover:bg-slate-50 transition-colors"
-              title="Search"
-            >
-              {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
-            </button>
-
             {/* Mobile Menu Hamburger */}
             <button
+              ref={mobileMenuTriggerRef}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="bg-transparent border-0 text-slate-700 cursor-pointer block md:hidden"
             >
@@ -230,7 +288,7 @@ const Navbar = () => {
 
       {/* Mobile Drawer Overlay */}
       {mobileMenuOpen && (
-        <div className="absolute top-[60px] left-0 right-0 z-[90] flex flex-col gap-3 p-6 bg-white border border-slate-100 shadow-xl rounded-b-2xl md:hidden">
+        <div ref={mobileMenuRef} className="absolute top-[60px] left-0 right-0 z-[90] flex flex-col gap-3 p-6 bg-white border border-slate-100 shadow-xl rounded-b-2xl md:hidden">
           {/* Mobile Global Search input */}
           <div className="sm:hidden w-full pb-2">
             <GlobalSearch />
@@ -277,41 +335,46 @@ const Navbar = () => {
                   {t("admin_panel")}
                 </NavLink>
               )}
-              <NavLink
-                to="/profile"
-                state={{ tab: "profile" }}
-                onClick={() => setMobileMenuOpen(false)}
-                className={getMobileLinkClass}
-              >
-                <UserIcon size={18} className="mr-2" />
-                {t("profile")}
-              </NavLink>
-              <NavLink
-                to="/order-tracking/history"
-                state={{ tab: "orders" }}
-                onClick={() => setMobileMenuOpen(false)}
-                className={getMobileLinkClass}
-              >
-                <ShoppingBag size={18} className="mr-2" />
-                {t("order_summary")}
-              </NavLink>
-              <NavLink
-                to="/profile"
-                state={{ tab: "wishlist" }}
-                onClick={() => setMobileMenuOpen(false)}
-                className={getMobileLinkClass}
-              >
-                <Heart size={18} className="mr-2" />
-                {t("wishlist")}
-              </NavLink>
-              <NavLink
-                to="/cart"
-                onClick={() => setMobileMenuOpen(false)}
-                className={getMobileLinkClass}
-              >
-                <ShoppingCart size={18} className="mr-2" />
-                {t("cart")} {cartCount > 0 && `(${cartCount})`}
-              </NavLink>
+              {user.role === "user" && (
+                <>
+                  <NavLink
+                    to="/profile"
+                    state={{ tab: "profile" }}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={getMobileLinkClass}
+                  >
+                    <UserIcon size={18} className="mr-2" />
+                    {t("profile")}
+                  </NavLink>
+                  <NavLink
+                    to="/order-tracking/history"
+                    state={{ tab: "orders" }}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={getMobileLinkClass}
+                  >
+                    <ShoppingBag size={18} className="mr-2" />
+                    {t("order_summary")}
+                  </NavLink>
+                  <NavLink
+                    to="/profile"
+                    state={{ tab: "wishlist" }}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={getMobileLinkClass}
+                  >
+                    <Heart size={18} className="mr-2" />
+                    {t("wishlist")}
+                  </NavLink>
+                  <NavLink
+                    to="/cart"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={getMobileLinkClass}
+                  >
+                    <ShoppingCart size={18} className="mr-2" />
+                    {t("cart")} {cartCount > 0 && `(${cartCount})`}
+                  </NavLink>
+                </>
+              )}
+
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
@@ -350,16 +413,16 @@ const Navbar = () => {
       )}
       {/* Mobile Search Overlay */}
       {mobileSearchOpen && (
-        <div className="absolute top-full left-0 right-0 z-[95] bg-white border-b border-slate-200 px-6 py-3.5 shadow-lg sm:hidden flex items-center gap-3 animate-fade-in">
+        <div ref={mobileSearchRef} className="absolute top-full left-0 right-0 z-[95] bg-white border-b border-slate-200 px-6 py-3.5 shadow-lg sm:hidden flex items-center gap-3 animate-fade-in">
           <div className="flex-1">
             <GlobalSearch />
           </div>
-          <button
+          {/* <button
             onClick={() => setMobileSearchOpen(false)}
             className="text-slate-400 hover:text-slate-600 bg-transparent border-0 cursor-pointer p-1.5 hover:bg-slate-100 rounded-full flex items-center"
           >
             <X size={18} />
-          </button>
+          </button> */}
         </div>
       )}
     </header>

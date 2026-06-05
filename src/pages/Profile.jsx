@@ -172,22 +172,6 @@ const Profile = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 pb-20 relative">
-      <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
-        <div className="text-left">
-          <h2 className="font-heading text-2xl sm:text-3xl font-extrabold text-slate-800">
-            {isHindi ? 'मेरा अकाउंट / My Account' : 'My Account Dashboard'}
-          </h2>
-          <p className="text-xs text-slate-500 mt-1">
-            {isHindi ? 'अपने ऑर्डर्स ट्रैक करें और प्रोफाइल डिटेल्स मैनेज करें।' : 'Track your purchases and manage profile settings.'}
-          </p>
-        </div>
-        <button
-          onClick={logout}
-          className="px-5 py-2.5 text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-100 rounded-full transition-all cursor-pointer outline-none"
-        >
-          {t('common:logout')}
-        </button>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
         <ProfileSidebar
