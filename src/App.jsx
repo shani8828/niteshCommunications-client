@@ -14,7 +14,6 @@ import Breadcrumbs from './components/common/Breadcrumbs';
 import Loader from './components/common/Loader';
 import CookieConsent from './components/common/CookieConsent';
 import LanguageToggle from './components/common/LanguageToggle';
-import WishlistTab from './components/profile/WishlistTab';
 
 // Pages (Lazy Loaded for maximum performance)
 const Home = lazy(() => import('./pages/Home'));
@@ -34,6 +33,9 @@ const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
 const ShippingPolicy = lazy(() => import('./pages/ShippingPolicy'));
 const Profile = lazy(() => import('./pages/Profile'));
+const Orders = lazy(() => import('./pages/Orders'));
+const Wishlist = lazy(() => import('./pages/Wishlist'));
+const RepairBookings = lazy(() => import('./pages/RepairBookings'));
 const AdminLogin = lazy(() => import('./pages/AdminLogin'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const OrderReturn = lazy(() => import('./pages/OrderReturn'));
@@ -139,7 +141,14 @@ function App() {
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/refund-policy" element={<RefundPolicy />} />
                   <Route path="/shipping-policy" element={<ShippingPolicy />} />
-                  <Route path="/wishlist" element={<WishlistTab />} />
+                  <Route
+                    path="/wishlist"
+                    element={
+                      <ProtectedRoute allowedRoles={['user']}>
+                        <Wishlist />
+                      </ProtectedRoute>
+                    }
+                  />
 {/* <Route path='/loader' element={<Loader fullPage/>}/> */}
                   {/* Separate logins for Admin & Partner */}
                   <Route path="/admin/admin_login" element={<AdminLogin />} />
@@ -186,6 +195,22 @@ function App() {
                     }
                   />
                   <Route
+                    path="/orders"
+                    element={
+                      <ProtectedRoute allowedRoles={['user']}>
+                        <Orders />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/repair-bookings"
+                    element={
+                      <ProtectedRoute allowedRoles={['user']}>
+                        <RepairBookings />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
                     path="/repairs/:id/cancel"
                     element={
                       <ProtectedRoute allowedRoles={['user']}>
@@ -198,7 +223,7 @@ function App() {
                     path="/order-tracking/history"
                     element={
                       <ProtectedRoute allowedRoles={['user']}>
-                        <Profile />
+                        <Orders />
                       </ProtectedRoute>
                     }
                   />

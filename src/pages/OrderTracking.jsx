@@ -59,14 +59,14 @@ const OrderTracking = () => {
   useEffect(() => {
     if (order) {
       setCrumbs([
-        { label: t("common:order_summary"), link: "/order-tracking/history" },
+        { label: t("common:order_summary"), link: "/orders" },
         {
           label: `${t("common:order_tracking") || "Order Tracking"} #${order.orderId}`,
         },
       ]);
     } else if (id && id !== "history") {
       setCrumbs([
-        { label: t("common:order_summary"), link: "/order-tracking/history" },
+        { label: t("common:order_summary"), link: "/orders" },
         { label: `${t("common:order_tracking") || "Order Tracking"} #${id}` },
       ]);
     }
@@ -207,7 +207,7 @@ const OrderTracking = () => {
             <RefreshCw size={14} /> Refresh Status
           </button>
           <Link
-            to="/order-tracking/history"
+            to="/orders"
             className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 block"
           >
             Orders History

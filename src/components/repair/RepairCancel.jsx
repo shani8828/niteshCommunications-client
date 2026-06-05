@@ -37,13 +37,12 @@ const RepairCancel = () => {
         setRepair(response.data);
 
         setCrumbs([
-          { label: isHindi ? 'प्रोफाइल' : 'Profile', link: '/profile', state: { tab: 'repairs' } },
-          { label: isHindi ? 'रिपेयर बुकिंग' : 'Repair Booking', link: '/profile', state: { tab: 'repairs' } },
+          { label: isHindi ? 'रिपेयर बुकिंग्स' : 'Repair Bookings', link: '/repair-bookings' },
           { label: isHindi ? 'बुकिंग रद्द करें' : 'Cancel Booking' },
         ]);
       } catch (err) {
         showToast.error(err.response?.data?.message || (isHindi ? 'रिपेयर बुकिंग लोड करने में विफल' : 'Failed to load repair booking'));
-        navigate('/profile', { state: { tab: 'repairs' } });
+        navigate('/repair-bookings');
       } finally {
         setLoading(false);
       }
@@ -115,7 +114,7 @@ const RepairCancel = () => {
 
       await api.post(`/repairs/${id}/cancel`, payload);
       showToast.success(isHindi ? 'रिपेयर बुकिंग रद्द कर दी गई है और रिफंड अनुरोध सबमिट हो गया है!' : 'Repair booking cancelled and refund requested successfully!');
-      navigate('/profile', { state: { tab: 'repairs' } });
+      navigate('/repair-bookings');
     } catch (err) {
       showToast.error(err.response?.data?.message || (isHindi ? 'बुकिंग रद्द करने में विफल' : 'Failed to cancel repair booking'));
     } finally {
@@ -129,11 +128,10 @@ const RepairCancel = () => {
   return (
     <div className="max-w-3xl mx-auto px-6 py-8 pb-20 bg-white">
       <Link
-        to="/profile"
-        state={{ tab: 'repairs' }}
+        to="/repair-bookings"
         className="items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors text-sm mb-6 inline-flex font-semibold"
       >
-        <ArrowLeft size={16} /> {isHindi ? 'पीछे जाएं' : 'Back to Profile'}
+        <ArrowLeft size={16} /> {isHindi ? 'पीछे जाएं' : 'Back to Repair Bookings'}
       </Link>
 
       <h2 className="font-heading text-2xl md:text-3xl font-extrabold text-slate-800 mb-2">

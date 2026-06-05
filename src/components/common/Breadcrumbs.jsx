@@ -50,9 +50,14 @@ const Breadcrumbs = () => {
       case 'dashboard':
         return t('common:dashboard', 'Dashboard');
       case 'history':
+      case 'orders':
         return t('common:order_summary');
       case 'order-tracking':
         return t('common:order_tracking', 'Order Tracking');
+      case 'wishlist':
+        return t('common:wishlist');
+      case 'repair-bookings':
+        return t('common:repairs');
       default:
         // Capitalize segment if translation is missing
         return segment
@@ -66,9 +71,17 @@ const Breadcrumbs = () => {
 
   if (crumbs) {
     items = crumbs;
-  } else if (pathname === '/order-tracking/history') {
+  } else if (pathname === '/order-tracking/history' || pathname === '/orders') {
     items = [
-      { label: t('common:order_summary'), link: '/order-tracking/history' }
+      { label: t('common:order_summary'), link: '/orders' }
+    ];
+  } else if (pathname === '/wishlist') {
+    items = [
+      { label: t('common:wishlist'), link: '/wishlist' }
+    ];
+  } else if (pathname === '/repair-bookings') {
+    items = [
+      { label: t('common:repairs'), link: '/repair-bookings' }
     ];
   } else if (pathname === '/checkout') {
     items = [

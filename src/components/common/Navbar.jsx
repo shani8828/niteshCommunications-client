@@ -13,6 +13,7 @@ import {
   ShoppingBag,
   Settings,
   Search,
+  Wrench,
 } from "lucide-react";
 import GlobalSearch from "./GlobalSearch";
 
@@ -215,15 +216,13 @@ const Navbar = () => {
                       <>
                         <Link
                           to="/profile"
-                          state={{ tab: "profile" }}
                           onClick={() => setUserDropdownOpen(false)}
                           className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
                         >
                           {t("profile")}
                         </Link>
                         <Link
-                          to="/order-tracking/history"
-                          state={{ tab: "orders" }}
+                          to="/orders"
                           onClick={() => setUserDropdownOpen(false)}
                           className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
                         >
@@ -237,12 +236,18 @@ const Navbar = () => {
                           {t("cart")}
                         </Link>
                         <Link
-                          to="/profile"
-                          state={{ tab: "wishlist" }}
+                          to="/wishlist"
                           onClick={() => setUserDropdownOpen(false)}
                           className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
                         >
                           {t("wishlist")}
+                        </Link>
+                        <Link
+                          to="/repair-bookings"
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="text-sm text-slate-600 hover:text-blue-600 transition-colors"
+                        >
+                          {t("repairs")}
                         </Link>
                       </>
                     )}
@@ -288,11 +293,14 @@ const Navbar = () => {
 
       {/* Mobile Drawer Overlay */}
       {mobileMenuOpen && (
-        <div ref={mobileMenuRef} className="absolute top-[60px] left-0 right-0 z-[90] flex flex-col gap-3 p-6 bg-white border border-slate-100 shadow-xl rounded-b-2xl md:hidden">
+        <div
+          ref={mobileMenuRef}
+          className="absolute top-[60px] left-0 right-0 z-[90] flex flex-col gap-3 p-6 bg-white border border-slate-100 shadow-xl rounded-b-2xl md:hidden"
+        >
           {/* Mobile Global Search input */}
-          <div className="sm:hidden w-full pb-2">
+          {/* <div className="sm:hidden w-full pb-2">
             <GlobalSearch />
-          </div>
+          </div> */}
           <NavLink
             to="/"
             onClick={() => setMobileMenuOpen(false)}
@@ -339,7 +347,6 @@ const Navbar = () => {
                 <>
                   <NavLink
                     to="/profile"
-                    state={{ tab: "profile" }}
                     onClick={() => setMobileMenuOpen(false)}
                     className={getMobileLinkClass}
                   >
@@ -347,8 +354,7 @@ const Navbar = () => {
                     {t("profile")}
                   </NavLink>
                   <NavLink
-                    to="/order-tracking/history"
-                    state={{ tab: "orders" }}
+                    to="/orders"
                     onClick={() => setMobileMenuOpen(false)}
                     className={getMobileLinkClass}
                   >
@@ -356,8 +362,7 @@ const Navbar = () => {
                     {t("order_summary")}
                   </NavLink>
                   <NavLink
-                    to="/profile"
-                    state={{ tab: "wishlist" }}
+                    to="/wishlist"
                     onClick={() => setMobileMenuOpen(false)}
                     className={getMobileLinkClass}
                   >
@@ -371,6 +376,14 @@ const Navbar = () => {
                   >
                     <ShoppingCart size={18} className="mr-2" />
                     {t("cart")} {cartCount > 0 && `(${cartCount})`}
+                  </NavLink>
+                  <NavLink
+                    to="/repair-bookings"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={getMobileLinkClass}
+                  >
+                    <Wrench size={18} className="mr-2" />
+                    {t("repairs")}
                   </NavLink>
                 </>
               )}
@@ -413,7 +426,10 @@ const Navbar = () => {
       )}
       {/* Mobile Search Overlay */}
       {mobileSearchOpen && (
-        <div ref={mobileSearchRef} className="absolute top-full left-0 right-0 z-[95] bg-white border-b border-slate-200 px-6 py-3.5 shadow-lg sm:hidden flex items-center gap-3 animate-fade-in">
+        <div
+          ref={mobileSearchRef}
+          className="absolute top-full left-0 right-0 z-[95] bg-white border-b border-slate-200 px-6 py-3.5 shadow-lg sm:hidden flex items-center gap-3 animate-fade-in"
+        >
           <div className="flex-1">
             <GlobalSearch />
           </div>

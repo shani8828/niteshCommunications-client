@@ -65,7 +65,7 @@ const OrderReturn = () => {
         setSelectedItems(initialSelected);
 
         setCrumbs([
-          { label: t("common:order_summary"), link: "/order-tracking/history" },
+          { label: t("common:order_summary"), link: "/orders" },
           {
             label: `Order #${ord.orderId}`,
             link: `/order-tracking/${ord._id}`,
@@ -78,7 +78,7 @@ const OrderReturn = () => {
         ]);
       } catch (err) {
         showToast.error(err.response?.data?.message || "Failed to load order");
-        navigate("/order-tracking/history");
+        navigate("/orders");
       } finally {
         setLoading(false);
       }
