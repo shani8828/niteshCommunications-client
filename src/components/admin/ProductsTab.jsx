@@ -23,6 +23,7 @@ const translateToHindi = async (text) => {
 
 const ProductsTab = ({
   products,
+  setProducts,
   categories,
   t,
   currentLang,
@@ -36,6 +37,7 @@ const ProductsTab = ({
 
   const [showProductModal, setShowProductModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Form states
   const [prodNameEn, setProdNameEn] = useState("");
@@ -161,20 +163,26 @@ const ProductsTab = ({
       )
     )
       return;
-    setLoading(true);
+
+    let rollbackProducts = products;
+    if (setProducts) {
+      setProducts((prev) => prev.filter((p) => p._id !== id));
+    }
+
     try {
       await api.delete(`/products/${id}`);
       showToast.success(
         t("admin:success_product_delete", "Product deleted successfully"),
       );
-      fetchInventory();
+      fetchInventory().catch(console.error);
     } catch (err) {
+      if (setProducts && rollbackProducts) {
+        setProducts(rollbackProducts);
+      }
       showToast.error(
         err.response?.data?.message ||
           t("admin:error_product_delete", "Delete failed"),
       );
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -187,7 +195,7 @@ const ProductsTab = ({
       return;
     }
 
-    setLoading(true);
+    setIsSaving(true);
     const formData = new FormData();
     formData.append("nameEn", prodNameEn);
     formData.append("nameHi", prodNameHi);
@@ -228,14 +236,14 @@ const ProductsTab = ({
         t("admin:success_product_save", "Product saved successfully!"),
       );
       setShowProductModal(false);
-      fetchInventory();
+      fetchInventory().catch(console.error);
     } catch (err) {
       showToast.error(
         err.response?.data?.message ||
           t("admin:error_product_save", "Product save failed"),
       );
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -434,8 +442,9 @@ const ProductsTab = ({
               </h3>
               <button
                 type="button"
-                onClick={() => setShowProductModal(false)}
+                onClick={() => !isSaving && setShowProductModal(false)}
                 className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors border-0 bg-transparent cursor-pointer"
+                disabled={isSaving}
               >
                 <X size={20} />
               </button>
@@ -662,9 +671,17 @@ const ProductsTab = ({
 
               <button
                 type="submit"
-                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded-xl shadow-lg border-0 cursor-pointer transition-all mt-4"
+                disabled={isSaving}
+                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded-xl shadow-lg border-0 cursor-pointer transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {t("common:save", "Save Changes")}
+                {isSaving ? (
+                  <>
+                    <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
+                    Saving...
+                  </>
+                ) : (
+                  t("common:save", "Save Changes")
+                )}
               </button>
             </form>
           </div>

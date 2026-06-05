@@ -16,6 +16,7 @@ import RepairServicesTab from "../components/admin/RepairServicesTab";
 import CscServicesTab from "../components/admin/CscServicesTab";
 import UsersTab from "../components/admin/UsersTab";
 import PrintoutsTab from "../components/admin/PrintoutsTab";
+import AdminSkeleton from "../components/admin/AdminSkeleton";
 
 // Layout Subcomponents
 import AdminSidebar from "../components/admin/layout/AdminSidebar";
@@ -252,58 +253,82 @@ const AdminDashboard = () => {
   ]);
 
   const handleUpdateOrderStatus = useCallback(async (id, status) => {
-    setLoading(true);
+    let rollbackOrders;
+    setOrders((prev) => {
+      rollbackOrders = prev;
+      return prev.map((ord) =>
+        ord._id === id ? { ...ord, deliveryStatus: status } : ord
+      );
+    });
+
     try {
       await api.put(`/orders/${id}/status`, { status });
       showToast.success(t("admin:success_status_update", "Status updated successfully"));
-      await fetchOrders();
+      fetchOrders().catch(console.error);
     } catch (err) {
+      if (rollbackOrders) setOrders(rollbackOrders);
       const errorMessage = err.response?.data?.message || t("admin:error_status_update", "Update failed");
       showToast.error(errorMessage);
-    } finally {
-      setLoading(false);
     }
   }, [fetchOrders, t]);
 
   const handleUpdateRepairStatus = useCallback(async (id, status) => {
-    setLoading(true);
+    let rollbackRepairs;
+    setRepairs((prev) => {
+      rollbackRepairs = prev;
+      return prev.map((rep) =>
+        rep._id === id ? { ...rep, status: status } : rep
+      );
+    });
+
     try {
       await api.put(`/repairs/${id}`, { status });
       showToast.success(t("admin:success_status_update", "Status updated successfully"));
-      await fetchRepairsAndCsc();
+      fetchRepairsAndCsc().catch(console.error);
     } catch (err) {
+      if (rollbackRepairs) setRepairs(rollbackRepairs);
       const errorMessage = err.response?.data?.message || t("admin:error_status_update", "Update failed");
       showToast.error(errorMessage);
-    } finally {
-      setLoading(false);
     }
   }, [fetchRepairsAndCsc, t]);
 
   const handleUpdateCscStatus = useCallback(async (id, status) => {
-    setLoading(true);
+    let rollbackCsc;
+    setCscQueries((prev) => {
+      rollbackCsc = prev;
+      return prev.map((csc) =>
+        csc._id === id ? { ...csc, status: status } : csc
+      );
+    });
+
     try {
       await api.put(`/csc/${id}`, { status });
       showToast.success(t("admin:success_status_update", "Status updated successfully"));
-      await fetchRepairsAndCsc();
+      fetchRepairsAndCsc().catch(console.error);
     } catch (err) {
+      if (rollbackCsc) setCscQueries(rollbackCsc);
       const errorMessage = err.response?.data?.message || t("admin:error_status_update", "Update failed");
       showToast.error(errorMessage);
-    } finally {
-      setLoading(false);
     }
   }, [fetchRepairsAndCsc, t]);
 
   const handleUpdatePrintoutStatus = useCallback(async (id, status) => {
-    setLoading(true);
+    let rollbackPrintouts;
+    setPrintouts((prev) => {
+      rollbackPrintouts = prev;
+      return prev.map((pr) =>
+        pr._id === id ? { ...pr, status: status } : pr
+      );
+    });
+
     try {
       await api.put(`/printouts/${id}/status`, { status });
       showToast.success(t("admin:success_status_update", "Status updated successfully"));
-      await fetchPrintouts();
+      fetchPrintouts().catch(console.error);
     } catch (err) {
+      if (rollbackPrintouts) setPrintouts(rollbackPrintouts);
       const errorMessage = err.response?.data?.message || t("admin:error_status_update", "Update failed");
       showToast.error(errorMessage);
-    } finally {
-      setLoading(false);
     }
   }, [fetchPrintouts, t]);
 
@@ -319,11 +344,152 @@ const AdminDashboard = () => {
     return () => clearInterval(pollInterval);
   }, [loadTabData]);
 
-  if (!analytics) return <Loader fullPage />;
+  const isTabEmpty = useCallback((tab) => {
+    if (tab === "overview") return !analytics;
+    if (tab === "orders") return orders.length === 0;
+    if (tab === "products") return products.length === 0;
+    if (tab === "categories") return categories.length === 0;
+    if (tab === "repairs") return repairs.length === 0;
+    if (tab === "repair-services") return repairPricingList.length === 0;
+    if (tab === "csc") return cscQueries.length === 0;
+    if (tab === "csc-services") return cscServicesList.length === 0;
+    if (tab === "users") return users.length === 0;
+    if (tab === "printouts") return printouts.length === 0;
+    return true;
+  }, [
+    analytics,
+    orders,
+    products,
+    categories,
+    repairs,
+    repairPricingList,
+    cscQueries,
+    cscServicesList,
+    users,
+    printouts,
+  ]);
+
+  const renderTabContent = () => {
+    if (loading && isTabEmpty(activeTab)) {
+      if (activeTab === "overview") return <AdminSkeleton type="overview" />;
+      if (activeTab === "orders") return <AdminSkeleton type="table" cols={8} rows={6} />;
+      if (activeTab === "products") return <AdminSkeleton type="table" cols={6} rows={6} />;
+      if (activeTab === "categories") return <AdminSkeleton type="table" cols={4} rows={6} />;
+      if (activeTab === "repairs") return <AdminSkeleton type="table" cols={6} rows={6} />;
+      if (activeTab === "repair-services") return <AdminSkeleton type="table" cols={3} rows={6} />;
+      if (activeTab === "csc") return <AdminSkeleton type="table" cols={5} rows={6} />;
+      if (activeTab === "csc-services") return <AdminSkeleton type="table" cols={4} rows={6} />;
+      if (activeTab === "users") return <AdminSkeleton type="table" cols={5} rows={6} />;
+      if (activeTab === "printouts") return <AdminSkeleton type="table" cols={6} rows={6} />;
+    }
+
+    switch (activeTab) {
+      case "overview":
+        return analytics && <OverviewTab analytics={analytics} t={t} currentLang={currentLang} />;
+      case "orders":
+        return (
+          <OrdersTab
+            orders={orders}
+            t={t}
+            currentLang={currentLang}
+            handleUpdateOrderStatus={handleUpdateOrderStatus}
+          />
+        );
+      case "products":
+        return (
+          <ProductsTab
+            products={products}
+            setProducts={setProducts}
+            categories={categories}
+            t={t}
+            currentLang={currentLang}
+            fetchInventory={fetchInventory}
+            setLoading={setLoading}
+          />
+        );
+      case "categories":
+        return (
+          <CategoriesTab
+            categories={categories}
+            setCategories={setCategories}
+            t={t}
+            currentLang={currentLang}
+            fetchInventory={fetchInventory}
+            setLoading={setLoading}
+          />
+        );
+      case "repairs":
+        return (
+          <RepairsTab
+            repairs={repairs}
+            t={t}
+            currentLang={currentLang}
+            handleUpdateRepairStatus={handleUpdateRepairStatus}
+          />
+        );
+      case "repair-services":
+        return (
+          <RepairServicesTab
+            repairPricingList={repairPricingList}
+            setRepairPricingList={setRepairPricingList}
+            t={t}
+            currentLang={currentLang}
+            fetchRepairPricing={fetchRepairPricing}
+            setLoading={setLoading}
+          />
+        );
+      case "csc":
+        return (
+          <CscQueriesTab
+            cscQueries={cscQueries}
+            t={t}
+            currentLang={currentLang}
+            handleUpdateCscStatus={handleUpdateCscStatus}
+          />
+        );
+      case "csc-services":
+        return (
+          <CscServicesTab
+            cscServicesList={cscServicesList}
+            setCscServicesList={setCscServicesList}
+            t={t}
+            currentLang={currentLang}
+            fetchCscServices={fetchCscServices}
+            setLoading={setLoading}
+          />
+        );
+      case "users":
+        return (
+          <UsersTab
+            users={users}
+            t={t}
+            currentLang={currentLang}
+            fetchUsers={fetchUsers}
+          />
+        );
+      case "printouts":
+        return (
+          <PrintoutsTab
+            printouts={printouts}
+            t={t}
+            currentLang={currentLang}
+            handleUpdatePrintoutStatus={handleUpdatePrintoutStatus}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8 pb-20">
-      {loading && <Loader fullPage />}
+    <div className="max-w-6xl mx-auto px-6 py-8 pb-20 relative">
+      {/* Premium background top loading progress bar */}
+      {loading && (
+        <div className="fixed top-0 left-0 right-0 h-[3px] bg-slate-100 z-[9999] overflow-hidden">
+          <div className="h-full w-full bg-brand-cyan shimmer-bg" />
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
         <h2 className="font-heading text-2xl font-extrabold text-slate-900">
           {t("admin:dashboard_title")}
@@ -339,7 +505,11 @@ const AdminDashboard = () => {
       </div>
 
       {/* Dashboard Analytics widgets grid */}
-      <AdminAnalyticsWidgets analytics={analytics} t={t} />
+      {analytics ? (
+        <AdminAnalyticsWidgets analytics={analytics} t={t} />
+      ) : (
+        <AdminSkeleton type="analytics" count={4} />
+      )}
 
       {/* Tabs panels layout */}
       <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
@@ -354,106 +524,7 @@ const AdminDashboard = () => {
 
         {/* Content body */}
         <main className="flex-grow w-full">
-          {/* Tab 1: Overview Summary */}
-          {activeTab === "overview" && analytics && (
-            <OverviewTab analytics={analytics} t={t} currentLang={currentLang} />
-          )}
-
-          {/* Tab: Orders Panel */}
-          {activeTab === "orders" && (
-            <OrdersTab
-              orders={orders}
-              t={t}
-              currentLang={currentLang}
-              handleUpdateOrderStatus={handleUpdateOrderStatus}
-            />
-          )}
-
-          {/* Tab 2: Products CRUD Panel */}
-          {activeTab === "products" && (
-            <ProductsTab
-              products={products}
-              categories={categories}
-              t={t}
-              currentLang={currentLang}
-              fetchInventory={fetchInventory}
-              setLoading={setLoading}
-            />
-          )}
-
-          {/* Tab 3: Categories CRUD Panel */}
-          {activeTab === "categories" && (
-            <CategoriesTab
-              categories={categories}
-              t={t}
-              currentLang={currentLang}
-              fetchInventory={fetchInventory}
-              setLoading={setLoading}
-            />
-          )}
-
-          {/* Tab 4: Repairs Service Tracker */}
-          {activeTab === "repairs" && (
-            <RepairsTab
-              repairs={repairs}
-              t={t}
-              currentLang={currentLang}
-              handleUpdateRepairStatus={handleUpdateRepairStatus}
-            />
-          )}
-
-          {/* Tab 8: Repair Services & Pricing CRUD Manager */}
-          {activeTab === "repair-services" && (
-            <RepairServicesTab
-              repairPricingList={repairPricingList}
-              setRepairPricingList={setRepairPricingList}
-              t={t}
-              currentLang={currentLang}
-              fetchRepairPricing={fetchRepairPricing}
-              setLoading={setLoading}
-            />
-          )}
-
-          {/* Tab 5: CSC Jan Seva Kendra Queries */}
-          {activeTab === "csc" && (
-            <CscQueriesTab
-              cscQueries={cscQueries}
-              t={t}
-              currentLang={currentLang}
-              handleUpdateCscStatus={handleUpdateCscStatus}
-            />
-          )}
-
-          {/* Tab: CSC Services Catalog Manager */}
-          {activeTab === "csc-services" && (
-            <CscServicesTab
-              cscServicesList={cscServicesList}
-              t={t}
-              currentLang={currentLang}
-              fetchCscServices={fetchCscServices}
-              setLoading={setLoading}
-            />
-          )}
-
-          {/* Tab 6: Registered Users & Activities Panel */}
-          {activeTab === "users" && (
-            <UsersTab
-              users={users}
-              t={t}
-              currentLang={currentLang}
-              fetchUsers={fetchUsers}
-            />
-          )}
-
-          {/* Tab: Printouts requests panel */}
-          {activeTab === "printouts" && (
-            <PrintoutsTab
-              printouts={printouts}
-              t={t}
-              currentLang={currentLang}
-              handleUpdatePrintoutStatus={handleUpdatePrintoutStatus}
-            />
-          )}
+          {renderTabContent()}
         </main>
       </div>
     </div>

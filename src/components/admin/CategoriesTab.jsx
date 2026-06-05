@@ -21,9 +21,10 @@ const translateToHindi = async (text) => {
   }
 };
 
-const CategoriesTab = ({ categories, t, currentLang, fetchInventory, setLoading }) => {
+const CategoriesTab = ({ categories, setCategories, t, currentLang, fetchInventory, setLoading }) => {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Form states
   const [catNameEn, setCatNameEn] = useState("");
@@ -77,15 +78,21 @@ const CategoriesTab = ({ categories, t, currentLang, fetchInventory, setLoading 
 
   const handleDeleteCategory = async (id) => {
     if (!window.confirm(t("admin:confirm_delete_category", "Are you sure you want to delete this category?"))) return;
-    setLoading(true);
+
+    let rollbackCategories = categories;
+    if (setCategories) {
+      setCategories((prev) => prev.filter((cat) => cat._id !== id));
+    }
+
     try {
       await api.delete(`/products/categories/${id}`);
       showToast.success(t("admin:success_category_delete", "Category deleted successfully"));
-      fetchInventory();
+      fetchInventory().catch(console.error);
     } catch (err) {
+      if (setCategories && rollbackCategories) {
+        setCategories(rollbackCategories);
+      }
       showToast.error(err.response?.data?.message || t("admin:error_category_delete", "Delete failed"));
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -93,7 +100,7 @@ const CategoriesTab = ({ categories, t, currentLang, fetchInventory, setLoading 
     e.preventDefault();
     if (!catNameHi || !catNameEn) return;
 
-    setLoading(true);
+    setIsSaving(true);
     const formData = new FormData();
     formData.append("nameHi", catNameHi);
     formData.append("nameEn", catNameEn);
@@ -117,11 +124,11 @@ const CategoriesTab = ({ categories, t, currentLang, fetchInventory, setLoading 
       }
 
       setShowCategoryModal(false);
-      fetchInventory();
+      fetchInventory().catch(console.error);
     } catch (err) {
       showToast.error(err.response?.data?.message || t("admin:error_category_save", "Category save failed"));
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -219,8 +226,9 @@ const CategoriesTab = ({ categories, t, currentLang, fetchInventory, setLoading 
               </h3>
               <button
                 type="button"
-                onClick={() => setShowCategoryModal(false)}
+                onClick={() => !isSaving && setShowCategoryModal(false)}
                 className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors border-0 bg-transparent cursor-pointer"
+                disabled={isSaving}
               >
                 <X size={20} />
               </button>
@@ -295,9 +303,17 @@ const CategoriesTab = ({ categories, t, currentLang, fetchInventory, setLoading 
 
               <button
                 type="submit"
-                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded-xl shadow-lg border-0 cursor-pointer transition-all mt-4"
+                disabled={isSaving}
+                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded-xl shadow-lg border-0 cursor-pointer transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {t("common:save", "Save Changes")}
+                {isSaving ? (
+                  <>
+                    <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
+                    Saving...
+                  </>
+                ) : (
+                  t("common:save", "Save Changes")
+                )}
               </button>
             </form>
           </div>

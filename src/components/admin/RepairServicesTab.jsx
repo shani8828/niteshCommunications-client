@@ -35,6 +35,7 @@ const RepairServicesTab = ({
   const [activeBrand, setActiveBrand] = useState("");
   const [showServiceModal, setShowServiceModal] = useState(false);
   const [editingService, setEditingService] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Form states for service configuration
   const [srvKey, setSrvKey] = useState("");
@@ -123,7 +124,7 @@ const RepairServicesTab = ({
       showToast.error("Please fill all required fields / कृपया सभी आवश्यक फ़ील्ड भरें");
       return;
     }
-    setLoading(true);
+    setIsSaving(true);
     try {
       const payload = {
         serviceKey: srvKey.trim(),
@@ -160,13 +161,16 @@ const RepairServicesTab = ({
       console.error(err);
       showToast.error(err.response?.data?.message || "Failed to save service / सेवा सहेजने में विफल");
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
   const handleDeleteService = async (id) => {
     if (!window.confirm("Are you sure you want to delete this repair service category? This will delete all its brands and models too. / क्या आप वाकई इस रिपेयर सेवा श्रेणी को हटाना चाहते हैं? इससे इसके सभी ब्रांड और मॉडल भी हट जाएंगे।")) return;
-    setLoading(true);
+    
+    let rollbackPricing = repairPricingList;
+    setRepairPricingList((prev) => prev.filter((s) => s._id !== id));
+
     try {
       await api.delete(`/repairs/pricing/${id}`);
       showToast.success("Service deleted successfully! / सेवा सफलतापूर्वक हटा दी गई!");
@@ -175,12 +179,11 @@ const RepairServicesTab = ({
         setActiveService(null);
         setActiveBrand("");
       }
-      await fetchRepairPricing();
+      fetchRepairPricing().catch(console.error);
     } catch (err) {
       console.error(err);
       showToast.error(err.response?.data?.message || "Failed to delete service / सेवा हटाने में विफल");
-    } finally {
-      setLoading(false);
+      setRepairPricingList(rollbackPricing);
     }
   };
 
@@ -196,19 +199,28 @@ const RepairServicesTab = ({
       ...(activeService.brands || {}),
       [brandName]: {},
     };
-    setLoading(true);
+
+    const originalService = activeService;
+    const updatedService = { ...activeService, brands: updatedBrands };
+    setActiveService(updatedService);
+    setRepairPricingList((prev) =>
+      prev.map((s) => (s._id === activeService._id ? updatedService : s))
+    );
+    setNewBrandName("");
+
     try {
       const res = await api.put(`/repairs/pricing/${activeService._id}`, { brands: updatedBrands });
       showToast.success(`Brand ${brandName} added! / ब्रांड ${brandName} जोड़ा गया!`);
       clearCache();
       setActiveService(res.data);
-      setNewBrandName("");
       setRepairPricingList((prev) => prev.map((s) => (s._id === res.data._id ? res.data : s)));
     } catch (err) {
       console.error(err);
       showToast.error("Failed to add brand / ब्रांड जोड़ने में विफल");
-    } finally {
-      setLoading(false);
+      setActiveService(originalService);
+      setRepairPricingList((prev) =>
+        prev.map((s) => (s._id === originalService._id ? originalService : s))
+      );
     }
   };
 
@@ -223,23 +235,33 @@ const RepairServicesTab = ({
     updatedBrands[cleanNewName] = { ...updatedBrands[oldName] };
     delete updatedBrands[oldName];
 
-    setLoading(true);
+    const originalService = activeService;
+    const updatedService = { ...activeService, brands: updatedBrands };
+    setActiveService(updatedService);
+    setRepairPricingList((prev) =>
+      prev.map((s) => (s._id === activeService._id ? updatedService : s))
+    );
+    if (activeBrand === oldName) {
+      setActiveBrand(cleanNewName);
+    }
+    setEditingBrandName("");
+
     try {
       const res = await api.put(`/repairs/pricing/${activeService._id}`, { brands: updatedBrands });
       showToast.success("Brand renamed! / ब्रांड का नाम बदला गया!");
       clearCache();
       setActiveService(res.data);
-      if (activeBrand === oldName) {
-        setActiveBrand(cleanNewName);
-      }
-      setEditingBrandName("");
-      setNewBrandName("");
       setRepairPricingList((prev) => prev.map((s) => (s._id === res.data._id ? res.data : s)));
     } catch (err) {
       console.error(err);
       showToast.error("Failed to rename brand / ब्रांड का नाम बदलने में विफल");
-    } finally {
-      setLoading(false);
+      setActiveService(originalService);
+      setRepairPricingList((prev) =>
+        prev.map((s) => (s._id === originalService._id ? originalService : s))
+      );
+      if (activeBrand === cleanNewName) {
+        setActiveBrand(oldName);
+      }
     }
   };
 
@@ -248,21 +270,33 @@ const RepairServicesTab = ({
     const updatedBrands = { ...activeService.brands };
     delete updatedBrands[brandName];
 
-    setLoading(true);
+    const originalService = activeService;
+    const updatedService = { ...activeService, brands: updatedBrands };
+    setActiveService(updatedService);
+    setRepairPricingList((prev) =>
+      prev.map((s) => (s._id === activeService._id ? updatedService : s))
+    );
+    const originalActiveBrand = activeBrand;
+    if (activeBrand === brandName) {
+      setActiveBrand("");
+    }
+
     try {
       const res = await api.put(`/repairs/pricing/${activeService._id}`, { brands: updatedBrands });
       showToast.success(`Brand ${brandName} deleted! / ब्रांड ${brandName} हटाया गया!`);
       clearCache();
       setActiveService(res.data);
-      if (activeBrand === brandName) {
-        setActiveBrand("");
-      }
       setRepairPricingList((prev) => prev.map((s) => (s._id === res.data._id ? res.data : s)));
     } catch (err) {
       console.error(err);
       showToast.error("Failed to delete brand / ब्रांड हटाने में विफल");
-    } finally {
-      setLoading(false);
+      setActiveService(originalService);
+      setRepairPricingList((prev) =>
+        prev.map((s) => (s._id === originalService._id ? originalService : s))
+      );
+      if (originalActiveBrand === brandName) {
+        setActiveBrand(originalActiveBrand);
+      }
     }
   };
 
@@ -284,20 +318,28 @@ const RepairServicesTab = ({
       [modelName]: price,
     };
 
-    setLoading(true);
+    const originalService = activeService;
+    const updatedService = { ...activeService, brands: updatedBrands };
+    setActiveService(updatedService);
+    setRepairPricingList((prev) =>
+      prev.map((s) => (s._id === activeService._id ? updatedService : s))
+    );
+    setNewModelName("");
+    setNewModelPrice("");
+
     try {
       const res = await api.put(`/repairs/pricing/${activeService._id}`, { brands: updatedBrands });
       showToast.success(`Model ${modelName} added! / मॉडल ${modelName} जोड़ा गया!`);
       clearCache();
       setActiveService(res.data);
-      setNewModelName("");
-      setNewModelPrice("");
       setRepairPricingList((prev) => prev.map((s) => (s._id === res.data._id ? res.data : s)));
     } catch (err) {
       console.error(err);
       showToast.error("Failed to add model / मॉडल जोड़ने में विफल");
-    } finally {
-      setLoading(false);
+      setActiveService(originalService);
+      setRepairPricingList((prev) =>
+        prev.map((s) => (s._id === originalService._id ? originalService : s))
+      );
     }
   };
 
@@ -310,20 +352,28 @@ const RepairServicesTab = ({
       [modelName]: price,
     };
 
-    setLoading(true);
+    const originalService = activeService;
+    const updatedService = { ...activeService, brands: updatedBrands };
+    setActiveService(updatedService);
+    setRepairPricingList((prev) =>
+      prev.map((s) => (s._id === activeService._id ? updatedService : s))
+    );
+    setEditingModelName("");
+    setEditingModelPrice("");
+
     try {
       const res = await api.put(`/repairs/pricing/${activeService._id}`, { brands: updatedBrands });
       showToast.success(`Updated ${modelName} price to ₹${price}! / ₹${price} पर ${modelName} की कीमत अपडेट की गई!`);
       clearCache();
       setActiveService(res.data);
-      setEditingModelName("");
-      setEditingModelPrice("");
       setRepairPricingList((prev) => prev.map((s) => (s._id === res.data._id ? res.data : s)));
     } catch (err) {
       console.error(err);
       showToast.error("Failed to update price / कीमत अपडेट करने में विफल");
-    } finally {
-      setLoading(false);
+      setActiveService(originalService);
+      setRepairPricingList((prev) =>
+        prev.map((s) => (s._id === originalService._id ? originalService : s))
+      );
     }
   };
 
@@ -333,7 +383,13 @@ const RepairServicesTab = ({
     updatedBrands[activeBrand] = { ...updatedBrands[activeBrand] };
     delete updatedBrands[activeBrand][modelName];
 
-    setLoading(true);
+    const originalService = activeService;
+    const updatedService = { ...activeService, brands: updatedBrands };
+    setActiveService(updatedService);
+    setRepairPricingList((prev) =>
+      prev.map((s) => (s._id === activeService._id ? updatedService : s))
+    );
+
     try {
       const res = await api.put(`/repairs/pricing/${activeService._id}`, { brands: updatedBrands });
       showToast.success(`Model ${modelName} deleted! / मॉडल ${modelName} हटाया गया!`);
@@ -343,8 +399,10 @@ const RepairServicesTab = ({
     } catch (err) {
       console.error(err);
       showToast.error("Failed to delete model / मॉडल हटाने में विफल");
-    } finally {
-      setLoading(false);
+      setActiveService(originalService);
+      setRepairPricingList((prev) =>
+        prev.map((s) => (s._id === originalService._id ? originalService : s))
+      );
     }
   };
 
@@ -705,8 +763,9 @@ const RepairServicesTab = ({
               </h3>
               <button
                 type="button"
-                onClick={() => setShowServiceModal(false)}
+                onClick={() => !isSaving && setShowServiceModal(false)}
                 className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors border-0 bg-transparent cursor-pointer"
+                disabled={isSaving}
               >
                 <X size={20} />
               </button>
@@ -812,9 +871,17 @@ const RepairServicesTab = ({
 
               <button
                 type="submit"
-                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded-xl shadow-lg border-0 cursor-pointer transition-all mt-4"
+                disabled={isSaving}
+                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded-xl shadow-lg border-0 cursor-pointer transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {t("common:save", "Save Changes")}
+                {isSaving ? (
+                  <>
+                    <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
+                    Saving...
+                  </>
+                ) : (
+                  t("common:save", "Save Changes")
+                )}
               </button>
             </form>
           </div>

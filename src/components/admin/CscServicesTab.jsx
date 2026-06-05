@@ -42,6 +42,7 @@ const cscIconList = [
 
 const CscServicesTab = ({
   cscServicesList,
+  setCscServicesList,
   t,
   currentLang,
   fetchCscServices,
@@ -49,6 +50,7 @@ const CscServicesTab = ({
 }) => {
   const [showCscModal, setShowCscModal] = useState(false);
   const [editingCscService, setEditingCscService] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Form states
   const [cscTitleEn, setCscTitleEn] = useState("");
@@ -123,7 +125,7 @@ const CscServicesTab = ({
       showToast.error("Please fill all required fields / कृपया सभी आवश्यक फ़ील्ड भरें");
       return;
     }
-    setLoading(true);
+    setIsSaving(true);
     try {
       const payload = {
         title: { en: cscTitleEn, hi: cscTitleHi },
@@ -155,29 +157,35 @@ const CscServicesTab = ({
       setCscDocsEn("");
       setCscDocsHi("");
       setCscIcon("FileText");
-      await fetchCscServices();
+      fetchCscServices().catch(console.error);
       clearCache();
     } catch (err) {
       console.error(err);
       showToast.error("Failed to save CSC service / सीएससी सेवा सहेजने में विफल");
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
   const handleDeleteCscService = async (id) => {
     if (!window.confirm("Are you sure you want to delete this CSC Service? / क्या आप वाकई इस सीएससी सेवा को हटाना चाहते हैं?")) return;
-    setLoading(true);
+    
+    let rollbackCscServices = cscServicesList;
+    if (setCscServicesList) {
+      setCscServicesList((prev) => prev.filter((s) => s._id !== id));
+    }
+
     try {
       await api.delete(`/csc/services/${id}`);
       showToast.success("CSC Service deleted! / सीएससी सेवा हटा दी गई!");
-      await fetchCscServices();
+      fetchCscServices().catch(console.error);
       clearCache();
     } catch (err) {
       console.error(err);
       showToast.error("Failed to delete CSC service / सीएससी सेवा हटाने में विफल");
-    } finally {
-      setLoading(false);
+      if (setCscServicesList && rollbackCscServices) {
+        setCscServicesList(rollbackCscServices);
+      }
     }
   };
 
@@ -305,8 +313,9 @@ const CscServicesTab = ({
               </h3>
               <button
                 type="button"
-                onClick={() => setShowCscModal(false)}
+                onClick={() => !isSaving && setShowCscModal(false)}
                 className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors border-0 bg-transparent cursor-pointer"
+                disabled={isSaving}
               >
                 <X size={20} />
               </button>
@@ -461,9 +470,17 @@ const CscServicesTab = ({
 
               <button
                 type="submit"
-                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded-xl shadow-lg border-0 cursor-pointer transition-all mt-4"
+                disabled={isSaving}
+                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded-xl shadow-lg border-0 cursor-pointer transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {t("common:save", "Save Changes")}
+                {isSaving ? (
+                  <>
+                    <span className="animate-spin h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full" />
+                    Saving...
+                  </>
+                ) : (
+                  t("common:save", "Save Changes")
+                )}
               </button>
             </form>
           </div>
