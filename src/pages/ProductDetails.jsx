@@ -109,12 +109,19 @@ const ProductDetails = () => {
   const currentLang = i18n.language || "en";
 
   useEffect(() => {
-    const fetchDetail = async () => {
-      const cacheKey = `product_detail_${slug}`;
-      const cached = getCachedData(cacheKey);
+    const cacheKey = `product_detail_${slug}`;
+    const cached = getCachedData(cacheKey);
 
+    // Sync product and active image immediately on slug/passedProduct change
+    const initialProduct = passedProduct || (cached ? cached.product : null);
+    setProduct(initialProduct);
+    setRelated(cached ? (cached.related || []) : []);
+    setReviews(cached ? (cached.reviews || []) : []);
+    setActiveImage(initialProduct?.images?.[0] || "");
+
+    const fetchDetail = async () => {
       // If we don't have the product info at all, we show product skeleton
-      if (!passedProduct && !cached) {
+      if (!initialProduct) {
         setProductLoading(true);
         setRelatedLoading(true);
         setReviewsLoading(true);
@@ -137,7 +144,8 @@ const ProductDetails = () => {
         setRelated(data.related || []);
         setReviews(data.reviews || []);
 
-        if (data.product?.images && (!activeImage || !passedProduct)) {
+        // Update active image only if it's currently unset
+        if (data.product?.images && (!initialProduct || !initialProduct.images || initialProduct.images.length === 0)) {
           setActiveImage(data.product.images[0]);
         }
 
@@ -146,7 +154,7 @@ const ProductDetails = () => {
       } catch (err) {
         console.error(err);
         // Only error/redirect if we don't have ANY product data
-        if (!passedProduct && !cached) {
+        if (!initialProduct) {
           showToast.error("Product not found");
           navigate("/shop");
         }
