@@ -35,7 +35,13 @@ const ShopSidebarFilters = ({
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [minPriceInput, maxPriceInput, onPriceDebounce, initialMinPrice, initialMaxPrice]);
+  }, [
+    minPriceInput,
+    maxPriceInput,
+    onPriceDebounce,
+    initialMinPrice,
+    initialMaxPrice,
+  ]);
 
   const handleResetFilters = () => {
     setMinPriceInput("0");
@@ -111,7 +117,7 @@ const ShopSidebarFilters = ({
       </div>
 
       {/* Brand Filter */}
-      {selectedCategory && availableBrands.length > 0 && (
+      {/* {selectedCategory && availableBrands.length > 0 && (
         <>
           <hr className="border-t border-slate-200" />
           <div className="flex flex-col gap-3">
@@ -136,7 +142,7 @@ const ShopSidebarFilters = ({
             </div>
           </div>
         </>
-      )}
+      )} */}
     </aside>
   );
 };

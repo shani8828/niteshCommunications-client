@@ -22,6 +22,7 @@ const Shop = () => {
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParam);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
@@ -88,14 +89,18 @@ const Shop = () => {
       const cached = getCachedData(cacheKey);
       if (cached) {
         setCategories(cached);
+        setCategoriesLoading(false);
         return;
       }
       try {
+        setCategoriesLoading(true);
         const response = await api.get("/products/categories");
         setCategories(response.data);
         setCachedData(cacheKey, response.data, 10 * 60 * 1000); // Cache categories for 10 minutes
       } catch (err) {
         console.error(err);
+      } finally {
+        setCategoriesLoading(false);
       }
     };
     fetchCats();
@@ -265,11 +270,11 @@ const Shop = () => {
   }, []);
 
   const renderSkeletons = (count = 6) => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 w-full">
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}
-          className="p-4 flex flex-col gap-3 bg-white border border-slate-200 rounded-2xl animate-pulse w-full"
+          className="p-2 flex flex-col gap-3 bg-white border border-slate-200 rounded-2xl animate-pulse w-full"
         >
           <div className="bg-slate-100 rounded-xl h-[170px] w-full" />
           <div className="flex justify-between items-center mt-1">
@@ -299,6 +304,7 @@ const Shop = () => {
       {/* Header filters containing search bar & category horizontal scroll lists */}
       <ShopFiltersHeader
         categories={categories}
+        categoriesLoading={categoriesLoading}
         selectedCategory={selectedCategory}
         onCategorySelect={handleCategorySelect}
         sort={sort}

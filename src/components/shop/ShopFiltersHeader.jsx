@@ -3,6 +3,7 @@ import { Search, ShoppingCart, SlidersHorizontal } from "lucide-react";
 
 const ShopFiltersHeader = ({
   categories,
+  categoriesLoading,
   selectedCategory,
   onCategorySelect,
   sort,
@@ -68,37 +69,49 @@ const ShopFiltersHeader = ({
           </button>
 
           {/* Mapped Categories */}
-          {categories.map((cat) => (
-            <button
-              key={cat._id}
-              onClick={() => onCategorySelect(cat.slug || cat._id)}
-              className={`flex flex-col items-center gap-1 p-1 bg-transparent rounded-lg  hover:scale-105 transition-all cursor-pointer text-center   justify-between ${
-                selectedCategory === (cat.slug || cat._id)
-                  ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-100"
-                  : " "
-              }`}
-            >
-              <div className="w-10 h-10 rounded-lg bg-slate-50   flex-shrink-0 overflow-hidden flex items-center justify-center mt-0.5">
-                <img
-                  src={cat.image}
-                  alt={cat.name.en}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <div className="flex-grow flex items-center justify-center mb-0.5">
-                <span
-                  className={`text-[9px] font-bold tracking-tight line-clamp-2 leading-none text-center ${
+          {categoriesLoading
+            ? Array.from({ length: 8 }).map((_, idx) => (
+                <div
+                  key={`cat-skeleton-${idx}`}
+                  className="flex flex-col items-center gap-1 p-1 bg-transparent rounded-lg text-center justify-between animate-pulse pointer-events-none"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-slate-100 flex-shrink-0 mt-0.5" />
+                  <div className="flex-grow flex items-center justify-center mb-0.5">
+                    <div className="h-2 w-10 bg-slate-100 rounded mt-1" />
+                  </div>
+                </div>
+              ))
+            : categories.map((cat) => (
+                <button
+                  key={cat._id}
+                  onClick={() => onCategorySelect(cat.slug || cat._id)}
+                  className={`flex flex-col items-center gap-1 p-1 bg-transparent rounded-lg  hover:scale-105 transition-all cursor-pointer text-center   justify-between ${
                     selectedCategory === (cat.slug || cat._id)
-                      ? "text-blue-600"
-                      : "text-slate-700"
+                      ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-100"
+                      : " "
                   }`}
                 >
-                  {cat.name[currentLang] || cat.name.en}
-                </span>
-              </div>
-            </button>
-          ))}
+                  <div className="w-10 h-10 rounded-lg bg-slate-50   flex-shrink-0 overflow-hidden flex items-center justify-center mt-0.5">
+                    <img
+                      src={cat.image}
+                      alt={cat.name.en}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="flex-grow flex items-center justify-center mb-0.5">
+                    <span
+                      className={`text-[9px] font-bold tracking-tight line-clamp-2 leading-none text-center ${
+                        selectedCategory === (cat.slug || cat._id)
+                          ? "text-blue-600"
+                          : "text-slate-700"
+                      }`}
+                    >
+                      {cat.name[currentLang] || cat.name.en}
+                    </span>
+                  </div>
+                </button>
+              ))}
         </div>
       </div>
 
