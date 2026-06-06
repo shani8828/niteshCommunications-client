@@ -48,7 +48,7 @@ const ShopFiltersHeader = ({
           {/* 'All Categories' Button */}
           <button
             onClick={() => onCategorySelect("")}
-            className={`flex flex-col items-center gap-1 p-1 bg-white  rounded-lg hover:scale-105 transition-all cursor-pointer text-center   justify-between ${
+            className={`flex flex-col items-center gap-1 p-1 bg-transparent  rounded-lg hover:scale-105 transition-all cursor-pointer text-center   justify-between ${
               selectedCategory === ""
                 ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-100"
                 : " "
@@ -91,7 +91,7 @@ const ShopFiltersHeader = ({
                       : " "
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-lg bg-slate-50   flex-shrink-0 overflow-hidden flex items-center justify-center mt-0.5">
+                  <div className="w-10 h-10 rounded-lg bg-transparent   flex-shrink-0 overflow-hidden flex items-center justify-center mt-0.5">
                     <img
                       src={cat.image}
                       alt={cat.name.en}
