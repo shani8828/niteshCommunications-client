@@ -3,55 +3,55 @@ import { Link } from "react-router-dom";
 
 const categoriesList = [
   {
-    id: "phones",
+    id: "tempered-glass",
     name: {
-      en: "Phones",
-      hi: "फ़ोन",
+      en: "Tempered Glass",
+      hi: "टेम्पर्ड ग्लास",
     },
     image:
-      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=300&auto=format&fit=crop",
+      "https://res.cloudinary.com/dd1tmrvu0/image/upload/q_auto/f_auto/v1780765519/tempered-glass_ob0pgf.webp",
     desc: {
-      en: "Latest smartphones and devices",
-      hi: "नवीनतम स्मार्टफोन और डिवाइस",
+      en: " Protect your phone screen",
+      hi: "फोन स्क्रीन को बचाएं",
     },
   },
   {
-    id: "earphone",
+    id: "headphone",
     name: {
-      en: "Earphone",
-      hi: "इयरफोन",
+      en: "Headphone",
+      hi: "हेडफोन",
     },
     image:
-      "https://res.cloudinary.com/dd1tmrvu0/image/upload/v1780293047/nitesh_communications/keyxffy0yg48yrgosewd.avif",
+      "https://res.cloudinary.com/dd1tmrvu0/image/upload/q_auto/f_auto/v1780765713/headphone_xqowtu.avif",
     desc: {
-      en: "Wired & wireless audio gear",
-      hi: "वायर्ड और वायरलेस ऑडियो गियर",
+      en: "Audio gear",
+      hi: "ऑडिओ गियर",
     },
   },
   {
-    id: "tshirt",
+    id: "t-shirt",
     name: {
-      en: "TShirt",
+      en: "T-Shirt",
       hi: "टी-शर्ट",
     },
     image:
-      "https://res.cloudinary.com/dd1tmrvu0/image/upload/v1780222418/nitesh_communications/x8db5ricws3aqpdylfml.avif",
+      "https://res.cloudinary.com/dd1tmrvu0/image/upload/q_auto/f_auto/v1780766046/tshirt_xhxlfw.avif",
     desc: {
       en: "Comfortable and trendy apparel",
       hi: "आरामदायक और ट्रेंडी कपड़े",
     },
   },
   {
-    id: "stationary",
+    id: "phone-cover",
     name: {
-      en: "Stationary",
-      hi: "स्टेशनरी",
+      en: "Phone Cover",
+      hi: "फोन कवर",
     },
     image:
-      "https://res.cloudinary.com/dd1tmrvu0/image/upload/v1780292917/nitesh_communications/pkh52pudhusn6eeiupap.avif",
+      "https://res.cloudinary.com/dd1tmrvu0/image/upload/q_auto/f_auto/v1780765813/phoneCover_xjfhu1.webp",
     desc: {
-      en: "Quality notebooks, pens and more",
-      hi: "गुणवत्ता वाले नोटबुक, पेन और बहुत कुछ",
+      en: "Protect your phone",
+      hi: "अपने फोन को बचाएं",
     },
   },
 ];
@@ -71,26 +71,26 @@ const HomeCategories = ({ currentLang }) => {
             : "Browse through our curated and popular product categories"}
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-5 lg:gap-6">
           {categoriesList.map((cat) => (
             <Link
               key={cat.id}
               to={`/shop?category=${cat.id}`}
-              className="p-4 flex flex-col gap-4 bg-white border border-slate-200/80 rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer group"
+              className="p-2 md:p-3 lg:p-4 flex flex-col justify-around h-full gap-2 md:gap-3 lg:gap-4 bg-white border border-slate-200/80 rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
             >
-              <div className="bg-slate-50 rounded-xl h-[180px] flex justify-center items-center overflow-hidden border border-slate-100 relative">
+              <div className="bg-slate-50 rounded-xl h-[100px] sm:h-[120px] md:h-[150px] lg:h-[180px] flex justify-center items-center overflow-hidden border border-slate-100 relative">
                 <img
                   src={cat.image}
                   alt={cat.name.en}
-                  className="max-w-[90%] max-h-[90%] object-contain group-hover:scale-105 transition-transform duration-300"
+                  className="max-w-[90%] max-h-[90%] object-contain group-hover:scale-105 transition-transform duration-300 rounded-xl"
                   loading="lazy"
                 />
               </div>
-              <div className="flex flex-col flex-grow text-center sm:text-left">
-                <h4 className="font-heading text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
+              <div className="flex flex-col justify-evenly items-center flex-grow text-center sm:text-left">
+                <h4 className="font-heading  text-[15px] font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
                   {cat.name[currentLang]}
                 </h4>
-                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
                   {cat.desc[currentLang]}
                 </p>
                 <div className="w-full py-2.5 mt-4 font-heading font-bold text-xs bg-blue-50 border border-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white text-center rounded-xl block transition-all">
@@ -102,9 +102,7 @@ const HomeCategories = ({ currentLang }) => {
         </div>
         <Link to="/shop" className="flex justify-center items-center mt-10">
           <div className="px-8 py-3.5 font-heading font-bold text-sm bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 rounded-full text-center transition-all duration-300 shadow-md shadow-blue-500/10">
-            {currentLang === "hi"
-              ? "सभी प्रोडक्ट देखें"
-              : "View All Products"}
+            {currentLang === "hi" ? "सभी प्रोडक्ट देखें" : "View All Products"}
           </div>
         </Link>
       </div>

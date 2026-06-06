@@ -11,7 +11,7 @@ const Breadcrumbs = () => {
   const pathname = location.pathname;
 
   // Don't render on Home page
-  if (pathname === "/") {
+  if (pathname === "/home") {
     return null;
   }
 

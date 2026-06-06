@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 
 const ShopSidebarFilters = ({
   selectedCategory,
-  availableBrands,
-  selectedBrand,
-  onBrandSelect,
   initialMinPrice,
   initialMaxPrice,
   onPriceDebounce,
@@ -115,34 +112,6 @@ const ShopSidebarFilters = ({
           </div>
         </div>
       </div>
-
-      {/* Brand Filter */}
-      {/* {selectedCategory && availableBrands.length > 0 && (
-        <>
-          <hr className="border-t border-slate-200" />
-          <div className="flex flex-col gap-3">
-            <p className="font-heading font-bold text-xs text-slate-700 uppercase tracking-wider">
-              {currentLang === "hi" ? "ब्रांड" : "Brands"}
-            </p>
-            <div className="flex flex-col gap-2 max-h-48 overflow-y-auto scrollbar-thin pr-1">
-              {availableBrands.map((brandName) => (
-                <label
-                  key={brandName}
-                  className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer hover:text-blue-600 transition-colors"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedBrand === brandName}
-                    onChange={() => onBrandSelect(brandName)}
-                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
-                  />
-                  <span>{brandName}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        </>
-      )} */}
     </aside>
   );
 };

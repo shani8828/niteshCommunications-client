@@ -16,7 +16,6 @@ const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const categoryParam = searchParams.get("category") || "";
-  const brandParam = searchParams.get("brand") || "";
   const searchParam = searchParams.get("search") || "";
   const sortParam = searchParams.get("sort") || "newest";
 
@@ -26,8 +25,6 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParam);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
-  const [availableBrands, setAvailableBrands] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState(brandParam);
   const [maxPrice, setMaxPrice] = useState(100000);
   const [minPrice, setMinPrice] = useState(0);
   const [sort, setSort] = useState(sortParam);
@@ -43,19 +40,17 @@ const Shop = () => {
   useEffect(() => {
     const params = {};
     if (selectedCategory) params.category = selectedCategory;
-    if (selectedBrand) params.brand = selectedBrand;
     if (search) params.search = search;
     if (sort !== "newest") params.sort = sort;
     setSearchParams(params, { replace: true });
-  }, [selectedCategory, selectedBrand, search, sort, setSearchParams]);
+  }, [selectedCategory, search, sort, setSearchParams]);
 
   // Sync back from URL when user navigates
   useEffect(() => {
     setSelectedCategory(categoryParam);
-    setSelectedBrand(brandParam);
     setSearch(searchParam);
     setSort(sortParam);
-  }, [categoryParam, brandParam, searchParam, sortParam]);
+  }, [categoryParam, searchParam, sortParam]);
 
   // SEO updates
   useEffect(() => {
@@ -106,40 +101,13 @@ const Shop = () => {
     fetchCats();
   }, []);
 
-  // Fetch available brands when category changes
-  useEffect(() => {
-    const fetchBrandsForCategory = async () => {
-      if (!selectedCategory) {
-        setAvailableBrands([]);
-        setSelectedBrand("");
-        return;
-      }
-      try {
-        const response = await api.get(
-          `/products?category=${selectedCategory}&limit=200`,
-        );
-        if (response.data && response.data.products) {
-          const brands = response.data.products
-            .map((p) => p.brand)
-            .filter((b) => b && b.trim() !== "")
-            .map((b) => b.trim());
-          const uniqueBrands = Array.from(new Set(brands)).sort((a, b) =>
-            a.localeCompare(b),
-          );
-          setAvailableBrands(uniqueBrands);
-        }
-      } catch (err) {
-        console.error("Error fetching brands for category:", err);
-      }
-    };
-    fetchBrandsForCategory();
-  }, [selectedCategory]);
+
 
   // Fetch Products
   useEffect(() => {
     const fetchProds = async () => {
       const isFirstPage = page === 1;
-      const cacheKey = `shop_products_l15_p_${page}_s_${sort}_min_${minPrice}_max_${maxPrice}_k_${search}_c_${selectedCategory}_b_${selectedBrand}`;
+      const cacheKey = `shop_products_l15_p_${page}_s_${sort}_min_${minPrice}_max_${maxPrice}_k_${search}_c_${selectedCategory}`;
       const cached = getCachedData(cacheKey);
 
       if (isFirstPage) {
@@ -174,7 +142,6 @@ const Shop = () => {
         let url = `/products?page=${page}&limit=15&sort=${sort}&minPrice=${minPrice}&maxPrice=${maxPrice}`;
         if (search) url += `&keyword=${search}`;
         if (selectedCategory) url += `&category=${selectedCategory}`;
-        if (selectedBrand) url += `&brand=${encodeURIComponent(selectedBrand)}`;
 
         const response = await api.get(url);
         const newProducts = response.data.products || [];
@@ -206,7 +173,7 @@ const Shop = () => {
       }
     };
     fetchProds();
-  }, [page, search, selectedCategory, selectedBrand, maxPrice, minPrice, sort]);
+  }, [page, search, selectedCategory, maxPrice, minPrice, sort]);
 
   // Infinite scroll IntersectionObserver
   useEffect(() => {
@@ -245,12 +212,6 @@ const Shop = () => {
 
   const handleCategorySelect = useCallback((id) => {
     setSelectedCategory(id);
-    setSelectedBrand("");
-    setPage(1);
-  }, []);
-
-  const handleBrandSelect = useCallback((brandName) => {
-    setSelectedBrand((prev) => (prev === brandName ? "" : brandName));
     setPage(1);
   }, []);
 
@@ -262,7 +223,6 @@ const Shop = () => {
   const handleResetFilters = useCallback(() => {
     setSearch("");
     setSelectedCategory("");
-    setSelectedBrand("");
     setMinPrice(0);
     setMaxPrice(100000);
     setSort("newest");
@@ -322,9 +282,6 @@ const Shop = () => {
         {/* Left Column Filters (Sidebar) */}
         <ShopSidebarFilters
           selectedCategory={selectedCategory}
-          availableBrands={availableBrands}
-          selectedBrand={selectedBrand}
-          onBrandSelect={handleBrandSelect}
           initialMinPrice={minPrice}
           initialMaxPrice={maxPrice}
           onPriceDebounce={handlePriceDebounce}
