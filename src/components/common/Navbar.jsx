@@ -104,11 +104,11 @@ const Navbar = () => {
         {/* Branding Logo */}
         <Link to="/" className="flex items-center gap-3 pl-0">
           <img
-            src="/branding/logo.png"
+            src="/branding/logo-full.png"
             alt="Nitesh Communications"
             className="h-10 w-10 object-contain"
             onError={(e) => {
-              e.target.src = "/branding/logo-full.png";
+              e.target.src = "/branding/logo.png";
             }}
           />
           <div className="hidden md:flex flex-col">
@@ -125,7 +125,7 @@ const Navbar = () => {
         <div className="flex items-center justify-end gap-6 md:gap-8 lg:gap-10 flex-1">
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex gap-6 lg:gap-8 flex-shrink-0">
-            <NavLink to="/" className={getLinkClass}>
+            <NavLink to="/home" className={getLinkClass}>
               {t("home")}
             </NavLink>
             <NavLink
@@ -302,7 +302,7 @@ const Navbar = () => {
             <GlobalSearch />
           </div> */}
           <NavLink
-            to="/"
+            to="/home"
             onClick={() => setMobileMenuOpen(false)}
             className={getMobileLinkClass}
           >

@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { BreadcrumbProvider } from './context/BreadcrumbContext';
@@ -127,7 +127,8 @@ function App() {
                 <Suspense fallback={<Loader fullPage />}>
                   <Routes>
                   {/* Public routes */}
-                  <Route path="/" element={<Home />} />
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/" element={<Navigate to="/shop" replace />} />
                   <Route path="/shop" element={<Shop />} />
                   <Route path="/product/:id" element={<ProductRedirect />} />
                   <Route path="/products/:slug" element={<ProductDetails />} />
