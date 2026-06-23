@@ -19,9 +19,9 @@ const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) 
           setActiveTab("overview");
           loadTabData("overview");
         }}
-        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 font-heading font-semibold text-sm transition-all cursor-pointer ${
           activeTab === "overview"
-            ? "bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10"
+            ? "bg-gray-300 text-brand-cyan border border-l-4 border-blue-500"
             : "hover:bg-slate-100 text-slate-600"
         }`}
       >
@@ -32,9 +32,9 @@ const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) 
           setActiveTab("orders");
           loadTabData("orders");
         }}
-        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0  font-heading font-semibold text-sm transition-all cursor-pointer ${
           activeTab === "orders"
-            ? "bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10"
+            ? "bg-gray-300 text-brand-cyan border border-l-4 border-blue-500"
             : "hover:bg-slate-100 text-slate-600"
         }`}
       >
@@ -45,9 +45,9 @@ const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) 
           setActiveTab("products");
           loadTabData("products");
         }}
-        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 font-heading font-semibold text-sm transition-all cursor-pointer ${
           activeTab === "products"
-            ? "bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10"
+            ? "bg-gray-300 text-brand-cyan border border-l-4 border-blue-500"
             : "hover:bg-slate-100 text-slate-600"
         }`}
       >
@@ -58,9 +58,9 @@ const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) 
           setActiveTab("categories");
           loadTabData("categories");
         }}
-        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 font-heading font-semibold text-sm transition-all cursor-pointer ${
           activeTab === "categories"
-            ? "bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10"
+            ? "bg-gray-300 text-brand-cyan border border-l-4 border-blue-500"
             : "hover:bg-slate-100 text-slate-600"
         }`}
       >
@@ -71,9 +71,9 @@ const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) 
           setActiveTab("repairs");
           loadTabData("repairs");
         }}
-        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 font-heading font-semibold text-sm transition-all cursor-pointer ${
           activeTab === "repairs"
-            ? "bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10"
+            ? "bg-gray-300 text-brand-cyan border border-l-4 border-blue-500"
             : "hover:bg-slate-100 text-slate-600"
         }`}
       >
@@ -84,15 +84,15 @@ const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) 
           setActiveTab("repair-services");
           loadTabData("repair-services");
         }}
-        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 font-heading font-semibold text-sm transition-all cursor-pointer ${
           activeTab === "repair-services"
-            ? "bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10"
+            ? "bg-gray-300 text-brand-cyan border border-l-4 border-blue-500"
             : "hover:bg-slate-100 text-slate-600"
         }`}
       >
         <Sliders size={16} /> {currentLang === "hi" ? "रिपेयर सेवाएं" : "Repair Services"}
       </button>
-      <button
+      {/* <button
         onClick={() => {
           setActiveTab("csc");
           loadTabData("csc");
@@ -104,15 +104,15 @@ const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) 
         }`}
       >
         <FileText size={16} /> {t("admin:nav_csc")}
-      </button>
+      </button> */}
       <button
         onClick={() => {
           setActiveTab("csc-services");
           loadTabData("csc-services");
         }}
-        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 font-heading font-semibold text-sm transition-all cursor-pointer ${
           activeTab === "csc-services"
-            ? "bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10"
+            ? "bg-gray-300 text-brand-cyan border border-l-4 border-blue-500"
             : "hover:bg-slate-100 text-slate-600"
         }`}
       >
@@ -123,9 +123,9 @@ const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) 
           setActiveTab("printouts");
           loadTabData("printouts");
         }}
-        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 font-heading font-semibold text-sm transition-all cursor-pointer ${
           activeTab === "printouts"
-            ? "bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10"
+            ? "bg-gray-300 text-brand-cyan border border-l-4 border-blue-500"
             : "hover:bg-slate-100 text-slate-600"
         }`}
       >
@@ -136,9 +136,9 @@ const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) 
           setActiveTab("users");
           loadTabData("users");
         }}
-        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 rounded-lg font-heading font-semibold text-sm transition-all cursor-pointer ${
+        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 font-heading font-semibold text-sm transition-all cursor-pointer ${
           activeTab === "users"
-            ? "bg-brand-cyan/10 text-brand-cyan border border-brand-cyan/10"
+            ? "bg-gray-300 text-brand-cyan border border-l-4 border-blue-500"
             : "hover:bg-slate-100 text-slate-600"
         }`}
       >

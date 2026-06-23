@@ -48,9 +48,9 @@ const ShopFiltersHeader = ({
           {/* 'All Categories' Button */}
           <button
             onClick={() => onCategorySelect("")}
-            className={`flex flex-col items-center gap-1 p-1 bg-transparent  rounded-lg hover:scale-105 transition-all cursor-pointer text-center   justify-between ${
+            className={`flex flex-col items-center gap-1 p-1 bg-transparent  hover:bg-gray-100 transition-all cursor-pointer text-center   justify-between ${
               selectedCategory === ""
-                ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-100"
+                ? " bg-gray-200 border-b-2 border-blue-600"
                 : " "
             }`}
           >
@@ -85,9 +85,9 @@ const ShopFiltersHeader = ({
                 <button
                   key={cat._id}
                   onClick={() => onCategorySelect(cat.slug || cat._id)}
-                  className={`flex flex-col items-center gap-1 p-1 bg-transparent rounded-lg  hover:scale-105 transition-all cursor-pointer text-center   justify-between ${
+                  className={`flex flex-col items-center gap-1 p-1 bg-transparent hover:bg-gray-100 transition-all cursor-pointer text-center   justify-between ${
                     selectedCategory === (cat.slug || cat._id)
-                      ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-100"
+                      ? "bg-gray-200 border-b-2 border-blue-600"
                       : " "
                   }`}
                 >

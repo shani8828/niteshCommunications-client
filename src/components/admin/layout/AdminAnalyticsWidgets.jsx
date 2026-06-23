@@ -5,13 +5,13 @@ const AdminAnalyticsWidgets = ({ analytics, t }) => {
 
   return (
     <div
-      className={`grid gap-4 mb-8 ${
+      className={`grid gap-2 mb-8 ${
         analytics.totalPayouts > 0
           ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-6"
           : "grid-cols-2 md:grid-cols-4"
       }`}
     >
-      <div className="p-5 glass-card rounded-2xl flex flex-col gap-1.5 shadow-sm bg-white border border-slate-100">
+      <div className="p-5 glass-card flex flex-col gap-1.5 shadow-sm bg-white border border-slate-100">
         <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-left">
           {t("admin:total_sales")}
         </span>
@@ -19,7 +19,7 @@ const AdminAnalyticsWidgets = ({ analytics, t }) => {
           ₹{analytics.totalRevenue}
         </h3>
       </div>
-      <div className="p-5 glass-card rounded-2xl flex flex-col gap-1.5 shadow-sm bg-white border border-slate-100">
+      <div className="p-5 glass-card flex flex-col gap-1.5 shadow-sm bg-white border border-slate-100">
         <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-left">
           {t("admin:total_orders")}
         </span>
@@ -27,7 +27,7 @@ const AdminAnalyticsWidgets = ({ analytics, t }) => {
           {analytics.totalOrders}
         </h3>
       </div>
-      <div className="p-5 glass-card rounded-2xl flex flex-col gap-1.5 shadow-sm bg-white border border-slate-100">
+      <div className="p-5 glass-card flex flex-col gap-1.5 shadow-sm bg-white border border-slate-100">
         <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-left">
           {t("admin:customer")}
         </span>
@@ -35,7 +35,7 @@ const AdminAnalyticsWidgets = ({ analytics, t }) => {
           {analytics.totalUsers}
         </h3>
       </div>
-      <div className="p-5 glass-card rounded-2xl flex flex-col gap-1.5 shadow-sm bg-white border border-slate-100">
+      <div className="p-5 glass-card flex flex-col gap-1.5 shadow-sm bg-white border border-slate-100">
         <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-left">
           {t("admin:nav_products")}
         </span>
@@ -45,7 +45,7 @@ const AdminAnalyticsWidgets = ({ analytics, t }) => {
       </div>
       {analytics.totalPayouts > 0 && (
         <>
-          <div className="p-5 glass-card rounded-2xl flex flex-col gap-1.5 shadow-sm border border-red-500/10 bg-white">
+          <div className="p-5 glass-card flex flex-col gap-1.5 shadow-sm border border-red-500/10 bg-white">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-left">
               {t("admin:payouts")}
             </span>
@@ -53,7 +53,7 @@ const AdminAnalyticsWidgets = ({ analytics, t }) => {
               ₹{analytics.totalPayouts}
             </h3>
           </div>
-          <div className="p-5 glass-card rounded-2xl flex flex-col gap-1.5 shadow-sm border border-emerald-500/10 bg-white">
+          <div className="p-5 glass-card flex flex-col gap-1.5 shadow-sm border border-emerald-500/10 bg-white">
             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider text-left">
               {t("admin:net_effective")}
             </span>

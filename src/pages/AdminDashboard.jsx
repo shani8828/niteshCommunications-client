@@ -496,7 +496,7 @@ const AdminDashboard = () => {
         </h2>
         <button
           onClick={() => loadTabData(activeTab, true)}
-          className="px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-brand-cyan border border-slate-200 rounded-lg flex items-center gap-1.5 cursor-pointer transition-all"
+          className="px-4 py-2 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-brand-cyan border border-slate-200  flex items-center gap-1.5 cursor-pointer transition-all"
           title="Refresh Data"
         >
           <RefreshCw size={14} className={loading ? "animate-spin" : ""} />{" "}

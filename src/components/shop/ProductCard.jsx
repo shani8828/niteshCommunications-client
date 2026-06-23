@@ -18,7 +18,7 @@ const ProductCard = ({
         contentVisibility: "auto",
         containIntrinsicSize: "0 320px",
       }}
-      className="p-2 md:p-4 flex flex-col gap-1 md:gap-2 bg-white border border-slate-200 rounded-2xl hover:shadow-md transition-all relative group w-full"
+      className="p-2 md:p-4 flex flex-col gap-1 md:gap-2 bg-white border border-slate-200 rounded hover:shadow-md transition-all relative group w-full"
     >
       {/* Floating Wishlist Button */}
       <button
@@ -49,7 +49,7 @@ const ProductCard = ({
       <Link
         to={`/products/${product.slug || product._id}`}
         state={{ product }}
-        className="bg-slate-50 rounded-xl h-[120px] md:h-[140px] flex justify-center items-center overflow-hidden border border-slate-100"
+        className="bg-slate-50 rounded h-[120px] md:h-[140px] flex justify-center items-center overflow-hidden border border-slate-100"
       >
         <img
           src={product.images[0]}
@@ -88,7 +88,7 @@ const ProductCard = ({
 
         {product.stock === 0 ? (
           <button
-            className="w-full py-1 font-heading font-semibold text-xs bg-slate-100 text-slate-400 border border-slate-200 rounded-lg cursor-not-allowed"
+            className="w-full py-1 font-heading font-semibold text-xs bg-slate-100 text-slate-400 border border-slate-200 rounded cursor-not-allowed"
             disabled
           >
             {t("product:out_of_stock")}
@@ -100,7 +100,7 @@ const ProductCard = ({
               e.stopPropagation();
               addToCart(product);
             }}
-            className="w-full py-1 font-heading text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md shadow-blue-500/10 flex items-center justify-center gap-1 cursor-pointer border-0"
+            className="w-full py-1 font-heading text-xs bg-blue-600 text-white rounded hover:bg-blue-700 shadow-md shadow-blue-500/10 flex items-center justify-center gap-1 cursor-pointer border-0"
           >
             <ShoppingCart size={14} />
             {t("product:add_to_cart")}
