@@ -79,7 +79,7 @@ const RepairService = () => {
               : "Select Repair Service"}
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
             {Object.entries(repairPricingData).map(([key, item]) => {
               const isSelected = selectedServiceKey === key;
               return (

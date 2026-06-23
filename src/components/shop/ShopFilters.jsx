@@ -83,17 +83,17 @@ const ShopFilters = ({
               : "Categories (Scroll horizontally ↔)"}
           </span>
         </div>
-        <div className="grid grid-rows-2 grid-flow-col gap-4 overflow-x-auto pb-3">
+        <div className="grid gap-1 grid-rows-2 grid-flow-col overflow-x-auto pb-3">
           {/* 'All Categories' Button */}
           <button
             onClick={() => onCategorySelect("")}
-            className={`flex flex-col items-center gap-1.5 p-2 bg-white border rounded-2xl hover:shadow-md transition-all cursor-pointer text-center h-[90px] w-[90px] min-w-[90px] justify-between ${
+            className={`flex flex-col items-center gap-1.5 p-2 bg-white border rounded hover:shadow-md transition-all cursor-pointer text-center h-[90px] w-[90px] min-w-[90px] justify-between ${
               selectedCategory === ""
                 ? "border-blue-600 bg-blue-50/40 ring-2 ring-blue-100"
                 : "border-slate-200"
             }`}
           >
-            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex-shrink-0 flex items-center justify-center mt-0.5">
+            <div className="w-10 h-10 rounded bg-blue-50 border border-blue-100 flex-shrink-0 flex items-center justify-center mt-0.5">
               <ShoppingCart size={16} className="text-blue-600" />
             </div>
             <div className="flex-grow flex items-center justify-center mb-0.5">
@@ -149,7 +149,7 @@ const ShopFilters = ({
           <input
             type="text"
             placeholder={t("product:search_placeholder")}
-            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
@@ -159,13 +159,13 @@ const ShopFilters = ({
           <button
             type="button"
             onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-            className="md:hidden p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-blue-600 hover:bg-slate-200 flex items-center gap-2 text-sm font-semibold cursor-pointer"
+            className="md:hidden p-2.5 bg-slate-100 border border-slate-200 rounded text-blue-600 hover:bg-slate-200 flex items-center gap-2 text-sm font-semibold cursor-pointer"
           >
             <SlidersHorizontal size={16} /> {t("product:filters")}
           </button>
 
           <select
-            className="px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none cursor-pointer text-sm"
+            className="px-4 py-3 bg-white border border-slate-200 rounded text-slate-700 outline-none cursor-pointer text-sm"
             value={sort}
             onChange={(e) => onSortSelect(e.target.value)}
           >
@@ -177,12 +177,12 @@ const ShopFilters = ({
       </div>
 
       {/* Sidebar layout column wrappers */}
-      <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8">
+      <div className="grid gap-1 grid-cols-1 md:grid-cols-[260px_1fr]">
         {/* Left Column Filters (Sidebar) */}
         <aside
           className={`${
             mobileFiltersOpen ? "flex" : "hidden"
-          } md:flex flex-col gap-6 p-6 bg-slate-50 border border-slate-200 rounded-2xl h-fit`}
+          } md:flex flex-col gap-6 p-6 bg-slate-50 border border-slate-200 rounded h-fit`}
         >
           <div className="flex justify-between items-center">
             <h4 className="font-heading font-bold text-sm text-blue-600 uppercase tracking-wider">
@@ -219,7 +219,7 @@ const ShopFilters = ({
                     placeholder="0"
                     value={minPriceInput}
                     onChange={(e) => setMinPriceInput(e.target.value)}
-                    className="w-full pl-6 pr-2 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-700 text-xs outline-none focus:border-blue-600 transition-all font-semibold"
+                    className="w-full pl-6 pr-2 py-1.5 bg-white border border-slate-200 rounded text-slate-700 text-xs outline-none focus:border-blue-600 transition-all font-semibold"
                   />
                 </div>
               </div>
@@ -238,7 +238,7 @@ const ShopFilters = ({
                     placeholder="100000"
                     value={maxPriceInput}
                     onChange={(e) => setMaxPriceInput(e.target.value)}
-                    className="w-full pl-6 pr-2 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-700 text-xs outline-none focus:border-blue-600 transition-all font-semibold"
+                    className="w-full pl-6 pr-2 py-1.5 bg-white border border-slate-200 rounded text-slate-700 text-xs outline-none focus:border-blue-600 transition-all font-semibold"
                   />
                 </div>
               </div>

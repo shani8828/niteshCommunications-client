@@ -200,7 +200,7 @@ const XeroxLocationStep = ({ coordinates, setCoordinates, address, setAddress, l
       </div>
 
       {/* Navigation actions */}
-      <div className="grid grid-cols-2 gap-4 mt-2">
+      <div className="grid gap-1 grid-cols-2 mt-2">
         <button
           type="button"
           onClick={onBack}

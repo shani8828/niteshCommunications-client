@@ -338,7 +338,7 @@ const Checkout = () => {
         Checkout
       </h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1.8fr_1.2fr] gap-8">
+      <div className="grid gap-1 grid-cols-1 lg:grid-cols-[1.8fr_1.2fr]">
         {/* Left Column: Form Details */}
         <form onSubmit={handlePlaceOrder} className="flex flex-col gap-6 w-full">
           <BillingForm

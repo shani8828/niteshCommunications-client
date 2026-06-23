@@ -74,7 +74,7 @@ const QuickLinksBanner = ({ currentType }) => {
         {t("common:cta_seva")}
       </p>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid gap-1 grid-cols-1 md:grid-cols-2">
         {currentLinks.map((link, idx) => {
           const IconComponent = link.icon;
           return (

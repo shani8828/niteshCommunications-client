@@ -373,41 +373,41 @@ const ProductDetails = () => {
     return (
       <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white animate-fadeIn">
         {/* Back button skeleton */}
-        <div className="w-16 h-4 bg-slate-200 rounded animate-pulse mb-6" />
+        <div className="w-16 h-4 shimmer-bg rounded mb-6" />
 
         {/* Main product columns skeleton */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-10">
+        <div className="grid gap-1 grid-cols-1 md:grid-cols-[1fr_1.2fr]">
           {/* Gallery skeleton */}
           <div className="flex flex-col gap-4">
-            <div className="bg-slate-100 rounded-2xl h-[400px] w-full animate-pulse" />
+            <div className="shimmer-bg rounded h-[400px] w-full" />
             <div className="flex gap-2">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="w-20 h-20 bg-slate-100 rounded-xl animate-pulse" />
+                <div key={i} className="w-20 h-20 shimmer-bg rounded" />
               ))}
             </div>
           </div>
 
           {/* Specs skeleton */}
           <div className="flex flex-col gap-4">
-            <div className="w-24 h-3 bg-slate-200 rounded animate-pulse" />
-            <div className="w-3/4 h-8 bg-slate-200 rounded animate-pulse" />
-            <div className="w-1/3 h-5 bg-slate-200 rounded animate-pulse mt-2" />
-            <div className="w-28 h-8 bg-slate-200 rounded animate-pulse mt-2" />
-            <div className="w-1/2 h-4 bg-slate-200 rounded animate-pulse mt-4" />
-            <div className="w-full h-24 bg-slate-100 rounded-xl animate-pulse mt-2" />
-            <div className="w-full h-12 bg-slate-200 rounded-xl animate-pulse mt-6" />
+            <div className="w-24 h-3 shimmer-bg rounded" />
+            <div className="w-3/4 h-8 shimmer-bg rounded" />
+            <div className="w-1/3 h-5 shimmer-bg rounded mt-2" />
+            <div className="w-28 h-8 shimmer-bg rounded mt-2" />
+            <div className="w-1/2 h-4 shimmer-bg rounded mt-4" />
+            <div className="w-full h-24 shimmer-bg rounded mt-2" />
+            <div className="w-full h-12 shimmer-bg rounded mt-6" />
           </div>
         </div>
 
         {/* Related Products skeleton */}
-        <div className="mt-16 animate-pulse">
-          <div className="h-6 w-40 bg-slate-200 rounded mb-6" />
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="mt-16">
+          <div className="h-6 w-40 shimmer-bg rounded mb-6" />
+          <div className="grid gap-1 grid-cols-2 sm:grid-cols-4">
             {Array.from({ length: 4 }).map((_, idx) => (
-              <div key={idx} className="p-3 bg-white border border-slate-200 rounded-xl">
-                <div className="h-[110px] bg-slate-100 rounded-lg mb-2" />
-                <div className="h-3 bg-slate-200 rounded w-3/4 mx-auto mb-2" />
-                <div className="h-3 bg-slate-200 rounded w-1/3 mx-auto" />
+              <div key={idx} className="p-3 bg-white border border-slate-200 rounded">
+                <div className="h-[110px] shimmer-bg rounded mb-2" />
+                <div className="h-3 shimmer-bg rounded w-3/4 mx-auto mb-2" />
+                <div className="h-3 shimmer-bg rounded w-1/3 mx-auto" />
               </div>
             ))}
           </div>
@@ -434,7 +434,7 @@ const ProductDetails = () => {
       </button>
 
       {/* Main product columns */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-10">
+      <div className="grid gap-1 grid-cols-1 md:grid-cols-[1fr_1.2fr]">
         <ProductImagesGallery
           images={product.images}
           name={product.name}

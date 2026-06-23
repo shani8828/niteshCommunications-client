@@ -3,7 +3,7 @@ import { ShoppingBag } from "lucide-react";
 
 const TrackingItemsSummary = ({ order, currentLang }) => {
   return (
-    <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm h-fit text-left">
+    <div className="bg-white border border-slate-200 p-6 md:p-8 rounded shadow-sm h-fit text-left">
       <h3 className="font-heading text-base font-bold text-slate-800 flex items-center gap-2 mb-5">
         <ShoppingBag size={18} className="text-blue-600" /> Items Ordered
       </h3>
@@ -17,7 +17,7 @@ const TrackingItemsSummary = ({ order, currentLang }) => {
               <img
                 src={item.product?.images[0] || "/placeholder-product.png"}
                 alt={item.product?.name.en}
-                className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 object-contain flex-shrink-0 mix-blend-multiply"
+                className="w-12 h-12 rounded bg-slate-50 border border-slate-100 object-contain flex-shrink-0 mix-blend-multiply"
               />
               <div>
                 <p className="font-heading text-sm font-semibold text-slate-800">

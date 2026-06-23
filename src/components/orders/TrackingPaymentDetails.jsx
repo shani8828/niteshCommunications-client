@@ -7,7 +7,7 @@ const TrackingPaymentDetails = ({
   retrying,
 }) => {
   return (
-    <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm flex flex-col gap-4 text-left">
+    <div className="bg-white border border-slate-200 p-6 md:p-8 rounded shadow-sm flex flex-col gap-4 text-left">
       <h3 className="font-heading text-base font-bold text-slate-800 flex items-center gap-2 mb-1">
         <CreditCard size={18} className="text-blue-600" /> Payment Details
       </h3>
@@ -43,7 +43,7 @@ const TrackingPaymentDetails = ({
       {order.paymentType === "Online" && order.paymentStatus !== "Paid" && (
         <button
           onClick={handleRetryPayment}
-          className="w-full py-2.5 mt-4 font-heading font-bold text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer border-0 outline-none transition-all"
+          className="w-full py-2.5 mt-4 font-heading font-bold text-xs bg-blue-600 text-white rounded hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer border-0 outline-none transition-all"
           disabled={retrying}
           type="button"
         >

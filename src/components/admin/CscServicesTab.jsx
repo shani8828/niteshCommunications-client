@@ -227,7 +227,7 @@ const CscServicesTab = ({
       </div>
 
       {/* CSC Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid gap-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {cscServicesList.map((service) => {
           const IconComponent = LucideIcons[service.icon] || LucideIcons.FileText;
           return (
@@ -322,7 +322,7 @@ const CscServicesTab = ({
             </div>
 
             <form onSubmit={handleSaveCscService} className="flex flex-col gap-4 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
                 {/* Title EN */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-semibold text-slate-500">Service Title (English) *</label>
@@ -356,7 +356,7 @@ const CscServicesTab = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
                 {/* Desc EN */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-semibold text-slate-500">Description (English) *</label>
@@ -390,7 +390,7 @@ const CscServicesTab = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
                 {/* Fee EN */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-semibold text-slate-500">Service Fee (English) *</label>
@@ -418,7 +418,7 @@ const CscServicesTab = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
                 {/* Docs EN */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-semibold text-slate-500">Required Docs (English, comma-separated)</label>
@@ -447,7 +447,7 @@ const CscServicesTab = ({
               {/* Icon select */}
               <div className="flex flex-col gap-1.5">
                 <label className="font-semibold text-slate-500">Service Icon *</label>
-                <div className="grid grid-cols-5 gap-2 max-h-[100px] overflow-y-auto p-1.5 bg-slate-50 border border-slate-100 rounded-xl">
+                <div className="grid gap-1 grid-cols-5 max-h-[100px] overflow-y-auto p-1.5 bg-slate-50 border border-slate-100 rounded-xl">
                   {cscIconList.map((ic) => {
                     const TempIcon = LucideIcons[ic] || LucideIcons.FileText;
                     return (

@@ -447,7 +447,7 @@ const RepairWizardModal = ({
             <span className="text-xs font-heading font-bold uppercase tracking-wider text-slate-400">
               {currentLang === "hi" ? "ब्रांड चुनें" : "Select Device Brand"}
             </span>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="grid gap-1 grid-cols-2 sm:grid-cols-3">
               {Object.entries(serviceData.brands).map(([brandName, modelsMap]) => {
                 const prices = Object.values(modelsMap);
                 const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
@@ -478,7 +478,7 @@ const RepairWizardModal = ({
             <span className="text-xs font-heading font-bold uppercase tracking-wider text-slate-400">
               {selectedBrand} - {currentLang === "hi" ? "मॉडल चुनें" : "Select Model"}
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[35vh] overflow-y-auto pr-1">
+            <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 max-h-[35vh] overflow-y-auto pr-1">
               {Object.entries(serviceData.brands[selectedBrand]).map(([modelName, price]) => {
                 return (
                   <button
@@ -505,7 +505,7 @@ const RepairWizardModal = ({
               <h4 className="font-heading text-xs font-bold text-slate-800">
                 {currentLang === "hi" ? "चयनित मरम्मत सारांश" : "Selected Repair Summary"}
               </h4>
-              <div className="grid grid-cols-2 gap-y-1.5 text-xs font-semibold text-slate-500 mt-1">
+              <div className="grid gap-1 grid-cols-2 text-xs font-semibold text-slate-500 mt-1">
                 <span>{currentLang === "hi" ? "सेवा श्रेणी" : "Service Type"}</span>
                 <span className="text-slate-800 text-right">{serviceData.title[currentLang]}</span>
                 <span>{currentLang === "hi" ? "उपकरण मॉडल" : "Device Model"}</span>

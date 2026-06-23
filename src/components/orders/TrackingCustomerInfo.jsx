@@ -3,7 +3,7 @@ import { User, Phone, MapPin } from "lucide-react";
 
 const TrackingCustomerInfo = ({ order }) => {
   return (
-    <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm flex flex-col gap-4 text-left">
+    <div className="bg-white border border-slate-200 p-6 md:p-8 rounded shadow-sm flex flex-col gap-4 text-left">
       <h3 className="font-heading text-base font-bold text-slate-800 flex items-center gap-2 mb-1">
         <User size={18} className="text-blue-600" /> Customer & Delivery
       </h3>

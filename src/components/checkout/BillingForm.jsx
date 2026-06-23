@@ -43,7 +43,7 @@ const BillingForm = ({
   };
 
   return (
-    <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl flex flex-col gap-4 shadow-sm">
+    <div className="bg-white border border-slate-200 p-6 md:p-8 rounded flex flex-col gap-4 shadow-sm">
       <h3 className="font-heading text-base font-bold text-slate-800 mb-2">
         {currentLang === "hi" ? "बिलिंग विवरण" : "Billing Details"}
       </h3>
@@ -54,7 +54,7 @@ const BillingForm = ({
         <input
           type="tel"
           maxLength="10"
-          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
           placeholder="10 digit mobile number"
           value={phone}
           onChange={handlePhoneChange}
@@ -63,7 +63,7 @@ const BillingForm = ({
       </div>
       <div className="flex flex-col gap-4">
         {!coordinates ? (
-          <div className="p-6 bg-blue-50/40 border border-blue-200 rounded-2xl text-center flex flex-col items-center gap-3.5 shadow-sm mt-2">
+          <div className="p-6 bg-blue-50/40 border border-blue-200 rounded text-center flex flex-col items-center gap-3.5 shadow-sm mt-2">
             <div className="bg-blue-600/10 text-blue-600 p-3.5 rounded-full flex justify-center items-center">
               <MapPin
                 size={28}
@@ -86,7 +86,7 @@ const BillingForm = ({
               type="button"
               onClick={onLocationVerify}
               disabled={geolocating}
-              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 cursor-pointer border-0 disabled:opacity-50"
+              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded transition-all shadow-md shadow-blue-500/20 flex items-center gap-2 cursor-pointer border-0 disabled:opacity-50"
             >
               {geolocating ? (
                 <>
@@ -131,7 +131,7 @@ const BillingForm = ({
                 </button>
               </div>
               <textarea
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 placeholder-slate-400 outline-none cursor-not-allowed text-sm"
+                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded text-slate-500 placeholder-slate-400 outline-none cursor-not-allowed text-sm"
                 rows="2"
                 value={address}
                 readOnly
@@ -149,7 +149,7 @@ const BillingForm = ({
               </label>
               <input
                 type="text"
-                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
+                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm"
                 placeholder={
                   currentLang === "hi"
                     ? "उदा. फ्लैट नंबर 402, शिव मंदिर के पास, करमडांडा..."
@@ -170,13 +170,13 @@ const BillingForm = ({
           {/* Delivery Range status */}
           {coordinates &&
             (outOfRange ? (
-              <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold">
+              <div className="p-3.5 bg-rose-50 border border-rose-200 rounded text-rose-700 text-xs font-semibold">
                 {currentLang === "hi"
                   ? `✖ डिलीवरी सीमा से बाहर! हम केवल अपनी दुकान (पटखौली चौराहा, अयोध्या) से 15 किमी के भीतर ही डिलीवरी करते हैं।`
                   : `✖ Out of Delivery Range! We only deliver within a 15km radius of our shop (Patkhauli Chauraha, Ayodhya).`}
               </div>
             ) : (
-              <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-xs font-semibold">
+              <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded text-emerald-700 text-xs font-semibold">
                 {currentLang === "hi"
                   ? `✔ डिलीवरी रेंज के भीतर! आपका स्थान दुकान से 15 किमी के भीतर है।`
                   : `✔ Within Delivery Range! Your location is within 15km from our shop.`}
@@ -185,7 +185,7 @@ const BillingForm = ({
 
           {/* Delivery Timing status */}
           {!isWithinDeliveryHours && (
-            <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-xs font-semibold">
+            <div className="p-3.5 bg-amber-50 border border-amber-200 rounded text-amber-700 text-xs font-semibold">
               {currentLang === "hi"
                 ? "🚚 डिलीवरी शेड्यूल: हमारे डिलीवरी ऑपरेशंस का समय सुबह 9 बजे से शाम 6 बजे तक है। आपका ऑर्डर कल डिलीवर किया जाएगा।"
                 : "🚚 Delivery Schedule: Delivery hours are 9:00 AM - 6:00 PM. Since it is currently outside these hours, your order will be delivered tomorrow."}

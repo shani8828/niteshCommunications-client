@@ -5,7 +5,7 @@ import React from "react";
  */
 export const AnalyticsWidgetsSkeleton = ({ count = 4 }) => {
   return (
-    <div className={`grid gap-4 mb-8 grid-cols-2 md:grid-cols-4`}>
+    <div className={`grid gap-1 mb-8 grid-cols-2 md:grid-cols-4`}>
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}

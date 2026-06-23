@@ -31,7 +31,7 @@ const RefundDestinationForm = ({
   };
 
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm text-left animate-fadeIn">
+    <div className="bg-slate-50 border border-slate-200 rounded p-6 shadow-sm text-left animate-fadeIn">
       <h3 className="font-heading text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider flex items-center gap-2">
         <CreditCard size={16} className="text-blue-600" /> 3. Refund Destination Details
       </h3>
@@ -71,7 +71,7 @@ const RefundDestinationForm = ({
               type="text"
               value={upiId}
               onChange={handleUpiChange}
-              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm focus:border-blue-500"
+              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded text-slate-700 outline-none text-sm focus:border-blue-500"
               placeholder="example@upi"
               required
             />
@@ -81,7 +81,7 @@ const RefundDestinationForm = ({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs md:text-sm">
+        <div className="grid gap-1 grid-cols-1 md:grid-cols-2 text-xs md:text-sm">
           <div className="col-span-1 md:col-span-2">
             <label className="text-xs text-slate-500 font-semibold block mb-2">
               Account Holder Name *
@@ -92,7 +92,7 @@ const RefundDestinationForm = ({
               onChange={(e) =>
                 handleBankFieldChange("accountHolderName", e.target.value)
               }
-              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm focus:border-blue-500"
+              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded text-slate-700 outline-none text-sm focus:border-blue-500"
               placeholder="As registered in bank passbook"
               required
             />
@@ -107,7 +107,7 @@ const RefundDestinationForm = ({
               onChange={(e) =>
                 handleBankFieldChange("accountNumber", e.target.value)
               }
-              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm focus:border-blue-500"
+              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded text-slate-700 outline-none text-sm focus:border-blue-500"
               placeholder="Enter account number"
               required
             />
@@ -122,7 +122,7 @@ const RefundDestinationForm = ({
               onChange={(e) =>
                 handleBankFieldChange("confirmAccountNumber", e.target.value)
               }
-              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm focus:border-blue-500"
+              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded text-slate-700 outline-none text-sm focus:border-blue-500"
               placeholder="Confirm account number"
               required
             />
@@ -137,7 +137,7 @@ const RefundDestinationForm = ({
               onChange={(e) =>
                 handleBankFieldChange("ifscCode", e.target.value.toUpperCase())
               }
-              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm focus:border-blue-500"
+              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded text-slate-700 outline-none text-sm focus:border-blue-500"
               placeholder="SBIN0001234"
               maxLength={11}
               required
@@ -147,7 +147,7 @@ const RefundDestinationForm = ({
       )}
 
       {/* Warning Details */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-6 text-xs text-amber-800 leading-relaxed flex gap-3">
+      <div className="bg-amber-50 border border-amber-200 rounded p-4 mt-6 text-xs text-amber-800 leading-relaxed flex gap-3">
         <ShieldAlert className="flex-shrink-0 mt-0.5" size={16} />
         <div>
           <strong>Verify Transfer Information Carefully:</strong> Please ensure all entered UPI/Bank Account details are 100% correct. Nitesh Communications will not be held responsible for refunds sent to incorrect credentials. Refunds are processed securely within 5 to 7 working days once return logistics verify the items.

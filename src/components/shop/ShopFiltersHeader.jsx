@@ -44,7 +44,7 @@ const ShopFiltersHeader = ({
             {currentLang === "hi" ? "स्लाइड करें ↔" : "Swipe ↔"}
           </span>
         </div>
-        <div className="grid grid-rows-2 grid-flow-col gap-4 overflow-x-auto pb-3">
+        <div className="grid gap-1 grid-rows-2 grid-flow-col overflow-x-auto pb-3">
           {/* 'All Categories' Button */}
           <button
             onClick={() => onCategorySelect("")}
@@ -54,7 +54,7 @@ const ShopFiltersHeader = ({
                 : " "
             }`}
           >
-            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex-shrink-0 flex items-center justify-center mt-0.5">
+            <div className="w-10 h-10 rounded bg-blue-50 border border-blue-100 flex-shrink-0 flex items-center justify-center mt-0.5">
               <ShoppingCart size={16} className="text-blue-600" />
             </div>
             <div className="flex-grow flex items-center justify-center mb-0.5">
@@ -73,9 +73,9 @@ const ShopFiltersHeader = ({
             ? Array.from({ length: 8 }).map((_, idx) => (
                 <div
                   key={`cat-skeleton-${idx}`}
-                  className="flex flex-col items-center gap-1 p-1 bg-transparent rounded-lg text-center justify-between animate-pulse pointer-events-none"
+                  className="flex flex-col items-center gap-1 p-1 bg-transparent rounded text-center justify-between animate-pulse pointer-events-none"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-slate-100 flex-shrink-0 mt-0.5" />
+                  <div className="w-10 h-10 rounded bg-slate-100 flex-shrink-0 mt-0.5" />
                   <div className="flex-grow flex items-center justify-center mb-0.5">
                     <div className="h-2 w-10 bg-slate-100 rounded mt-1" />
                   </div>
@@ -91,7 +91,7 @@ const ShopFiltersHeader = ({
                       : " "
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-lg bg-transparent   flex-shrink-0 overflow-hidden flex items-center justify-center mt-0.5">
+                  <div className="w-10 h-10 rounded bg-transparent   flex-shrink-0 overflow-hidden flex items-center justify-center mt-0.5">
                     <img
                       src={cat.image}
                       alt={cat.name.en}
@@ -121,13 +121,13 @@ const ShopFiltersHeader = ({
           <button
             type="button"
             onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-            className="md:hidden p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-blue-600 hover:bg-slate-200 flex items-center gap-2 text-sm font-semibold cursor-pointer"
+            className="md:hidden p-2.5 bg-slate-100 border border-slate-200 rounded text-blue-600 hover:bg-slate-200 flex items-center gap-2 text-sm font-semibold cursor-pointer"
           >
             <SlidersHorizontal size={16} /> {t("product:filters")}
           </button>
 
           <select
-            className="px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none cursor-pointer text-sm"
+            className="px-4 py-3 bg-white border border-slate-200 rounded text-slate-700 outline-none cursor-pointer text-sm"
             value={sort}
             onChange={(e) => onSortSelect(e.target.value)}
           >

@@ -441,7 +441,7 @@ const RepairServicesTab = ({
       </div>
 
       {/* 3-Column Manager Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+      <div className="grid gap-1 grid-cols-1 md:grid-cols-3 items-start">
         {/* Column 1: Service Categories */}
         <div className="glass-card p-5 rounded-2xl flex flex-col gap-4 shadow-sm h-[600px] bg-white border border-slate-200/80">
           <h4 className="font-heading text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 flex justify-between items-center">
@@ -643,7 +643,7 @@ const RepairServicesTab = ({
                 <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider text-left">
                   {currentLang === "hi" ? "नया मॉडल जोड़ें" : "Add New Model"}
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
                   <input
                     type="text"
                     className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan text-xs"
@@ -772,7 +772,7 @@ const RepairServicesTab = ({
             </div>
 
             <form onSubmit={handleSaveService} className="flex flex-col gap-4 text-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
                 {/* Service Key */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-semibold text-slate-500">Service Key (English unique key) *</label>
@@ -801,7 +801,7 @@ const RepairServicesTab = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
                 {/* Title EN */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-semibold text-slate-500">Service Title (English) *</label>
@@ -835,7 +835,7 @@ const RepairServicesTab = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
                 {/* Desc EN */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-semibold text-slate-500">Description (English) *</label>

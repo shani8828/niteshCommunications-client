@@ -5,7 +5,7 @@ const AdminAnalyticsWidgets = ({ analytics, t }) => {
 
   return (
     <div
-      className={`grid gap-2 mb-8 ${
+      className={`grid gap-1 mb-8 ${
         analytics.totalPayouts > 0
           ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-6"
           : "grid-cols-2 md:grid-cols-4"

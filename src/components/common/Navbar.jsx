@@ -404,7 +404,7 @@ const Navbar = () => {
           {!user && (
             <>
               <hr className="border-t border-slate-100" />
-              <div className="grid grid-cols-2 gap-3 mt-1">
+              <div className="grid gap-1 grid-cols-2 mt-1">
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}

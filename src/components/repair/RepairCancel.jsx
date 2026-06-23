@@ -149,7 +149,7 @@ const RepairCancel = () => {
           <h3 className="font-heading text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider">
             {isHindi ? 'बुकिंग विवरण' : 'Booking Details'}
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-600">
+          <div className="grid gap-1 grid-cols-1 md:grid-cols-2 text-sm text-slate-600">
             <div>
               <span className="font-semibold text-slate-500">{isHindi ? 'डिवाइस: ' : 'Device: '}</span>
               <span className="text-slate-800 font-bold">{repair.deviceBrand} {repair.deviceModel}</span>
@@ -221,7 +221,7 @@ const RepairCancel = () => {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid gap-1 grid-cols-1 md:grid-cols-2">
               <div className="col-span-1 md:col-span-2">
                 <label className="text-xs text-slate-500 font-semibold block mb-2">
                   {isHindi ? 'खाताधारक का नाम *' : 'Account Holder Name *'}

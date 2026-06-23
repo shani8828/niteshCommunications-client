@@ -107,7 +107,7 @@ const Shop = () => {
   useEffect(() => {
     const fetchProds = async () => {
       const isFirstPage = page === 1;
-      const cacheKey = `shop_products_l15_p_${page}_s_${sort}_min_${minPrice}_max_${maxPrice}_k_${search}_c_${selectedCategory}`;
+      const cacheKey = `shop_products_l16_p_${page}_s_${sort}_min_${minPrice}_max_${maxPrice}_k_${search}_c_${selectedCategory}`;
       const cached = getCachedData(cacheKey);
 
       if (isFirstPage) {
@@ -139,7 +139,7 @@ const Shop = () => {
       }
 
       try {
-        let url = `/products?page=${page}&limit=15&sort=${sort}&minPrice=${minPrice}&maxPrice=${maxPrice}`;
+        let url = `/products?page=${page}&limit=16&sort=${sort}&minPrice=${minPrice}&maxPrice=${maxPrice}`;
         if (search) url += `&keyword=${search}`;
         if (selectedCategory) url += `&category=${selectedCategory}`;
 
@@ -229,20 +229,33 @@ const Shop = () => {
     setPage(1);
   }, []);
 
-  const renderSkeletons = (count = 6) => (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 w-full">
+  const renderSkeletons = (count = 16) => (
+    <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 w-full">
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}
-          className="p-2 flex flex-col gap-3 bg-white border border-slate-200 rounded-2xl animate-pulse w-full"
+          className="p-2 md:p-4 flex flex-col gap-1 md:gap-2 bg-white border border-slate-200 rounded relative w-full overflow-hidden"
         >
-          <div className="bg-slate-100 rounded-xl h-[170px] w-full" />
-          <div className="flex justify-between items-center mt-1">
-            <div className="h-3 bg-slate-200 rounded w-1/3" />
+          {/* Wishlist Button Skeleton */}
+          <div className="absolute top-4 right-4 w-8 h-8 rounded-full border border-slate-100 bg-slate-50 shimmer-bg" />
+
+          {/* Image Wrap Skeleton */}
+          <div className="shimmer-bg rounded h-[120px] md:h-[140px] w-full border border-slate-100" />
+
+          {/* Details Skeleton */}
+          <div className="flex flex-col flex-grow gap-2 mt-2">
+            {/* Title */}
+            <div className="h-4 w-3/4 shimmer-bg rounded" />
+            
+            {/* Category */}
+            <div className="h-2 w-1/4 shimmer-bg rounded" />
+
+            {/* Price */}
+            <div className="h-5 w-1/3 shimmer-bg rounded my-1" />
+
+            {/* Button */}
+            <div className="h-7 w-full shimmer-bg rounded mt-auto" />
           </div>
-          <div className="h-4 bg-slate-200 rounded w-3/4 mt-1" />
-          <div className="h-5 bg-slate-200 rounded w-1/4 mt-1 mb-3" />
-          <div className="h-8 bg-slate-200 rounded-lg w-full" />
         </div>
       ))}
     </div>
@@ -278,7 +291,7 @@ const Shop = () => {
       />
 
       {/* Layout Columns */}
-      <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8">
+      <div className="grid gap-1 grid-cols-1 md:grid-cols-[260px_1fr]">
         {/* Left Column Filters (Sidebar) */}
         <ShopSidebarFilters
           selectedCategory={selectedCategory}
@@ -294,21 +307,21 @@ const Shop = () => {
         {/* Right Column Products Grid */}
         <div className="w-full">
           {loading ? (
-            renderSkeletons(6)
+            renderSkeletons(16)
           ) : products.length === 0 ? (
             <div className="text-center py-16 text-slate-500">
               <p className="text-sm">No products match your filter options.</p>
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="px-4 py-2 mt-4 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded-lg border-0 cursor-pointer shadow-md shadow-blue-500/10"
+                className="px-4 py-2 mt-4 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded border-0 cursor-pointer shadow-md shadow-blue-500/10"
               >
                 {t("product:reset_filters")}
               </button>
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1">
+              <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
                 {products.map((product) => {
                   const isWishlisted = wishlist.some(
                     (p) => p._id === product._id,
@@ -333,7 +346,7 @@ const Shop = () => {
                   ref={observerTarget}
                   className="w-full flex justify-center items-center mt-6 min-h-[50px]"
                 >
-                  {loadingMore && renderSkeletons(3)}
+                  {loadingMore && renderSkeletons(4)}
                 </div>
               )}
 

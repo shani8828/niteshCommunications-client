@@ -11,11 +11,11 @@ const ProductImagesGallery = ({
 }) => {
   return (
     <div className="flex flex-col gap-4 text-left">
-      <div className="relative bg-slate-50 border border-slate-200 rounded-2xl h-[350px] flex justify-center items-center overflow-hidden">
+      <div className="relative bg-slate-50 border border-slate-200 rounded h-[350px] flex justify-center items-center overflow-hidden">
         <img
           src={activeImage}
           alt={name.en || name}
-          className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply rounded-lg"
+          className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply rounded"
           loading="lazy"
         />
 
@@ -34,7 +34,7 @@ const ProductImagesGallery = ({
             <button
               key={idx}
               onClick={() => setActiveImage(img)}
-              className={`w-16 h-16 rounded-xl bg-slate-50 border-2 overflow-hidden flex justify-center items-center cursor-pointer transition-all outline-none flex-shrink-0 ${
+              className={`w-16 h-16 rounded bg-slate-50 border-2 overflow-hidden flex justify-center items-center cursor-pointer transition-all outline-none flex-shrink-0 ${
                 activeImage === img ? "border-blue-600" : "border-slate-200"
               }`}
               type="button"

@@ -70,7 +70,7 @@ const HomeCscServices = ({ currentLang }) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {cscServicesFeatured.map((service, idx) => {
             const IconComp = service.icon;
             return (

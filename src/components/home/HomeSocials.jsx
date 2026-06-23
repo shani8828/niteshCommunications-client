@@ -19,7 +19,7 @@ const HomeSocials = ({ currentLang }) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl mx-auto w-full">
+        <div className="grid gap-1 grid-cols-1 sm:grid-cols-3 max-w-2xl mx-auto w-full">
           {/* Instagram Card */}
           <a
             href="https://instagram.com/nitesh.communications"

@@ -512,7 +512,7 @@ const AdminDashboard = () => {
       )}
 
       {/* Tabs panels layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
+      <div className="grid gap-1 grid-cols-1 lg:grid-cols-[240px_1fr]">
         {/* Navigation Sidebar */}
         <AdminSidebar
           activeTab={activeTab}

@@ -2,7 +2,7 @@ import React from "react";
 
 const CheckoutSummary = ({ cartItems, cartSubtotal, currentLang, t }) => {
   return (
-    <div className="p-8 bg-white border border-slate-200 rounded-2xl shadow-sm h-fit w-full">
+    <div className="p-8 bg-white border border-slate-200 rounded shadow-sm h-fit w-full">
       <h3 className="font-heading text-base font-bold text-blue-600 mb-5">
         {t("cart:items_summary")}
       </h3>

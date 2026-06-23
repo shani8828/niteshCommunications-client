@@ -20,7 +20,7 @@ const ReturnReasonForm = ({
   };
 
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm text-left">
+    <div className="bg-slate-50 border border-slate-200 rounded p-6 shadow-sm text-left">
       <h3 className="font-heading text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider">
         {isCancelMode ? "Reason for Cancellation" : "2. Reason for Return"}
       </h3>
@@ -32,7 +32,7 @@ const ReturnReasonForm = ({
           <select
             value={reason}
             onChange={handleReasonChange}
-            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm focus:border-blue-500 cursor-pointer"
+            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded text-slate-700 outline-none text-sm focus:border-blue-500 cursor-pointer"
             required
           >
             {isCancelMode ? (
@@ -80,7 +80,7 @@ const ReturnReasonForm = ({
             value={comments}
             onChange={handleCommentsChange}
             rows="3"
-            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm focus:border-blue-500 resize-none"
+            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded text-slate-700 outline-none text-sm focus:border-blue-500 resize-none"
             placeholder="Provide details about the issue..."
           />
         </div>

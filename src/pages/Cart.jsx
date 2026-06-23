@@ -44,7 +44,7 @@ const Cart = () => {
         {t("common:cart")}
       </h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1.8fr_1fr] gap-8">
+      <div className="grid gap-1 grid-cols-1 lg:grid-cols-[1.8fr_1fr]">
         {/* Left Column: Cart Items List */}
         <div className="flex flex-col gap-4">
           {cartItems.map((item) => (

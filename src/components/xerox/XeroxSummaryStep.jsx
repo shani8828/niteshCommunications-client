@@ -117,7 +117,7 @@ const XeroxSummaryStep = ({
           </div>
 
           {/* Contact Details fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid gap-1 grid-cols-1 md:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Full Name
@@ -199,7 +199,7 @@ const XeroxSummaryStep = ({
           )}
 
           {/* Form Actions */}
-          <div className="grid grid-cols-2 gap-4 mt-2">
+          <div className="grid gap-1 grid-cols-2 mt-2">
             <button
               type="button"
               onClick={onBack}

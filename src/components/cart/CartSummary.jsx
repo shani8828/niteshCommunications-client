@@ -8,7 +8,7 @@ const CartSummary = ({
   t,
 }) => {
   return (
-    <div className="p-8 bg-white border border-slate-200 rounded-2xl shadow-sm h-fit text-left">
+    <div className="p-8 bg-white border border-slate-200 rounded shadow-sm h-fit text-left">
       <h3 className="font-heading text-base font-bold text-blue-600 mb-5">
         {t("cart:items_summary")}
       </h3>

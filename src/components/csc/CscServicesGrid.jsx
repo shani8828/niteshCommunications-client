@@ -15,7 +15,7 @@ const CscServicesGrid = ({ servicesList, loading, currentLang }) => {
       <h3 className="font-heading text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
         {currentLang === "hi" ? "सभी डिजिटल सेवाएं और दस्तावेज" : "All Digital Services & Documents"}
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid gap-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {servicesList.map((item) => (
           <CscServiceCard key={item._id} item={item} currentLang={currentLang} />
         ))}

@@ -34,7 +34,7 @@ const ProfileEditTab = ({
       <div className="flex flex-col gap-6 w-full animate-fadeIn">
         <div className="h-6 w-36 bg-slate-200 rounded animate-pulse mb-3" />
         <div className="flex flex-col gap-5 p-6 md:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-sm animate-pulse">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
               <div className="h-3 w-20 bg-slate-200 rounded" />
               <div className="h-10 bg-slate-100 rounded-xl" />
@@ -117,7 +117,7 @@ const ProfileEditTab = ({
       </h3>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5 p-6 md:p-8 bg-white border border-slate-200/80 rounded-2xl shadow-sm">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
           <div className="flex flex-col">
             <label className="block mb-1.5 text-xs font-semibold text-slate-500">
               {isHindi ? 'पूरा नाम' : 'Full Name'} *

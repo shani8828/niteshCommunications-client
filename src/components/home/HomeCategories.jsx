@@ -71,18 +71,18 @@ const HomeCategories = ({ currentLang }) => {
             : "Browse through our curated and popular product categories"}
         </p>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-5 lg:gap-6">
+        <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
           {categoriesList.map((cat) => (
             <Link
               key={cat.id}
               to={`/shop?category=${cat.id}`}
-              className="p-2 md:p-3 lg:p-4 flex flex-col justify-around h-full gap-2 md:gap-3 lg:gap-4 bg-white border border-slate-200/80 rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
+              className="p-2 md:p-3 lg:p-4 flex flex-col justify-around h-full gap-2 md:gap-3 lg:gap-4 bg-white border border-slate-200/80 rounded hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
             >
-              <div className="bg-slate-50 rounded-xl h-[100px] sm:h-[120px] md:h-[150px] lg:h-[180px] flex justify-center items-center overflow-hidden border border-slate-100 relative">
+              <div className="bg-slate-50 rounded h-[100px] sm:h-[120px] md:h-[150px] lg:h-[180px] flex justify-center items-center overflow-hidden border border-slate-100 relative">
                 <img
                   src={cat.image}
                   alt={cat.name.en}
-                  className="max-w-[90%] max-h-[90%] object-contain group-hover:scale-105 transition-transform duration-300 rounded-xl"
+                  className="max-w-[90%] max-h-[90%] object-contain group-hover:scale-105 transition-transform duration-300 rounded"
                   loading="lazy"
                 />
               </div>
@@ -93,7 +93,7 @@ const HomeCategories = ({ currentLang }) => {
                 <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
                   {cat.desc[currentLang]}
                 </p>
-                <div className="w-full py-2.5 mt-4 font-heading font-bold text-xs bg-blue-50 border border-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white text-center rounded-xl block transition-all">
+                <div className="w-full py-2.5 mt-4 font-heading font-bold text-xs bg-blue-50 border border-blue-100 text-blue-600 group-hover:bg-blue-600 group-hover:text-white text-center rounded block transition-all">
                   {currentLang === "hi" ? "प्रोडक्ट देखें" : "View Products"}
                 </div>
               </div>

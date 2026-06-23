@@ -14,7 +14,7 @@ const WishlistTab = ({
     return (
       <div className="flex flex-col gap-6 w-full animate-fadeIn">
         <div className="h-6 w-32 bg-slate-200 rounded animate-pulse mb-3" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {Array.from({ length: 3 }).map((_, idx) => (
             <div
               key={idx}
@@ -67,7 +67,7 @@ const WishlistTab = ({
         {isHindi ? 'विशलिस्ट' : 'Wishlist'}
       </h3>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         {wishlist.map((prod) => (
           <div
             key={prod._id}

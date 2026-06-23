@@ -29,7 +29,7 @@ const ProductReviews = ({
             {Array.from({ length: 2 }).map((_, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex flex-col gap-2"
+                className="p-4 rounded border border-slate-100 bg-slate-50 flex flex-col gap-2"
               >
                 <div className="flex justify-between items-center">
                   <div className="h-3 w-24 bg-slate-200 rounded" />
@@ -44,7 +44,7 @@ const ProductReviews = ({
 
         {/* Right Column: Write Review */}
         <div className="w-full md:w-[320px] flex-shrink-0">
-          <div className="p-6 bg-white border border-slate-200 rounded-2xl">
+          <div className="p-6 bg-white border border-slate-200 rounded">
             <div className="h-5 w-28 bg-slate-200 rounded mb-4" />
             <div className="flex flex-col gap-4">
               <div className="h-8 bg-slate-100 rounded" />
@@ -109,7 +109,7 @@ const ProductReviews = ({
             {reviews.map((rev) => (
               <div
                 key={rev._id}
-                className="p-4 rounded-xl border border-slate-100 bg-slate-50"
+                className="p-4 rounded border border-slate-100 bg-slate-50"
               >
                 <div className="flex justify-between items-center text-xs">
                   <span className="font-semibold text-slate-700">
@@ -139,7 +139,7 @@ const ProductReviews = ({
       {/* Right Column: Write Review */}
       <div className="w-full md:w-[320px] flex-shrink-0">
         {user ? (
-          <div className="p-6 bg-white border border-slate-200 rounded-2xl">
+          <div className="p-6 bg-white border border-slate-200 rounded">
             <h3 className="font-heading text-base font-bold text-blue-600 mb-4">
               {t("product:write_review")}
             </h3>
@@ -149,7 +149,7 @@ const ProductReviews = ({
                   {t("product:rating")}
                 </label>
                 <select
-                  className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 outline-none cursor-pointer text-xs"
+                  className="w-full px-4 py-2 bg-white border border-slate-200 rounded text-slate-700 outline-none cursor-pointer text-xs"
                   value={reviewRating}
                   onChange={(e) => setReviewRating(Number(e.target.value))}
                 >
@@ -166,7 +166,7 @@ const ProductReviews = ({
                   {t("product:comment")}
                 </label>
                 <textarea
-                  className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-800 placeholder-slate-400 outline-none text-xs"
+                  className="w-full px-4 py-2 bg-white border border-slate-200 rounded text-slate-800 placeholder-slate-400 outline-none text-xs"
                   rows="3"
                   placeholder="Share your experience..."
                   value={reviewComment}
@@ -178,7 +178,7 @@ const ProductReviews = ({
               <button
                 type="submit"
                 disabled={submittingReview}
-                className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 shadow-md text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send size={12} />{" "}
                 {submittingReview
@@ -188,7 +188,7 @@ const ProductReviews = ({
             </form>
           </div>
         ) : (
-          <div className="p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center">
+          <div className="p-6 bg-slate-50 border border-slate-200 rounded text-center">
             <p className="text-xs text-slate-500 leading-relaxed">
               Please{" "}
               <Link

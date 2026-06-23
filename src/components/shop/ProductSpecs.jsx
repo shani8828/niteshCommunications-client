@@ -85,7 +85,7 @@ const ProductSpecs = ({
       </div>
 
       {/* Return Policy alert */}
-      <div className="w-full flex items-center gap-2 bg-blue-50/50 border border-blue-100/50 rounded-xl px-4 py-3 text-xs text-blue-800">
+      <div className="w-full flex items-center gap-2 bg-blue-50/50 border border-blue-100/50 rounded px-4 py-3 text-xs text-blue-800">
         <ShieldAlert size={16} className="text-blue-600 flex-shrink-0" />
         <span>
           Policy: <strong>{product.returnPolicy}</strong> options apply for

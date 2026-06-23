@@ -454,7 +454,7 @@ const ProductsTab = ({
               onSubmit={handleSaveProduct}
               className="flex flex-col gap-4 text-xs"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid gap-1 grid-cols-1 md:grid-cols-2">
                 {/* English name */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-semibold text-slate-500">
@@ -492,7 +492,7 @@ const ProductsTab = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid gap-1 grid-cols-1 md:grid-cols-2">
                 {/* English desc */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-semibold text-slate-500">
@@ -530,7 +530,7 @@ const ProductsTab = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid gap-1 grid-cols-1 sm:grid-cols-3">
                 {/* Price */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-semibold text-slate-500">
@@ -577,7 +577,7 @@ const ProductsTab = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
                 {/* Category selector */}
                 <div className="flex flex-col gap-1.5">
                   <label className="font-semibold text-slate-500">

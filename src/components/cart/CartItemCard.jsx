@@ -9,9 +9,9 @@ const CartItemCard = ({
   removeFromCart,
 }) => {
   return (
-    <div className="flex items-center p-5 gap-6 flex-wrap bg-white border border-slate-200 rounded-2xl shadow-sm animate-fadeIn">
+    <div className="flex items-center p-5 gap-6 flex-wrap bg-white border border-slate-200 rounded shadow-sm animate-fadeIn">
       {/* Product Thumbnail */}
-      <div className="w-[70px] h-[70px] bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+      <div className="w-[70px] h-[70px] bg-slate-50 border border-slate-100 rounded flex items-center justify-center flex-shrink-0 overflow-hidden">
         <img
           src={item.product.images && item.product.images[0] ? item.product.images[0] : '/placeholder-product.png'}
           alt={item.product.name.en}

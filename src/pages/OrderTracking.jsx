@@ -200,7 +200,7 @@ const OrderTracking = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={fetchOrderDetails}
-            className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 text-blue-600 border-slate-200 hover:bg-slate-200 flex items-center gap-1.5 cursor-pointer border-0 outline-none"
+            className="px-4 py-2 text-xs font-semibold rounded bg-slate-100 text-blue-600 border-slate-200 hover:bg-slate-200 flex items-center gap-1.5 cursor-pointer border-0 outline-none"
             title="Refresh Order Status"
             type="button"
           >
@@ -208,7 +208,7 @@ const OrderTracking = () => {
           </button>
           <Link
             to="/orders"
-            className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 block"
+            className="px-4 py-2 text-xs font-semibold rounded bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 block"
           >
             Orders History
           </Link>
@@ -216,7 +216,7 @@ const OrderTracking = () => {
       </div>
 
       {/* Stepper Timeline Panel */}
-      <div className="bg-slate-50 border border-slate-200 p-6 md:p-8 rounded-2xl mb-8 shadow-sm">
+      <div className="bg-slate-50 border border-slate-200 p-6 md:p-8 rounded mb-8 shadow-sm">
         <OrderTimeline
           currentStatus={order.deliveryStatus}
           timeline={order.timeline}
@@ -224,7 +224,7 @@ const OrderTracking = () => {
       </div>
 
       {/* Grid: Order summary & Customer info */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-8">
+      <div className="grid gap-1 grid-cols-1 lg:grid-cols-[1.4fr_1fr]">
         <TrackingItemsSummary order={order} currentLang={currentLang} />
 
         <div className="flex flex-col gap-6">

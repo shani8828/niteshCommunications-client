@@ -50,7 +50,7 @@ const ShopSidebarFilters = ({
     <aside
       className={`${
         mobileFiltersOpen ? "flex" : "hidden"
-      } md:flex flex-col gap-6 p-6 bg-slate-50 border border-slate-200 rounded-2xl h-fit`}
+      } md:flex flex-col gap-6 p-6 bg-slate-50 border border-slate-200 rounded h-fit`}
     >
       <div className="flex justify-between items-center">
         <h4 className="font-heading font-bold text-sm text-blue-600 uppercase tracking-wider">
@@ -87,7 +87,7 @@ const ShopSidebarFilters = ({
                 placeholder="0"
                 value={minPriceInput}
                 onChange={(e) => setMinPriceInput(e.target.value)}
-                className="w-full pl-6 pr-2 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-700 text-xs outline-none focus:border-blue-600 transition-all font-semibold"
+                className="w-full pl-6 pr-2 py-1.5 bg-white border border-slate-200 rounded text-slate-700 text-xs outline-none focus:border-blue-600 transition-all font-semibold"
               />
             </div>
           </div>
@@ -106,7 +106,7 @@ const ShopSidebarFilters = ({
                 placeholder="100000"
                 value={maxPriceInput}
                 onChange={(e) => setMaxPriceInput(e.target.value)}
-                className="w-full pl-6 pr-2 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-700 text-xs outline-none focus:border-blue-600 transition-all font-semibold"
+                className="w-full pl-6 pr-2 py-1.5 bg-white border border-slate-200 rounded text-slate-700 text-xs outline-none focus:border-blue-600 transition-all font-semibold"
               />
             </div>
           </div>

@@ -20,7 +20,7 @@ const ReplaceReasonForm = ({
   };
 
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm text-left animate-fadeIn">
+    <div className="bg-slate-50 border border-slate-200 rounded p-6 shadow-sm text-left animate-fadeIn">
       <h3 className="font-heading text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider">
         2. Reason for Replacement
       </h3>
@@ -32,7 +32,7 @@ const ReplaceReasonForm = ({
           <select
             value={reason}
             onChange={handleReasonChange}
-            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm focus:border-blue-500 cursor-pointer"
+            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded text-slate-700 outline-none text-sm focus:border-blue-500 cursor-pointer"
             required
           >
             <option value="">-- Choose Reason --</option>
@@ -56,14 +56,14 @@ const ReplaceReasonForm = ({
             value={comments}
             onChange={handleCommentsChange}
             rows="3"
-            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 outline-none text-sm focus:border-blue-500 resize-none"
+            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded text-slate-700 outline-none text-sm focus:border-blue-500 resize-none"
             placeholder="Provide details about the issue..."
           />
         </div>
       </div>
 
       {/* Replacement Processing Warnings */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mt-6 text-xs text-amber-800 leading-relaxed flex gap-3">
+      <div className="bg-amber-50 border border-amber-200 rounded p-4 mt-6 text-xs text-amber-800 leading-relaxed flex gap-3">
         <ShieldAlert className="flex-shrink-0 mt-0.5" size={16} />
         <div>
           <strong>Replacement Delivery Notice:</strong> Replacement products are

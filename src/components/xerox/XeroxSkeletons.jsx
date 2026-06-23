@@ -10,7 +10,7 @@ export const FileUploadSkeleton = () => (
       <PulseSkeleton className="h-5 w-1/3" />
       <PulseSkeleton className="h-6 w-16" />
     </div>
-    <div className="grid grid-cols-3 gap-3 mt-2">
+    <div className="grid gap-1 grid-cols-3 mt-2">
       <div className="flex flex-col gap-1.5">
         <PulseSkeleton className="h-3 w-1/2" />
         <PulseSkeleton className="h-9 w-full" />

@@ -9,7 +9,7 @@ const ReturnItemsSelector = ({
   handleQtyChange,
 }) => {
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm text-left">
+    <div className="bg-slate-50 border border-slate-200 rounded p-6 shadow-sm text-left">
       <h3 className="font-heading text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider">
         {isCancelMode ? "Items to be Cancelled" : "1. Select Items to Return"}
       </h3>
@@ -19,7 +19,7 @@ const ReturnItemsSelector = ({
           return (
             <div
               key={item._id}
-              className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-xl border transition-all ${
+              className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded border transition-all ${
                 isSelected
                   ? "bg-white border-blue-500 shadow-md shadow-blue-500/5"
                   : "bg-slate-50 border-slate-200"
@@ -42,7 +42,7 @@ const ReturnItemsSelector = ({
                 <img
                   src={item.product?.images[0]}
                   alt={item.product?.name.en}
-                  className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-100 object-contain flex-shrink-0 mix-blend-multiply"
+                  className="w-12 h-12 rounded bg-slate-50 border border-slate-100 object-contain flex-shrink-0 mix-blend-multiply"
                 />
                 <div className="min-w-0 flex-1">
                   <p className="font-heading text-sm font-semibold text-slate-800 truncate">

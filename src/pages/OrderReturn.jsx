@@ -229,7 +229,7 @@ const OrderReturn = () => {
       </p>
 
       {returnableItems.length === 0 ? (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded-xl text-sm mb-6 flex gap-3 text-left">
+        <div className="bg-rose-50 border border-rose-200 text-rose-800 p-4 rounded text-sm mb-6 flex gap-3 text-left">
           <ShieldAlert className="flex-shrink-0 mt-0.5" size={18} />
           <div>
             <strong>No items eligible for return:</strong> There are no products
@@ -259,7 +259,7 @@ const OrderReturn = () => {
           {/* Submit Action */}
           <button
             type="submit"
-            className="w-full py-3 font-heading font-bold text-sm bg-red-600 text-white rounded-xl hover:bg-red-700 shadow-md shadow-red-500/10 cursor-pointer border-0 mt-2 disabled:opacity-50 transition-all"
+            className="w-full py-3 font-heading font-bold text-sm bg-red-600 text-white rounded hover:bg-red-700 shadow-md shadow-red-500/10 cursor-pointer border-0 mt-2 disabled:opacity-50 transition-all"
             disabled={submitting}
           >
             {submitting

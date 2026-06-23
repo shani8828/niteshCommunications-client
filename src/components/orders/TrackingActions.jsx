@@ -15,7 +15,7 @@ const TrackingActions = ({
 
   if (order.deliveryStatus === "Delivered" && isWithin24Hours && (hasReturnableItems || hasReplaceableItems)) {
     return (
-      <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm flex flex-col gap-4 text-left">
+      <div className="bg-white border border-slate-200 p-6 md:p-8 rounded shadow-sm flex flex-col gap-4 text-left">
         <h3 className="font-heading text-base font-bold text-slate-800 flex items-center gap-2 mb-1">
           <RefreshCw size={18} className="text-blue-600 animate-pulse" /> Order Actions / ऑर्डर क्रियाएं
         </h3>
@@ -28,7 +28,7 @@ const TrackingActions = ({
           {hasReturnableItems && (
             <Link
               to={`/order-tracking/${order._id}/return`}
-              className="flex-1 text-center py-2.5 px-4 font-heading font-bold text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 shadow-md shadow-red-500/10 cursor-pointer block border-0 transition-colors"
+              className="flex-1 text-center py-2.5 px-4 font-heading font-bold text-xs bg-red-600 text-white rounded hover:bg-red-700 shadow-md shadow-red-500/10 cursor-pointer block border-0 transition-colors"
             >
               {currentLang === "hi" ? "रिटर्न और रिफंड" : "Request Return & Refund"}
             </Link>
@@ -36,7 +36,7 @@ const TrackingActions = ({
           {hasReplaceableItems && (
             <Link
               to={`/order-tracking/${order._id}/replace`}
-              className="flex-1 text-center py-2.5 px-4 font-heading font-bold text-xs bg-amber-600 text-white rounded-lg hover:bg-amber-700 shadow-md shadow-amber-500/10 cursor-pointer block border-0 transition-colors"
+              className="flex-1 text-center py-2.5 px-4 font-heading font-bold text-xs bg-amber-600 text-white rounded hover:bg-amber-700 shadow-md shadow-amber-500/10 cursor-pointer block border-0 transition-colors"
             >
               {currentLang === "hi" ? "रिप्लेसमेंट का अनुरोध" : "Request Replacement"}
             </Link>
@@ -48,11 +48,11 @@ const TrackingActions = ({
 
   if (isReturnOrReplaceRequested) {
     return (
-      <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm flex flex-col gap-4 text-left">
+      <div className="bg-white border border-slate-200 p-6 md:p-8 rounded shadow-sm flex flex-col gap-4 text-left">
         <h3 className="font-heading text-base font-bold text-slate-800 flex items-center gap-2 mb-1">
           <RefreshCw size={18} className="text-blue-600" /> Order Actions / ऑर्डर क्रियाएं
         </h3>
-        <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
+        <div className="p-4 bg-blue-50 border border-blue-100 rounded">
           <p className="text-xs text-blue-800 font-semibold leading-relaxed">
             {order.deliveryStatus === "Return Requested"
               ? currentLang === "hi"

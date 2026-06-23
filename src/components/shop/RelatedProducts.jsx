@@ -6,13 +6,13 @@ const RelatedProducts = ({ related, currentLang, t, loading }) => {
     return (
       <div className="mt-16">
         <div className="h-6 w-40 bg-slate-200 rounded animate-pulse mb-6" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid gap-1 grid-cols-2 sm:grid-cols-4">
           {Array.from({ length: 4 }).map((_, idx) => (
             <div
               key={idx}
-              className="p-3 text-center bg-white border border-slate-200 rounded-xl animate-pulse"
+              className="p-3 text-center bg-white border border-slate-200 rounded animate-pulse"
             >
-              <div className="h-[110px] bg-slate-100 rounded-lg mb-2 w-full" />
+              <div className="h-[110px] bg-slate-100 rounded mb-2 w-full" />
               <div className="h-3 bg-slate-200 rounded w-3/4 mx-auto mb-2" />
               <div className="h-3 bg-slate-200 rounded w-1/3 mx-auto" />
             </div>
@@ -29,14 +29,14 @@ const RelatedProducts = ({ related, currentLang, t, loading }) => {
       <h3 className="font-heading text-lg font-bold text-slate-800 mb-6">
         {t("product:related_products")}
       </h3>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid gap-1 grid-cols-2 sm:grid-cols-4">
         {related.map((item) => (
           <div
             key={item._id}
-            className="p-3 text-center bg-white border border-slate-200 rounded-xl hover:shadow-sm"
+            className="p-3 text-center bg-white border border-slate-200 rounded hover:shadow-sm"
           >
             <Link to={`/products/${item.slug || item._id}`} state={{ product: item }}>
-              <div className="h-[110px] flex justify-center items-center overflow-hidden bg-slate-50 border border-slate-100 rounded-lg mb-2">
+              <div className="h-[110px] flex justify-center items-center overflow-hidden bg-slate-50 border border-slate-100 rounded mb-2">
                 <img
                   src={item.images[0]}
                   alt={item.name.en}

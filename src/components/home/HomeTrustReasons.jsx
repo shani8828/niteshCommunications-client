@@ -10,7 +10,7 @@ const HomeTrustReasons = ({ currentLang }) => {
             ? "नितेश कम्युनिकेशन्स पर भरोसा क्यों करें?"
             : "Why Choose Nitesh Communications?"}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="grid gap-1 grid-cols-1 md:grid-cols-3">
           <div className="flex flex-col items-center text-center gap-3 text-slate-600">
             <ShieldCheck size={38} className="text-blue-600" />
             <h4 className="font-heading font-bold text-lg text-slate-800">

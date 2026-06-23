@@ -128,7 +128,7 @@ const XeroxSetupStep = ({ documents, setDocuments, onNext }) => {
             </div>
 
             {/* Inputs grid */}
-            <div className="grid grid-cols-3 gap-3 border-t border-slate-200/40 pt-3 mt-1">
+            <div className="grid gap-1 grid-cols-3 border-t border-slate-200/40 pt-3 mt-1">
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   Pages

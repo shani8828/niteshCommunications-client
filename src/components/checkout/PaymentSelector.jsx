@@ -22,13 +22,13 @@ const PaymentSelector = ({
   };
 
   return (
-    <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl flex flex-col gap-4 shadow-sm">
+    <div className="bg-white border border-slate-200 p-6 md:p-8 rounded flex flex-col gap-4 shadow-sm">
       <h3 className="font-heading text-base font-bold text-slate-800 mb-2">
         {t("cart:select_payment")}
       </h3>
 
       {cartSubtotal > 5000 && (
-        <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs font-semibold">
+        <div className="p-3.5 bg-rose-50 border border-rose-200 rounded text-rose-700 text-xs font-semibold">
           {currentLang === "hi"
             ? "⚠️ आपका सबटोटल ₹5,000 से अधिक है, इसलिए केवल ऑनलाइन भुगतान उपलब्ध है। कैश ऑन डिलीवरी (COD) उपलब्ध नहीं है।"
             : "⚠️ Your subtotal exceeds ₹5,000, so only online payment is available. Cash on Delivery (COD) is disabled."}
@@ -38,7 +38,7 @@ const PaymentSelector = ({
       <div className="flex flex-col gap-3">
         {/* COD Option */}
         <div
-          className={`flex items-start gap-4 border p-5 rounded-2xl transition-all ${
+          className={`flex items-start gap-4 border p-5 rounded transition-all ${
             cartSubtotal > 5000
               ? "border-slate-100 bg-slate-50 opacity-55 cursor-not-allowed"
               : paymentType === "COD"
@@ -81,7 +81,7 @@ const PaymentSelector = ({
 
         {/* Razorpay Option */}
         <div
-          className={`flex items-start gap-4 border p-5 rounded-2xl cursor-pointer transition-colors ${
+          className={`flex items-start gap-4 border p-5 rounded cursor-pointer transition-colors ${
             paymentType === "Online"
               ? "border-blue-600 bg-blue-50/10"
               : "border-slate-200 bg-white hover:bg-slate-50"

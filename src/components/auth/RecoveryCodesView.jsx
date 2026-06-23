@@ -26,7 +26,7 @@ const RecoveryCodesView = ({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-2 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 font-mono text-center">
+      <div className="grid gap-1 grid-cols-1 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 font-mono text-center">
         {generatedCodes.map((c, i) => (
           <div
             key={i}
@@ -41,7 +41,7 @@ const RecoveryCodesView = ({
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid gap-1 grid-cols-3">
           <button
             type="button"
             onClick={onCopy}
