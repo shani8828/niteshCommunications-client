@@ -16,6 +16,7 @@ import RepairServicesTab from "../components/admin/RepairServicesTab";
 import CscServicesTab from "../components/admin/CscServicesTab";
 import UsersTab from "../components/admin/UsersTab";
 import PrintoutsTab from "../components/admin/PrintoutsTab";
+import OffersTab from "../components/admin/OffersTab";
 import AdminSkeleton from "../components/admin/AdminSkeleton";
 
 // Layout Subcomponents
@@ -39,6 +40,7 @@ const AdminDashboard = () => {
   const [repairPricingList, setRepairPricingList] = useState([]);
   const [cscServicesList, setCscServicesList] = useState([]);
   const [printouts, setPrintouts] = useState([]);
+  const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const activeTabRef = useRef(activeTab);
@@ -154,6 +156,18 @@ const AdminDashboard = () => {
     }
   }, []);
 
+  const fetchOffers = useCallback(async () => {
+    try {
+      const response = await api.get("/offers/admin");
+      const offersData = response.data || [];
+      setOffers(offersData);
+      setCachedData("admin_offers", offersData, 5 * 60 * 1000);
+    } catch (err) {
+      console.error(err);
+      showToast.error("Failed to fetch offers");
+    }
+  }, []);
+
   const loadTabData = useCallback(async (tab, forceRefresh = false, silent = false) => {
     let hasCache = false;
 
@@ -210,6 +224,12 @@ const AdminDashboard = () => {
           setPrintouts(cached);
           hasCache = true;
         }
+      } else if (tab === "offers") {
+        const cached = getCachedData("admin_offers");
+        if (cached) {
+          setOffers(cached);
+          hasCache = true;
+        }
       }
     }
 
@@ -234,6 +254,8 @@ const AdminDashboard = () => {
         await fetchCscServices();
       } else if (tab === "printouts") {
         await fetchPrintouts();
+      } else if (tab === "offers") {
+        await fetchOffers();
       }
     } catch (err) {
       console.error(`Error loading tab data for ${tab}:`, err);
@@ -250,6 +272,8 @@ const AdminDashboard = () => {
     fetchUsers,
     fetchRepairPricing,
     fetchCscServices,
+    fetchPrintouts,
+    fetchOffers,
   ]);
 
   const handleUpdateOrderStatus = useCallback(async (id, status) => {
@@ -355,6 +379,7 @@ const AdminDashboard = () => {
     if (tab === "csc-services") return cscServicesList.length === 0;
     if (tab === "users") return users.length === 0;
     if (tab === "printouts") return printouts.length === 0;
+    if (tab === "offers") return offers.length === 0;
     return true;
   }, [
     analytics,
@@ -367,6 +392,7 @@ const AdminDashboard = () => {
     cscServicesList,
     users,
     printouts,
+    offers,
   ]);
 
   const renderTabContent = () => {
@@ -381,6 +407,7 @@ const AdminDashboard = () => {
       if (activeTab === "csc-services") return <AdminSkeleton type="table" cols={4} rows={6} />;
       if (activeTab === "users") return <AdminSkeleton type="table" cols={5} rows={6} />;
       if (activeTab === "printouts") return <AdminSkeleton type="table" cols={6} rows={6} />;
+      if (activeTab === "offers") return <AdminSkeleton type="table" cols={4} rows={6} />;
     }
 
     switch (activeTab) {
@@ -474,6 +501,17 @@ const AdminDashboard = () => {
             t={t}
             currentLang={currentLang}
             handleUpdatePrintoutStatus={handleUpdatePrintoutStatus}
+          />
+        );
+      case "offers":
+        return (
+          <OffersTab
+            offers={offers}
+            setOffers={setOffers}
+            t={t}
+            currentLang={currentLang}
+            fetchOffers={fetchOffers}
+            setLoading={setLoading}
           />
         );
       default:

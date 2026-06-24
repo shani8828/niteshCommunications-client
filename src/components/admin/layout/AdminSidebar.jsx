@@ -9,6 +9,7 @@ import {
   Users,
   Sliders,
   Printer,
+  Image,
 } from "lucide-react";
 
 const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) => {
@@ -130,6 +131,19 @@ const AdminSidebar = ({ activeTab, setActiveTab, loadTabData, currentLang, t }) 
         }`}
       >
         <Printer size={16} /> {currentLang === "hi" ? "प्रिंटआउट" : "Printouts"}
+      </button>
+      <button
+        onClick={() => {
+          setActiveTab("offers");
+          loadTabData("offers");
+        }}
+        className={`flex items-center gap-2.5 w-full px-4 py-3 bg-transparent border-0 font-heading font-semibold text-sm transition-all cursor-pointer ${
+          activeTab === "offers"
+            ? "bg-gray-300 text-brand-cyan border border-l-4 border-blue-500"
+            : "hover:bg-slate-100 text-slate-600"
+        }`}
+      >
+        <Image size={16} /> {currentLang === "hi" ? "ऑफर" : "Offers"}
       </button>
       <button
         onClick={() => {

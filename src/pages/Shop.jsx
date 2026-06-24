@@ -8,7 +8,7 @@ import { useSearchParams } from "react-router-dom";
 import QuickLinksBanner from "../components/common/QuickLinksBanner";
 import ProductCard from "../components/shop/ProductCard";
 import ShopFiltersHeader from "../components/shop/ShopFiltersHeader";
-import ShopSidebarFilters from "../components/shop/ShopSidebarFilters";
+import Offers from "../components/shop/Offers";
 
 const Shop = () => {
   const { t, i18n } = useTranslation(["product", "common"]);
@@ -32,7 +32,6 @@ const Shop = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const observerTarget = useRef(null);
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const currentLang = i18n.language || "en";
 
@@ -230,7 +229,7 @@ const Shop = () => {
   }, []);
 
   const renderSkeletons = (count = 16) => (
-    <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 w-full">
+    <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 w-full">
       {Array.from({ length: count }).map((_, idx) => (
         <div
           key={idx}
@@ -262,7 +261,7 @@ const Shop = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-6 pt-2 md:pt-4 lg:pt-8 pb-20 bg-white">
+    <div className="w-full px-4 md:px-8 pt-0 pb-20 bg-white">
       {/* <div className="text-center mb-12 flex flex-col items-center gap-2">
         <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-800 mt-1">
           {t("common:shop")}
@@ -274,7 +273,7 @@ const Shop = () => {
         </p>
       </div> */}
 
-      {/* Header filters containing search bar & category horizontal scroll lists */}
+      {/* Header filters containing search bar, filters & categories scroll list */}
       <ShopFiltersHeader
         categories={categories}
         categoriesLoading={categoriesLoading}
@@ -284,44 +283,33 @@ const Shop = () => {
         onSortSelect={handleSortSelect}
         initialSearch={search}
         onSearchDebounce={handleSearchDebounce}
-        mobileFiltersOpen={mobileFiltersOpen}
-        setMobileFiltersOpen={setMobileFiltersOpen}
+        minPrice={minPrice}
+        maxPrice={maxPrice}
+        onPriceDebounce={handlePriceDebounce}
+        onReset={handleResetFilters}
         currentLang={currentLang}
         t={t}
       />
 
-      {/* Layout Columns */}
-      <div className="grid gap-1 grid-cols-1 md:grid-cols-[260px_1fr]">
-        {/* Left Column Filters (Sidebar) */}
-        <ShopSidebarFilters
-          selectedCategory={selectedCategory}
-          initialMinPrice={minPrice}
-          initialMaxPrice={maxPrice}
-          onPriceDebounce={handlePriceDebounce}
-          onReset={handleResetFilters}
-          mobileFiltersOpen={mobileFiltersOpen}
-          currentLang={currentLang}
-          t={t}
-        />
-
-        {/* Right Column Products Grid */}
-        <div className="w-full">
-          {loading ? (
+      {/* Products Grid */}
+      <div className="w-full">
+        <Offers />
+        {loading ? (
             renderSkeletons(16)
           ) : products.length === 0 ? (
-            <div className="text-center py-16 text-slate-500">
+            <div className="text-center py-0 text-slate-500">
               <p className="text-sm">No products match your filter options.</p>
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="px-4 py-2 mt-4 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded border-0 cursor-pointer shadow-md shadow-blue-500/10"
+                className="px-4 py-2 mt-0 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded border-0 cursor-pointer shadow-md shadow-blue-500/10"
               >
                 {t("product:reset_filters")}
               </button>
             </div>
           ) : (
             <>
-              <div className="grid gap-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+              <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                 {products.map((product) => {
                   const isWishlisted = wishlist.some(
                     (p) => p._id === product._id,
@@ -360,7 +348,6 @@ const Shop = () => {
             </>
           )}
         </div>
-      </div>
       <QuickLinksBanner currentType="shop" />
     </div>
   );
