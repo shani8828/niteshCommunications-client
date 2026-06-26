@@ -85,22 +85,48 @@ const Checkout = () => {
 
   useEffect(() => {
     if (user) {
-      setAddress(user.address || "");
       const userPhone = user.mobile || "";
       setInitialPhone(userPhone);
       formValuesRef.current.phone = userPhone;
-      if (
-        user.coordinates &&
-        user.coordinates.latitude &&
-        user.coordinates.longitude
-      ) {
-        setCoordinates({
-          latitude: user.coordinates.latitude,
-          longitude: user.coordinates.longitude,
-        });
+
+      const userAddresses = user.addresses || [];
+      const defaultAddr = userAddresses.find((a) => a.isDefault) || userAddresses[0];
+
+      if (defaultAddr) {
+        setAddress(defaultAddr.address || "");
+        setInitialAddressDetails(defaultAddr.landmark || "");
+        formValuesRef.current.addressDetails = defaultAddr.landmark || "";
+        if (defaultAddr.coordinates && defaultAddr.coordinates.latitude) {
+          setCoordinates({
+            latitude: defaultAddr.coordinates.latitude,
+            longitude: defaultAddr.coordinates.longitude,
+          });
+        }
+      } else if (user.address) {
+        setAddress(user.address || "");
+        if (user.coordinates && user.coordinates.latitude) {
+          setCoordinates({
+            latitude: user.coordinates.latitude,
+            longitude: user.coordinates.longitude,
+          });
+        }
       }
     }
   }, [user]);
+
+  const handleAddressSelect = useCallback((selectedAddr) => {
+    if (selectedAddr) {
+      setAddress(selectedAddr.address);
+      setCoordinates(selectedAddr.coordinates);
+      setInitialAddressDetails(selectedAddr.landmark || "");
+      formValuesRef.current.addressDetails = selectedAddr.landmark || "";
+    } else {
+      setAddress("");
+      setCoordinates(null);
+      setInitialAddressDetails("");
+      formValuesRef.current.addressDetails = "";
+    }
+  }, []);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -353,6 +379,8 @@ const Checkout = () => {
             currentLang={currentLang}
             onLocationVerify={handleUseCurrentLocation}
             onFormChange={handleFormChange}
+            addresses={user?.addresses || []}
+            onAddressSelect={handleAddressSelect}
           />
 
           <PaymentSelector

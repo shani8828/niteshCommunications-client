@@ -77,19 +77,58 @@ const RepairWizardModal = ({
     }
   }, [coordinates]);
 
+  const [selectedAddrIndex, setSelectedAddrIndex] = useState(-1);
+  const addresses = user?.addresses || [];
+
   // Autofill user details
   useEffect(() => {
     if (user) {
       setName(user.name || "");
       setPhone(user.mobile || user.phone || "");
-      if (user.address) {
+      
+      const userAddresses = user.addresses || [];
+      const defaultAddr = userAddresses.find((a) => a.isDefault) || userAddresses[0];
+
+      if (defaultAddr) {
+        setAddress(defaultAddr.address || "");
+        if (defaultAddr.coordinates && defaultAddr.coordinates.latitude) {
+          setCoordinates({
+            latitude: defaultAddr.coordinates.latitude,
+            longitude: defaultAddr.coordinates.longitude,
+          });
+        }
+      } else if (user.address) {
         setAddress(user.address);
-      }
-      if (user.coordinates) {
-        setCoordinates(user.coordinates);
+        if (user.coordinates) {
+          setCoordinates(user.coordinates);
+        }
       }
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user && user.addresses && user.addresses.length > 0) {
+      const idx = user.addresses.findIndex((a) => a.isDefault);
+      setSelectedAddrIndex(idx >= 0 ? idx : 0);
+    } else {
+      setSelectedAddrIndex(-1);
+    }
+  }, [user]);
+
+  const handleSelectSavedAddress = (idx) => {
+    setSelectedAddrIndex(idx);
+    const addr = addresses[idx];
+    setAddress(addr.address || "");
+    if (addr.coordinates) {
+      setCoordinates(addr.coordinates);
+    }
+  };
+
+  const handleSelectNewAddress = () => {
+    setSelectedAddrIndex(-1);
+    setAddress("");
+    setCoordinates(null);
+  };
 
   // Enforce payment limit thresholds
   useEffect(() => {
@@ -242,8 +281,19 @@ const RepairWizardModal = ({
         // Reset inputs
         setName(user?.name || "");
         setPhone(user?.mobile || user?.phone || "");
-        setAddress(user?.address || "");
-        setCoordinates(user?.coordinates || null);
+        
+        const userAddresses = user?.addresses || [];
+        const defaultAddr = userAddresses.find((a) => a.isDefault) || userAddresses[0];
+        if (defaultAddr) {
+          setAddress(defaultAddr.address || "");
+          setCoordinates(defaultAddr.coordinates || null);
+          const idx = userAddresses.findIndex((a) => a.isDefault);
+          setSelectedAddrIndex(idx >= 0 ? idx : 0);
+        } else {
+          setAddress(user?.address || "");
+          setCoordinates(user?.coordinates || null);
+          setSelectedAddrIndex(-1);
+        }
         setPaymentType("COD");
       } else {
         const scriptLoaded = await loadRazorpayScript();
@@ -677,19 +727,106 @@ const RepairWizardModal = ({
                 </div>
 
                 <div className="flex flex-col">
-                  <div className="flex justify-between items-center mb-1.5">
+                  {/* Saved addresses selector */}
+                  {addresses.length > 0 && (
+                    <div className="flex flex-col gap-2.5 mb-2 border-t border-slate-100 pt-3">
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        {currentLang === "hi" ? "पिकअप का पता चुनें" : "Select Pickup Address"} *
+                      </span>
+                      <div className="flex flex-col gap-2.5">
+                        {addresses.map((item, idx) => {
+                          const dist = calculateDistance(
+                            SHOP_LAT,
+                            SHOP_LON,
+                            item.coordinates.latitude,
+                            item.coordinates.longitude
+                          );
+                          const isOutOfRange = dist > 15;
+
+                          return (
+                            <label
+                              key={idx}
+                              className={`p-3 border rounded-xl flex items-start gap-2.5 cursor-pointer transition-all ${
+                                selectedAddrIndex === idx
+                                  ? "border-blue-500 bg-blue-50/10"
+                                  : "border-slate-200 bg-white hover:bg-slate-50/30"
+                              }`}
+                            >
+                              <input
+                                type="radio"
+                                name="repairAddressSelect"
+                                checked={selectedAddrIndex === idx}
+                                onChange={() => handleSelectSavedAddress(idx)}
+                                className="mt-0.5 w-3.5 h-3.5 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                              />
+                              <div className="flex-grow">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-xs font-bold text-slate-800">
+                                    {currentLang === "hi" ? `पता ${idx + 1}` : `Address ${idx + 1}`}
+                                  </span>
+                                  {item.isDefault && (
+                                    <span className="bg-blue-100 text-blue-700 text-[9px] px-1.5 py-0.2 rounded font-bold">
+                                      {currentLang === "hi" ? "डिफ़ॉल्ट" : "Default"}
+                                    </span>
+                                  )}
+                                  <span
+                                    className={`text-[9px] px-1.5 py-0.2 rounded font-bold ${
+                                      isOutOfRange ? "bg-red-100 text-red-700" : "bg-emerald-100 text-emerald-700"
+                                    }`}
+                                  >
+                                    {dist} km {isOutOfRange ? (currentLang === "hi" ? "(सीमा से बाहर)" : "(Out of range)") : ""}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-650 mt-0.5 leading-relaxed">{item.address}</p>
+                                {item.landmark && (
+                                  <p className="text-[10px] text-slate-400 mt-0.5 font-semibold">
+                                    {currentLang === "hi" ? `लैंडमार्क: ${item.landmark}` : `Landmark: ${item.landmark}`}
+                                  </p>
+                                )}
+                              </div>
+                            </label>
+                          );
+                        })}
+
+                        <label
+                          className={`p-3 border rounded-xl flex items-start gap-2.5 cursor-pointer transition-all ${
+                            selectedAddrIndex === -1
+                              ? "border-blue-500 bg-blue-50/10"
+                              : "border-slate-200 bg-white hover:bg-slate-50/30"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="repairAddressSelect"
+                            checked={selectedAddrIndex === -1}
+                            onChange={handleSelectNewAddress}
+                            className="mt-0.5 w-3.5 h-3.5 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                          />
+                          <div>
+                            <span className="text-xs font-bold text-slate-805">
+                              {currentLang === "hi" ? "अन्य स्थान / नया पता उपयोग करें" : "Use a different address / location"}
+                            </span>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center mb-1.5 mt-2 border-t border-slate-100 pt-3">
                     <label className="text-xs font-semibold text-slate-500">
                       {currentLang === "hi" ? "पिकअप का पता" : "Pickup Address"} *
                     </label>
-                    <button
-                      type="button"
-                      onClick={handleUseCurrentLocation}
-                      disabled={geolocating}
-                      className="flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer font-bold disabled:text-slate-400 transition-colors"
-                    >
-                      <MapPin size={12} className={geolocating ? "animate-bounce" : ""} />
-                      {geolocating ? "Locating..." : "Use Location"}
-                    </button>
+                    {selectedAddrIndex === -1 && (
+                      <button
+                        type="button"
+                        onClick={handleUseCurrentLocation}
+                        disabled={geolocating}
+                        className="flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer font-bold disabled:text-slate-400 transition-colors"
+                      >
+                        <MapPin size={12} className={geolocating ? "animate-bounce" : ""} />
+                        {geolocating ? "Locating..." : "Use Location"}
+                      </button>
+                    )}
                   </div>
                   <textarea
                     className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-xs font-medium"
@@ -697,6 +834,8 @@ const RepairWizardModal = ({
                     placeholder="Flat / Building / Area Details"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
+                    readOnly={selectedAddrIndex !== -1}
+                    disabled={selectedAddrIndex !== -1 && !geolocating}
                     required
                   />
 

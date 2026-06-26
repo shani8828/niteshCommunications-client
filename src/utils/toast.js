@@ -30,17 +30,30 @@ const shouldShow = (message) => {
  */
 const renderCustomToast = (type, message, description = "") => {
   let bgColor = "";
-  let textColor = "#ffffff";
-  let crossHoverColor = "rgba(255, 255, 255, 0.15)";
+  let borderColor = "";
+  let textColor = "";
+  let crossHoverColor = "";
 
   if (type === "success") {
-    bgColor = "#10b981"; // Solid green background
+    bgColor = "#f0fdf4"; // bg-green-50
+    borderColor = "#bbf7d0"; // border-green-200
+    textColor = "#15803d"; // text-green-750
+    crossHoverColor = "rgba(21, 128, 61, 0.08)";
   } else if (type === "error") {
-    bgColor = "#ef4444"; // Solid red background
+    bgColor = "#fef2f2"; // bg-red-50
+    borderColor = "#fca5a5"; // border-red-200
+    textColor = "#b91c1c"; // text-red-750
+    crossHoverColor = "rgba(185, 28, 28, 0.08)";
   } else if (type === "warning") {
-    bgColor = "#f59e0b"; // Solid yellow/amber background
+    bgColor = "#fffbeb"; // bg-amber-50
+    borderColor = "#fde68a"; // border-amber-200
+    textColor = "#b45309"; // text-amber-750
+    crossHoverColor = "rgba(180, 83, 9, 0.08)";
   } else {
-    bgColor = "#3b82f6"; // Solid blue background
+    bgColor = "#eff6ff"; // bg-blue-50
+    borderColor = "#bfdbfe"; // border-blue-200
+    textColor = "#1d4ed8"; // text-blue-750
+    crossHoverColor = "rgba(29, 78, 216, 0.08)";
   }
 
   toast.custom((id) =>
@@ -48,25 +61,44 @@ const renderCustomToast = (type, message, description = "") => {
       "div",
       {
         className:
-          "flex w-[356px] rounded-xl overflow-hidden shadow-lg border-0",
+          "flex w-[calc(100vw-32px)] sm:w-[356px] rounded-xl overflow-hidden shadow-sm border border-solid items-center p-3.5",
         style: {
           backgroundColor: bgColor,
+          borderColor: borderColor,
           color: textColor,
           fontFamily: "Inter, system-ui, sans-serif",
         },
       },
-      // Cancel button (20% of total width, to the most left)
+      // Message and Description Content (90% of total width)
+      React.createElement(
+        "div",
+        {
+          className: "flex-grow pr-3 flex flex-col justify-center text-left",
+        },
+        React.createElement(
+          "div",
+          { className: "text-xs sm:text-sm font-medium leading-normal" },
+          message,
+        ),
+        description
+          ? React.createElement(
+              "div",
+              {
+                className:
+                  "text-[10px] sm:text-xs mt-0.5 opacity-80 leading-normal",
+              },
+              description,
+            )
+          : null,
+      ),
+      // Close button (small, light, elegant, to the most right)
       React.createElement(
         "button",
         {
           onClick: () => toast.dismiss(id),
           className:
-            "w-[20%] flex items-center justify-center border-r border-white/20 transition-colors duration-150 outline-none cursor-pointer text-center py-4",
+            "flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full transition-colors duration-150 outline-none cursor-pointer border-0 bg-transparent text-xs",
           style: {
-            background: "none",
-            borderTop: "0",
-            borderBottom: "0",
-            borderLeft: "0",
             color: textColor,
           },
           onMouseEnter: (e) => {
@@ -77,29 +109,7 @@ const renderCustomToast = (type, message, description = "") => {
           },
           title: "Close",
         },
-        React.createElement("span", { className: "text-base font-bold" }, "✕"),
-      ),
-      // Message and Description Content (80% of total width, to the right)
-      React.createElement(
-        "div",
-        {
-          className: "w-[80%] p-4 flex flex-col justify-center text-left",
-        },
-        React.createElement(
-          "div",
-          { className: "text-xs sm:text-sm font-semibold leading-tight" },
-          message,
-        ),
-        description
-          ? React.createElement(
-              "div",
-              {
-                className:
-                  "text-[10px] sm:text-xs mt-1 opacity-90 leading-snug",
-              },
-              description,
-            )
-          : null,
+        "✕"
       ),
     ),
   );

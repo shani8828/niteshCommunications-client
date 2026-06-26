@@ -110,7 +110,7 @@ function App() {
         <CartProvider>
           <BreadcrumbProvider>
             {/* Global Styled Toaster Alerts */}
-            <Toaster position="top-right" richColors expand={false} theme="light" />
+            <Toaster position="top-center" richColors expand={false} theme="light" />
             
             <div className="app-container">
               {/* Header Multilingual navigation */}

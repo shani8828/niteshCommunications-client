@@ -27,12 +27,27 @@ const Xerox = ({ isOpen, onClose }) => {
     if (user) {
       if (user.name) setName(user.name);
       if (user.mobile) setPhone(user.mobile);
-      if (user.address) setAddress(user.address);
-      if (user.coordinates && user.coordinates.latitude) {
-        setCoordinates({
-          latitude: user.coordinates.latitude,
-          longitude: user.coordinates.longitude,
-        });
+      
+      const userAddresses = user.addresses || [];
+      const defaultAddr = userAddresses.find((a) => a.isDefault) || userAddresses[0];
+
+      if (defaultAddr) {
+        setAddress(defaultAddr.address || "");
+        setLandmark(defaultAddr.landmark || "");
+        if (defaultAddr.coordinates && defaultAddr.coordinates.latitude) {
+          setCoordinates({
+            latitude: defaultAddr.coordinates.latitude,
+            longitude: defaultAddr.coordinates.longitude,
+          });
+        }
+      } else if (user.address) {
+        setAddress(user.address);
+        if (user.coordinates && user.coordinates.latitude) {
+          setCoordinates({
+            latitude: user.coordinates.latitude,
+            longitude: user.coordinates.longitude,
+          });
+        }
       }
     }
   }, [user]);
@@ -265,6 +280,7 @@ const Xerox = ({ isOpen, onClose }) => {
               setLandmark={setLandmark}
               onBack={() => setStep(1)}
               onNext={() => setStep(3)}
+              user={user}
             />
           )}
 

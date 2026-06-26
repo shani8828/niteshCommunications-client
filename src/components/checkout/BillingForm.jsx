@@ -14,9 +14,18 @@ const BillingForm = ({
   currentLang,
   onLocationVerify,
   onFormChange,
+  addresses = [],
+  onAddressSelect,
 }) => {
   const [phone, setPhone] = useState(initialPhone || "");
   const [addressDetails, setAddressDetails] = useState(initialAddressDetails || "");
+  const [selectedAddrIndex, setSelectedAddrIndex] = useState(() => {
+    if (addresses.length > 0) {
+      const idx = addresses.findIndex((a) => a.isDefault);
+      return idx >= 0 ? idx : 0;
+    }
+    return -1;
+  });
 
   useEffect(() => {
     if (initialPhone) {
@@ -25,10 +34,19 @@ const BillingForm = ({
   }, [initialPhone]);
 
   useEffect(() => {
-    if (initialAddressDetails) {
-      setAddressDetails(initialAddressDetails);
+    if (initialAddressDetails !== undefined) {
+      setAddressDetails(initialAddressDetails || "");
     }
   }, [initialAddressDetails]);
+
+  useEffect(() => {
+    if (addresses.length > 0) {
+      const idx = addresses.findIndex((a) => a.isDefault);
+      setSelectedAddrIndex(idx >= 0 ? idx : 0);
+    } else {
+      setSelectedAddrIndex(-1);
+    }
+  }, [addresses]);
 
   const handlePhoneChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
@@ -42,11 +60,22 @@ const BillingForm = ({
     onFormChange("addressDetails", value);
   };
 
+  const handleSelectSavedAddress = (idx) => {
+    setSelectedAddrIndex(idx);
+    onAddressSelect(addresses[idx]);
+  };
+
+  const handleSelectNewAddress = () => {
+    setSelectedAddrIndex(-1);
+    onAddressSelect(null);
+  };
+
   return (
     <div className="bg-white border border-slate-200 p-6 md:p-8 rounded flex flex-col gap-4 shadow-sm">
       <h3 className="font-heading text-base font-bold text-slate-800 mb-2">
         {currentLang === "hi" ? "बिलिंग विवरण" : "Billing Details"}
       </h3>
+      
       <div className="flex flex-col">
         <label className="block mb-1.5 text-xs font-semibold text-slate-500">
           {currentLang === "hi" ? "मोबाइल नंबर " : "Phone Number"} *
@@ -61,9 +90,115 @@ const BillingForm = ({
           required
         />
       </div>
-      <div className="flex flex-col gap-4">
+
+      {/* Multiple Saved Addresses Selector */}
+      {addresses.length > 0 && (
+        <div className="flex flex-col gap-3 mt-2 border-t border-slate-100 pt-4">
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            {currentLang === "hi" ? "डिलीवरी पता चुनें" : "Select Delivery Address"} *
+          </span>
+          <div className="flex flex-col gap-3">
+            {addresses.map((item, idx) => {
+              const SHOP_LAT = 26.671782;
+              const SHOP_LON = 82.008832;
+              const calculateDistance = (lat1, lon1, lat2, lon2) => {
+                const R = 6371;
+                const dLat = (lat2 - lat1) * (Math.PI / 180);
+                const dLon = (lon2 - lon1) * (Math.PI / 180);
+                const a =
+                  Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * (Math.PI / 180)) *
+                    Math.cos(lat2 * (Math.PI / 180)) *
+                    Math.sin(dLon / 2) *
+                    Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                return Number((R * c).toFixed(2));
+              };
+              const dist = calculateDistance(
+                SHOP_LAT,
+                SHOP_LON,
+                item.coordinates.latitude,
+                item.coordinates.longitude
+              );
+              const isOutOfRange = dist > 15;
+
+              return (
+                <label
+                  key={idx}
+                  className={`p-4 border rounded-2xl flex items-start gap-3 cursor-pointer transition-all ${
+                    selectedAddrIndex === idx
+                      ? "border-blue-500 bg-blue-50/10"
+                      : "border-slate-200 bg-white hover:bg-slate-50/30"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="deliveryAddressSelect"
+                    checked={selectedAddrIndex === idx}
+                    onChange={() => handleSelectSavedAddress(idx)}
+                    className="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <div className="flex-grow">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-slate-800">
+                        {currentLang === "hi" ? `पता ${idx + 1}` : `Address ${idx + 1}`}
+                      </span>
+                      {item.isDefault && (
+                        <span className="bg-blue-100 text-blue-700 text-[9px] px-2 py-0.5 rounded-full font-bold">
+                          {currentLang === "hi" ? "डिफ़ॉल्ट" : "Default"}
+                        </span>
+                      )}
+                      <span
+                        className={`text-[9px] px-2 py-0.5 rounded-full font-bold ${
+                          isOutOfRange ? "bg-red-100 text-red-700" : "bg-emerald-100 text-emerald-700"
+                        }`}
+                      >
+                        {dist} km {isOutOfRange ? (currentLang === "hi" ? "(सीमा से बाहर)" : "(Out of range)") : ""}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-650 mt-1 leading-relaxed">{item.address}</p>
+                    {item.landmark && (
+                      <p className="text-[10px] text-slate-400 mt-1 font-semibold">
+                        {currentLang === "hi" ? `लैंडमार्क: ${item.landmark}` : `Landmark: ${item.landmark}`}
+                      </p>
+                    )}
+                  </div>
+                </label>
+              );
+            })}
+
+            <label
+              className={`p-4 border rounded-2xl flex items-start gap-3 cursor-pointer transition-all ${
+                selectedAddrIndex === -1
+                  ? "border-blue-500 bg-blue-50/10"
+                  : "border-slate-200 bg-white hover:bg-slate-50/30"
+              }`}
+            >
+              <input
+                type="radio"
+                name="deliveryAddressSelect"
+                checked={selectedAddrIndex === -1}
+                onChange={handleSelectNewAddress}
+                className="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer"
+              />
+              <div>
+                <span className="text-xs font-bold text-slate-800">
+                  {currentLang === "hi" ? "अन्य स्थान / नया पता उपयोग करें" : "Use a different address / location"}
+                </span>
+                <p className="text-[10px] text-slate-400 mt-0.5">
+                  {currentLang === "hi"
+                    ? "जीपीएस का उपयोग करके नया डिलीवरी स्थान दर्ज करें"
+                    : "Enter a new delivery location using GPS"}
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-4 mt-2 border-t border-slate-100 pt-4">
         {!coordinates ? (
-          <div className="p-6 bg-blue-50/40 border border-blue-200 rounded text-center flex flex-col items-center gap-3.5 shadow-sm mt-2">
+          <div className="p-6 bg-blue-50/40 border border-blue-200 rounded text-center flex flex-col items-center gap-3.5 shadow-sm">
             <div className="bg-blue-600/10 text-blue-600 p-3.5 rounded-full flex justify-center items-center">
               <MapPin
                 size={28}
@@ -115,20 +250,22 @@ const BillingForm = ({
                     ? "सत्यापित डिलीवरी स्थान (रीड-ओनली) *"
                     : "Verified Delivery Location (Read-Only) *"}
                 </label>
-                <button
-                  type="button"
-                  onClick={onLocationVerify}
-                  disabled={geolocating}
-                  className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer font-semibold disabled:text-slate-400 transition-colors"
-                >
-                  <MapPin
-                    size={14}
-                    className={geolocating ? "animate-bounce" : ""}
-                  />
-                  {geolocating
-                    ? "खोज रहे हैं... / Locating..."
-                    : "लोकेशन बदलें / Change Location"}
-                </button>
+                {selectedAddrIndex === -1 && (
+                  <button
+                    type="button"
+                    onClick={onLocationVerify}
+                    disabled={geolocating}
+                    className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer font-semibold disabled:text-slate-400 transition-colors"
+                  >
+                    <MapPin
+                      size={14}
+                      className={geolocating ? "animate-bounce" : ""}
+                    />
+                    {geolocating
+                      ? "खोज रहे हैं... / Locating..."
+                      : "लोकेशन बदलें / Change Location"}
+                  </button>
+                )}
               </div>
               <textarea
                 className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded text-slate-500 placeholder-slate-400 outline-none cursor-not-allowed text-sm"

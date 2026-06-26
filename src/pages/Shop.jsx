@@ -334,7 +334,7 @@ const Shop = () => {
                   ref={observerTarget}
                   className="w-full flex justify-center items-center mt-6 min-h-[50px]"
                 >
-                  {loadingMore && renderSkeletons(4)}
+                  {loadingMore && renderSkeletons(6)}
                 </div>
               )}
 
