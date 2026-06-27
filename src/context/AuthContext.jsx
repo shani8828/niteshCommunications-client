@@ -107,22 +107,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   /**
-   * Request password reset OTP (disabled)
-   */
-  const forgotPassword = async () => {
-    showToast.error('Forgot password is disabled. Authentication is done via OTP.');
-    return false;
-  };
-
-  /**
-   * Submit new password with OTP (disabled)
-   */
-  const resetPassword = async () => {
-    showToast.error('Reset password is disabled. Authentication is done via OTP.');
-    return false;
-  };
-
-  /**
    * Close session
    */
   const logout = async (showToastMessage = true) => {
@@ -148,8 +132,6 @@ export const AuthProvider = ({ children }) => {
         login,
         adminLogin,
         register,
-        forgotPassword,
-        resetPassword,
         logout,
         getHeaders,
         updateUserProfile: (updatedData) => setUser(updatedData),
