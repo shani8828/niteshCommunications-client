@@ -2,7 +2,7 @@ import React from 'react';
 
 const ProfileMap = ({ latitude, longitude }) => {
   return (
-    <div className="mt-3 rounded-xl overflow-hidden border border-slate-200 shadow-inner h-44 w-full relative">
+    <div className="mt-3 rounded overflow-hidden border border-slate-200 shadow-inner h-44 w-full relative">
       <iframe
         title="Profile Location Map"
         width="100%"

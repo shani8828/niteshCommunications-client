@@ -11,7 +11,7 @@ import ProfileSidebar from "../components/profile/ProfileSidebar";
 import OrdersHistoryTab from "../components/profile/OrdersHistoryTab";
 
 const Orders = () => {
-  const { i18n } = useTranslation(["cart", "common"]);
+  const { t, i18n } = useTranslation(["cart", "common"]);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -24,7 +24,6 @@ const Orders = () => {
   const [actionLoading, setActionLoading] = useState(false);
 
   const currentLang = i18n.language || "en";
-  const isHindi = currentLang === "hi";
 
   const fetchMyOrders = useCallback(async () => {
     setOrdersLoading(true);
@@ -37,16 +36,12 @@ const Orders = () => {
       );
     } catch (err) {
       console.error("Error fetching orders:", err);
-      showToast.error(
-        isHindi
-          ? "ऑर्डर इतिहास लोड करने में विफल"
-          : "Failed to load order history",
-      );
+      showToast.error(t("cart:orders_fetch_error", "Failed to load order history"));
     } finally {
       setOrdersLoading(false);
       setLoading(false);
     }
-  }, [isHindi]);
+  }, [t]);
 
   useEffect(() => {
     if (user) {
@@ -77,21 +72,13 @@ const Orders = () => {
       if (ord.paymentStatus === "Paid") {
         navigate(`/order-tracking/${ord._id}/return?cancel=true`);
       } else {
-        const confirmCancel = window.confirm(
-          isHindi
-            ? "क्या आप सचमुच इस ऑर्डर को रद्द करना चाहते हैं?"
-            : "Are you sure you want to cancel this order?",
-        );
+        const confirmCancel = window.confirm(t("cart:confirm_cancel_order"));
         if (!confirmCancel) return;
 
         setActionLoading(true);
         try {
           await api.post(`/orders/${ord._id}/cancel`);
-          showToast.success(
-            isHindi
-              ? "ऑर्डर सफलतापूर्वक रद्द कर दिया गया!"
-              : "Order cancelled successfully!",
-          );
+          showToast.success(t("cart:cancel_success"));
           fetchMyOrders();
         } catch (err) {
           showToast.error(err.response?.data?.message || "Cancellation failed");
@@ -100,7 +87,7 @@ const Orders = () => {
         }
       }
     },
-    [navigate, isHindi, fetchMyOrders],
+    [navigate, t, fetchMyOrders],
   );
 
   if (loading && !user) return <Loader fullPage />;
@@ -111,7 +98,7 @@ const Orders = () => {
       <OrdersHistoryTab
         orders={orders}
         ordersLoading={ordersLoading}
-        isHindi={isHindi}
+        t={t}
         currentLang={currentLang}
         handleCancelClick={handleCancelClick}
       />

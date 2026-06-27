@@ -19,5 +19,14 @@
   "cat_display": "Folder / Display Replacement",
   "cat_battery": "Original Battery Replacement",
   "cat_charging": "Charging Port / Mic Repair",
-  "cat_software": "Software Flashing / Unlocking"
+  "cat_software": "Software Flashing / Unlocking",
+  "repair_history_title": "Repair Booking History",
+  "repair_empty": "You have not booked any repairs yet.",
+  "booking_id": "Booking ID",
+  "problem_label": "Problem",
+  "payment_method": "Payment",
+  "admin_notes": "Admin Note",
+  "cancel_booking": "Cancel Booking",
+  "confirm_cancel_booking": "Are you sure you want to cancel this repair booking?",
+  "cancel_booking_success": "Repair booking cancelled successfully!"
 }

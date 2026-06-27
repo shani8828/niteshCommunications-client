@@ -9,12 +9,11 @@ import ProfileSidebar from "../components/profile/ProfileSidebar";
 import WishlistTab from "../components/profile/WishlistTab";
 
 const Wishlist = () => {
-  const { i18n } = useTranslation(["cart", "common"]);
+  const { t, i18n } = useTranslation(["cart", "common"]);
   const { user } = useAuth();
   const { wishlist, toggleWishlist, addToCart, cartItems } = useCart();
 
   const currentLang = i18n.language || "en";
-  const isHindi = currentLang === "hi";
 
   if (!user) return <Loader fullPage />;
 
@@ -25,7 +24,7 @@ const Wishlist = () => {
         toggleWishlist={toggleWishlist}
         addToCart={addToCart}
         cartItems={cartItems}
-        isHindi={isHindi}
+        t={t}
         currentLang={currentLang}
         loading={false}
       />

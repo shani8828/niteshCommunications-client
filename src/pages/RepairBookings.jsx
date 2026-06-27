@@ -11,7 +11,7 @@ import ProfileSidebar from "../components/profile/ProfileSidebar";
 import RepairBookingsTab from "../components/profile/RepairBookingsTab";
 
 const RepairBookings = () => {
-  const { i18n } = useTranslation(["cart", "common"]);
+  const { t, i18n } = useTranslation(["cart", "common", "repair"]);
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -24,7 +24,6 @@ const RepairBookings = () => {
   const [actionLoading, setActionLoading] = useState(false);
 
   const currentLang = i18n.language || "en";
-  const isHindi = currentLang === "hi";
 
   const fetchMyRepairs = useCallback(async () => {
     if (!user || (!user.mobile && !user.phone)) {
@@ -43,16 +42,12 @@ const RepairBookings = () => {
       );
     } catch (err) {
       console.error("Error fetching repairs:", err);
-      showToast.error(
-        isHindi
-          ? "रिपेयर बुकिंग लोड करने में विफल"
-          : "Failed to load repair bookings",
-      );
+      showToast.error(t("repair:booking_fetch_error", "Failed to load repair bookings"));
     } finally {
       setRepairsLoading(false);
       setLoading(false);
     }
-  }, [user, isHindi]);
+  }, [user, t]);
 
   useEffect(() => {
     if (user) {
@@ -86,21 +81,13 @@ const RepairBookings = () => {
       if (rep.paymentMethod === "Online" && rep.paymentStatus === "Paid") {
         navigate(`/repairs/${rep._id}/cancel`);
       } else {
-        const confirmCancel = window.confirm(
-          isHindi
-            ? "क्या आप सचमुच इस रिपेयर बुकिंग को रद्द करना चाहते हैं?"
-            : "Are you sure you want to cancel this repair booking?",
-        );
+        const confirmCancel = window.confirm(t("repair:confirm_cancel_booking"));
         if (!confirmCancel) return;
 
         setActionLoading(true);
         try {
           await api.post(`/repairs/${rep._id}/cancel`);
-          showToast.success(
-            isHindi
-              ? "रिपेयर बुकिंग सफलतापूर्वक रद्द की गई!"
-              : "Repair booking cancelled successfully!",
-          );
+          showToast.success(t("repair:cancel_booking_success"));
           fetchMyRepairs();
         } catch (err) {
           showToast.error(err.response?.data?.message || "Cancellation failed");
@@ -109,7 +96,7 @@ const RepairBookings = () => {
         }
       }
     },
-    [navigate, isHindi, fetchMyRepairs],
+    [navigate, t, fetchMyRepairs],
   );
 
   if (loading && !user) return <Loader fullPage />;
@@ -120,7 +107,7 @@ const RepairBookings = () => {
       <RepairBookingsTab
         repairs={repairs}
         repairsLoading={repairsLoading}
-        isHindi={isHindi}
+        t={t}
         handleCancelRepair={handleCancelRepair}
       />
     </div>
