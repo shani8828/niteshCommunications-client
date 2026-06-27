@@ -1,134 +1,215 @@
-import React, { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useCallback, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { showToast } from "../utils/toast";
 import { useTranslation } from "react-i18next";
 import Loader from "../components/common/Loader";
-
-// Modular Components
 import RegisterForm from "../components/auth/RegisterForm";
-import RecoveryCodesView from "../components/auth/RecoveryCodesView";
+import { auth, RecaptchaVerifier, signInWithPhoneNumber } from "../config/firebase";
+import api from "../utils/api";
 
 const Register = () => {
   const { t } = useTranslation(["auth", "common", "notifications"]);
   const { register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const prefilledMobile = location.state?.prefilledMobile || "";
 
   const [loading, setLoading] = useState(false);
-  const [generatedCodes, setGeneratedCodes] = useState([]);
-  const [registeredUser, setRegisteredUser] = useState({ name: "", mobile: "" });
+  const [name, setName] = useState("");
+  const [mobile, setMobile] = useState(prefilledMobile);
+  const [address, setAddress] = useState("");
+  const [email, setEmail] = useState("");
+  const [coordinates, setCoordinates] = useState(null);
+  const [geolocating, setGeolocating] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState(null);
 
-  const handleRegisterSubmit = useCallback(async ({ name, mobile, password, address, email, coordinates }) => {
-    setLoading(true);
-    const result = await register(
-      name,
-      mobile,
-      password,
-      address,
-      email,
-      coordinates,
-    );
-    setLoading(false);
-
-    if (result.success) {
-      setRegisteredUser({ name, mobile });
-      if (result.recoveryCodes && result.recoveryCodes.length > 0) {
-        setGeneratedCodes(result.recoveryCodes);
-      } else {
-        navigate("/");
-      }
+  // Sync prefilled mobile if routed from login
+  useEffect(() => {
+    if (prefilledMobile) {
+      setMobile(prefilledMobile);
     }
-  }, [register, navigate]);
+  }, [prefilledMobile]);
 
-  const handleCopyCodes = useCallback(() => {
-    navigator.clipboard.writeText(generatedCodes.join("\n"));
-    showToast.success("सभी कोड कॉपी हो गए! / All codes copied to clipboard!");
-  }, [generatedCodes]);
+  // Clean up recaptcha verifier on unmount
+  useEffect(() => {
+    return () => {
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
+    };
+  }, []);
 
-  const handleDownloadCodes = useCallback(() => {
-    const text = `NITESH COMMUNICATIONS RECOVERY CODES\n======================================\nGenerated on: ${new Date().toLocaleString()}\n\nKeep these codes secure. They are the only way to reset your password if you lose it.\n\n${generatedCodes.map((c, i) => `${i + 1}. ${c}`).join("\n")}\n\n======================================`;
-    const blob = new Blob([text], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `nitesh-recovery-codes-${registeredUser.mobile}.txt`;
-    link.click();
-    URL.revokeObjectURL(url);
-    showToast.success("फ़ाइल डाउनलोड हो गई! / File downloaded!");
-  }, [generatedCodes, registeredUser.mobile]);
-
-  const handlePrintCodes = useCallback(() => {
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
+  const handleUseCurrentLocation = useCallback(() => {
+    if (!navigator.geolocation) {
       showToast.error(
-        "पॉपअप अवरोधित है! कृपया प्रिंट के लिए पॉपअप की अनुमति दें। / Popup blocked! Please allow popups to print.",
+        "आपका ब्राउज़र लोकेशन का समर्थन नहीं करता है / Your browser does not support geolocation",
       );
       return;
     }
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Nitesh Communications - Recovery Codes</title>
-          <style>
-            body { font-family: sans-serif; padding: 40px; color: #333; line-height: 1.6; }
-            h1 { color: #2563eb; font-size: 24px; margin-bottom: 5px; }
-            .tagline { color: #64748b; font-size: 14px; margin-bottom: 20px; }
-            .box { border: 2px dashed #2563eb; padding: 25px; display: inline-block; border-radius: 12px; background: #f8fafc; }
-            .code { font-family: monospace; font-size: 20px; font-weight: bold; letter-spacing: 1px; margin: 12px 0; color: #1e293b; }
-            .note { color: #dc2626; font-weight: bold; margin-top: 20px; max-width: 500px; font-size: 13px; }
-          </style>
-        </head>
-        <body>
-          <h1>Nitesh Communications</h1>
-          <div class="tagline">रिकवरी कोड / Security Recovery Codes</div>
-          <p><strong>ग्राहक का नाम / Customer:</strong> ${registeredUser.name}</p>
-          <p><strong>मोबाइल नंबर / Mobile:</strong> ${registeredUser.mobile}</p>
-          <p><strong>तारीख / Date:</strong> ${new Date().toLocaleDateString()}</p>
-          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-          <p>कृपया इन कोड्स को सुरक्षित रखें। पासवर्ड भूलने पर केवल इन्हीं से रीसेट हो सकेगा। प्रत्येक कोड केवल एक बार इस्तेमाल किया जा सकता है।</p>
-          <p>Please keep these codes safe. If you forget your password, these codes are the only way to recover your account. Each code can only be used once.</p>
-          <div class="box">
-            ${generatedCodes.map((c, i) => `<div class="code">Code ${i + 1}: ${c}</div>`).join("")}
-          </div>
-          <div class="note">
-            चेतावनी: इन कोडों को दोबारा नहीं देखा जा सकेगा। इन्हें सुरक्षित स्थान पर रखें।<br/>
-            WARNING: These codes cannot be viewed again. Store them in a secure place.
-          </div>
-          <script>
-            window.onload = function() {
-              window.print();
-            }
-          </script>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
-  }, [generatedCodes, registeredUser.name, registeredUser.mobile]);
+    setGeolocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        setCoordinates({ latitude, longitude });
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+          );
+          const data = await response.json();
+          if (data && data.display_name) {
+            setAddress(data.display_name);
+            showToast.success(
+              "लोकेशन सफलतापूर्वक प्राप्त की गई / Location retrieved successfully",
+            );
+          } else {
+            setAddress(`${latitude}, ${longitude}`);
+          }
+        } catch (err) {
+          console.error(err);
+          setAddress(`${latitude}, ${longitude}`);
+          showToast.warning(
+            "लोकेशन तो मिल गई, पर पता खोजने में समस्या हुई / Location retrieved, but failed to fetch address name",
+          );
+        } finally {
+          setGeolocating(false);
+        }
+      },
+      (error) => {
+        console.error(error);
+        setGeolocating(false);
+        showToast.error(
+          "लोकेशन अनुमति अस्वीकृत या उपलब्ध नहीं है / Location permission denied or unavailable",
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  }, []);
 
-  const handleContinueClick = useCallback(() => {
-    navigate("/");
-  }, [navigate]);
+  const setupRecaptcha = () => {
+    try {
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+      }
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible',
+        callback: () => {
+          // reCAPTCHA solved
+        },
+        'expired-callback': () => {
+          showToast.error("reCAPTCHA expired. Please try again.");
+        }
+      });
+    } catch (error) {
+      console.error("Error setting up Recaptcha:", error);
+    }
+  };
+
+  const handleSendOtp = useCallback(async (e) => {
+    if (e) e.preventDefault();
+    if (!name || !address) {
+      showToast.error("कृपया सभी आवश्यक फ़ील्ड भरें / Please fill all required fields");
+      return;
+    }
+    if (mobile.length !== 10) {
+      showToast.error("कृपया 10 अंकों का मोबाइल नंबर दर्ज करें / Please enter a 10-digit mobile number");
+      return;
+    }
+    setLoading(true);
+    try {
+      setupRecaptcha();
+      const appVerifier = window.recaptchaVerifier;
+      const formatPhone = `+91${mobile}`;
+      const confirmation = await signInWithPhoneNumber(auth, formatPhone, appVerifier);
+      setConfirmationResult(confirmation);
+      setOtpSent(true);
+      showToast.success("सत्यापन कोड भेजा गया! / Verification code sent!");
+      try {
+        await api.post("/auth/log-otp-sent", { mobile });
+      } catch (err) {
+        console.error("Failed to log OTP sent status to server:", err);
+      }
+    } catch (error) {
+      console.error("Error sending registration OTP:", error);
+      showToast.error(error.message || "Failed to send OTP. Please try again.");
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [name, mobile, address]);
+
+  const handleVerifyOtp = useCallback(async (e) => {
+    if (e) e.preventDefault();
+    if (otp.length !== 6) {
+      showToast.error("कृपया 6 अंकों का ओटीपी दर्ज करें / Please enter a 6-digit OTP");
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await confirmationResult.confirm(otp);
+      const user = result.user;
+      const firebaseToken = await user.getIdToken();
+      
+      const registerResult = await register(
+        name,
+        mobile,
+        address,
+        email,
+        coordinates,
+        firebaseToken,
+      );
+      if (registerResult.success) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error verifying registration OTP:", error);
+      showToast.error("गलत ओटीपी! कृपया दोबारा प्रयास करें। / Invalid OTP! Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [otp, confirmationResult, register, name, mobile, address, email, coordinates, navigate]);
+
+  const handleBackToDetails = useCallback(() => {
+    setOtpSent(false);
+    setOtp("");
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
+      window.recaptchaVerifier = null;
+    }
+  }, []);
 
   return (
     <div className="flex justify-center items-center min-h-[85vh] px-4 py-12 bg-gradient-to-b from-slate-50 to-white relative">
       {loading && <Loader fullPage />}
-      {generatedCodes.length > 0 ? (
-        <RecoveryCodesView
-          generatedCodes={generatedCodes}
-          onCopy={handleCopyCodes}
-          onDownload={handleDownloadCodes}
-          onPrint={handlePrintCodes}
-          onContinue={handleContinueClick}
+      <div className="w-full max-w-[450px] p-8 bg-white border border-slate-200/80 shadow-md rounded-2xl">
+        <RegisterForm
+          t={t}
+          loading={loading}
+          otpSent={otpSent}
+          name={name}
+          setName={setName}
+          mobile={mobile}
+          setMobile={setMobile}
+          address={address}
+          setAddress={setAddress}
+          email={email}
+          setEmail={setEmail}
+          coordinates={coordinates}
+          geolocating={geolocating}
+          otp={otp}
+          setOtp={setOtp}
+          onSendOtp={handleSendOtp}
+          onVerifyOtp={handleVerifyOtp}
+          onBackToDetails={handleBackToDetails}
+          handleUseCurrentLocation={handleUseCurrentLocation}
         />
-      ) : (
-        <div className="w-full max-w-[450px] p-8 bg-white border border-slate-200/80 shadow-md rounded-2xl">
-          <RegisterForm
-            t={t}
-            onSubmit={handleRegisterSubmit}
-            loading={loading}
-          />
-        </div>
-      )}
+      </div>
     </div>
   );
 };

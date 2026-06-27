@@ -42,11 +42,11 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   /**
-   * Log into account (User)
+   * Log into account (User) using Firebase Token
    */
-  const login = async (mobile, password) => {
+  const login = async (firebaseToken) => {
     try {
-      const response = await api.post('/auth/login', { mobile, password });
+      const response = await api.post('/auth/login', { firebaseToken });
       const data = response.data;
 
       localStorage.setItem('token', data.accessToken);
@@ -55,6 +55,9 @@ export const AuthProvider = ({ children }) => {
       showToast.success('Login Successful!');
       return { success: true, user: data.user };
     } catch (error) {
+      if (error.response?.status === 404 && error.response?.data?.notRegistered) {
+        return { success: false, notRegistered: true, mobile: error.response.data.mobile };
+      }
       const errorMessage = error.response?.data?.message || 'Server error during login';
       showToast.error(errorMessage);
       return { success: false, error: errorMessage };
@@ -62,11 +65,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   /**
-   * Log into account (Admin)
+   * Log into account (Admin) using Firebase Token
    */
-  const adminLogin = async (mobile, password) => {
+  const adminLogin = async (firebaseToken) => {
     try {
-      const response = await api.post('/auth/admin-login', { mobile, password });
+      const response = await api.post('/auth/admin-login', { firebaseToken });
       const data = response.data;
 
       localStorage.setItem('token', data.accessToken);
@@ -81,14 +84,12 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
-
   /**
-   * Register customer account
+   * Register customer account using Firebase Token
    */
-  const register = async (name, mobile, password, address, email, coordinates) => {
+  const register = async (name, mobile, address, email, coordinates, firebaseToken) => {
     try {
-      const response = await api.post('/auth/register', { name, mobile, password, address, email, coordinates });
+      const response = await api.post('/auth/register', { name, mobile, address, email, coordinates, firebaseToken });
       const data = response.data;
 
       // Auto login on registration success
@@ -97,7 +98,7 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
 
       showToast.success('Registration and login successful!');
-      return { success: true, recoveryCodes: data.recoveryCodes };
+      return { success: true };
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Server error during registration';
       showToast.error(errorMessage);
@@ -106,33 +107,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   /**
-   * Request password reset OTP
+   * Request password reset OTP (disabled)
    */
-  const forgotPassword = async (mobile) => {
-    try {
-      const response = await api.post('/auth/forgot-password', { mobile });
-      showToast.success(response.data.message);
-      return true;
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Failed to request reset OTP';
-      showToast.error(errorMessage);
-      return false;
-    }
+  const forgotPassword = async () => {
+    showToast.error('Forgot password is disabled. Authentication is done via OTP.');
+    return false;
   };
 
   /**
-   * Submit new password with OTP
+   * Submit new password with OTP (disabled)
    */
-  const resetPassword = async (mobile, code, newPassword) => {
-    try {
-      const response = await api.post('/auth/reset-password', { mobile, code, newPassword });
-      showToast.success(response.data.message);
-      return true;
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Failed to reset password';
-      showToast.error(errorMessage);
-      return false;
-    }
+  const resetPassword = async () => {
+    showToast.error('Reset password is disabled. Authentication is done via OTP.');
+    return false;
   };
 
   /**
