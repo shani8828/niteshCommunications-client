@@ -26,3 +26,4 @@ dist-ssr
 # Environment secrets
 .env
 .env.production
+client_env_audit.md 
