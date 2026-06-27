@@ -4,15 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import api from "../../utils/api";
 
 const Offers = () => {
-  const staticSlides = [
-    { _id: "1", image: "/offers/offer_realme.png", url: "/products/realme-15t", title: "Realme 15T Offer" },
-    { _id: "2", image: "/offers/offer_headphone.png", url: "/products/p9-headphone", title: "P9 Headphone Offer" },
-    { _id: "3", image: "/offers/offer_oppo.png", url: "/products/oppo-reno-15-5g", title: "Oppo Reno 15 Offer" },
-    { _id: "4", image: "/offers/offer_moto.png", url: "/products/moto-g67-power-5g", title: "Moto G67 Offer" },
-    { _id: "5", image: "/offers/offer_glass.png", url: "/products/moto-g96-5g-uv-glass", title: "Tempered Glass Offer" },
-  ];
-
-  const [slides, setSlides] = useState(staticSlides);
+  const [slides, setSlides] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -24,7 +16,7 @@ const Offers = () => {
           setSlides(response.data);
         }
       } catch (error) {
-        console.error("Failed to fetch active offers, using fallback.", error);
+        console.error("Failed to fetch active offers.", error);
       }
     };
     fetchOffers();

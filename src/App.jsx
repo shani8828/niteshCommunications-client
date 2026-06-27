@@ -152,7 +152,7 @@ function App() {
                   />
 {/* <Route path='/loader' element={<Loader fullPage/>}/> */}
                   {/* Separate logins for Admin & Partner */}
-                  <Route path="/admin/admin_login" element={<AdminLogin />} />
+                  <Route path="/admin/login" element={<AdminLogin />} />
 
                   {/* Customer-only protected routes */}
                   <Route
