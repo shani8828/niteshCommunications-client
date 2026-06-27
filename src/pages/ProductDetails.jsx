@@ -57,7 +57,7 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { addToCart, toggleWishlist, wishlist, addRecentlyViewed } = useCart();
+  const { addToCart, toggleWishlist, wishlist, addRecentlyViewed, cartItems } = useCart();
   const { setCrumbs } = useBreadcrumbs();
 
   const passedProduct = location.state?.product;
@@ -419,6 +419,7 @@ const ProductDetails = () => {
   if (!product) return null;
 
   const isWishlisted = wishlist.some((p) => p._id === product._id);
+  const isInCart = cartItems.some((item) => item.product._id === product._id);
   const savings = product.originalPrice - product.price;
   const savingsPercent = Math.round((savings / product.originalPrice) * 100);
 
@@ -453,6 +454,7 @@ const ProductDetails = () => {
           navigate={navigate}
           t={t}
           currentLang={currentLang}
+          isInCart={isInCart}
         />
       </div>
 

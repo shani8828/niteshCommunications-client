@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Trash2, ShoppingBag } from 'lucide-react';
 
 const WishlistTab = ({
@@ -9,7 +9,9 @@ const WishlistTab = ({
   isHindi,
   currentLang,
   loading,
+  cartItems = [],
 }) => {
+  const navigate = useNavigate();
   if (loading) {
     return (
       <div className="flex flex-col gap-6 w-full animate-fadeIn">
@@ -68,7 +70,9 @@ const WishlistTab = ({
       </h3>
 
       <div className="grid gap-1 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-        {wishlist.map((prod) => (
+        {wishlist.map((prod) => {
+          const isInCart = cartItems.some((item) => item.product?._id === prod._id);
+          return (
           <div
             key={prod._id}
             className="group bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col relative"
@@ -126,17 +130,28 @@ const WishlistTab = ({
 
                 <button
                   type="button"
-                  onClick={() => addToCart(prod)}
+                  onClick={() => {
+                    if (isInCart) {
+                      navigate("/cart");
+                    } else {
+                      addToCart(prod);
+                    }
+                  }}
                   disabled={prod.stock === 0}
                   className="w-full py-2 px-3 text-xs font-heading font-bold bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all border-0 shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <ShoppingBag size={12} />
-                  <span>{isHindi ? 'कार्ट में जोड़ें' : 'Add to Cart'}</span>
+                  <span>
+                    {isInCart
+                      ? (isHindi ? 'कार्ट में जाएँ' : 'Go to Cart')
+                      : (isHindi ? 'कार्ट में जोड़ें' : 'Add to Cart')}
+                  </span>
                 </button>
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

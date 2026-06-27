@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Heart, ShoppingCart } from "lucide-react";
 
 const ProductCard = ({
@@ -9,7 +9,9 @@ const ProductCard = ({
   toggleWishlist,
   currentLang,
   t,
+  isInCart,
 }) => {
+  const navigate = useNavigate();
   const hasDiscount = product.originalPrice > product.price;
 
   return (
@@ -98,12 +100,16 @@ const ProductCard = ({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              addToCart(product);
+              if (isInCart) {
+                navigate("/cart");
+              } else {
+                addToCart(product);
+              }
             }}
             className="w-full py-1 font-heading text-xs bg-blue-600 text-white rounded hover:bg-blue-700 shadow-md shadow-blue-500/10 flex items-center justify-center gap-1 cursor-pointer border-0"
           >
             <ShoppingCart size={14} />
-            {t("product:add_to_cart")}
+            {isInCart ? t("product:go_to_cart") : t("product:add_to_cart")}
           </button>
         )}
       </div>
@@ -114,6 +120,7 @@ const ProductCard = ({
 export default React.memo(ProductCard, (prevProps, nextProps) => {
   return (
     prevProps.isWishlisted === nextProps.isWishlisted &&
+    prevProps.isInCart === nextProps.isInCart &&
     prevProps.currentLang === nextProps.currentLang &&
     prevProps.product._id === nextProps.product._id &&
     prevProps.product.price === nextProps.product.price &&

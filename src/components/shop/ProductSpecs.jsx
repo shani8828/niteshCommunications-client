@@ -10,6 +10,7 @@ const ProductSpecs = ({
   navigate,
   t,
   currentLang,
+  isInCart,
 }) => {
   return (
     <div className="flex flex-col gap-4 items-start text-left">
@@ -106,12 +107,18 @@ const ProductSpecs = ({
         ) : (
           <>
             <button
-              onClick={() => addToCart(product)}
+              onClick={() => {
+                if (isInCart) {
+                  navigate("/cart");
+                } else {
+                  addToCart(product);
+                }
+              }}
               className="flex-1 py-3 font-heading font-bold text-sm bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer flex justify-center items-center gap-2 border-0 outline-none transition-all"
               type="button"
             >
               <ShoppingCart size={16} />
-              {t("product:add_to_cart")}
+              {isInCart ? t("product:go_to_cart") : t("product:add_to_cart")}
             </button>
             <button
               onClick={() => {

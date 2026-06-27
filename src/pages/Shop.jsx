@@ -12,7 +12,7 @@ import Offers from "../components/shop/Offers";
 
 const Shop = () => {
   const { t, i18n } = useTranslation(["product", "common"]);
-  const { addToCart, toggleWishlist, wishlist } = useCart();
+  const { addToCart, toggleWishlist, wishlist, cartItems } = useCart();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const categoryParam = searchParams.get("category") || "";
@@ -99,8 +99,6 @@ const Shop = () => {
     };
     fetchCats();
   }, []);
-
-
 
   // Fetch Products
   useEffect(() => {
@@ -245,7 +243,7 @@ const Shop = () => {
           <div className="flex flex-col flex-grow gap-2 mt-2">
             {/* Title */}
             <div className="h-4 w-3/4 shimmer-bg rounded" />
-            
+
             {/* Category */}
             <div className="h-2 w-1/4 shimmer-bg rounded" />
 
@@ -262,18 +260,6 @@ const Shop = () => {
 
   return (
     <div className="w-full px-4 md:px-8 pt-0 pb-20 bg-white">
-      {/* <div className="text-center mb-12 flex flex-col items-center gap-2">
-        <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-slate-800 mt-1">
-          {t("common:shop")}
-        </h2>
-        <p className="text-sm text-slate-500 max-w-xl mx-auto leading-relaxed">
-          {currentLang == "hi"
-            ? "पुरुषों के कपड़े, स्टेशनरी, फाइल फोल्डर, ब्लूटूथ इयरफ़ोन, चार्जर, बैटरी, हेडफ़ोन,फ़ोन ग्लास, फ़ोन आदि उपलब्ध हैं।"
-            : "Men's Clothes, Stationary, File Folders, Bluetooth Earphone, Charger, Battery, Headphone, Phone Glasses, Phones are available."}
-        </p>
-      </div> */}
-
-      {/* Header filters containing search bar, filters & categories scroll list */}
       <ShopFiltersHeader
         categories={categories}
         categoriesLoading={categoriesLoading}
@@ -295,60 +281,64 @@ const Shop = () => {
       <div className="w-full">
         <Offers />
         {loading ? (
-            renderSkeletons(16)
-          ) : products.length === 0 ? (
-            <div className="text-center py-0 text-slate-500">
-              <p className="text-sm">No products match your filter options.</p>
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="px-4 py-2 mt-0 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded border-0 cursor-pointer shadow-md shadow-blue-500/10"
-              >
-                {t("product:reset_filters")}
-              </button>
+          renderSkeletons(16)
+        ) : products.length === 0 ? (
+          <div className="text-center py-0 text-slate-500">
+            <p className="text-sm">No products match your filter options.</p>
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="px-4 py-2 mt-0 text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 rounded border-0 cursor-pointer shadow-md shadow-blue-500/10"
+            >
+              {t("product:reset_filters")}
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+              {products.map((product) => {
+                const isWishlisted = wishlist.some(
+                  (p) => p._id === product._id,
+                );
+                const isInCart = cartItems.some(
+                  (item) => item.product._id === product._id,
+                );
+                return (
+                  <ProductCard
+                    key={product._id}
+                    product={product}
+                    isWishlisted={isWishlisted}
+                    isInCart={isInCart}
+                    addToCart={addToCart}
+                    toggleWishlist={toggleWishlist}
+                    currentLang={currentLang}
+                    t={t}
+                  />
+                );
+              })}
             </div>
-          ) : (
-            <>
-              <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-                {products.map((product) => {
-                  const isWishlisted = wishlist.some(
-                    (p) => p._id === product._id,
-                  );
-                  return (
-                    <ProductCard
-                      key={product._id}
-                      product={product}
-                      isWishlisted={isWishlisted}
-                      addToCart={addToCart}
-                      toggleWishlist={toggleWishlist}
-                      currentLang={currentLang}
-                      t={t}
-                    />
-                  );
-                })}
+
+            {/* Sentinel observer element for infinite scroll */}
+            {hasMore && (
+              <div
+                ref={observerTarget}
+                className="w-full flex justify-center items-center mt-6 min-h-[50px]"
+              >
+                {loadingMore && renderSkeletons(6)}
               </div>
+            )}
 
-              {/* Sentinel observer element for infinite scroll */}
-              {hasMore && (
-                <div
-                  ref={observerTarget}
-                  className="w-full flex justify-center items-center mt-6 min-h-[50px]"
-                >
-                  {loadingMore && renderSkeletons(6)}
-                </div>
-              )}
-
-              {!hasMore && products.length > 0 && (
-                <p className="text-center text-xs text-slate-400 mt-8 font-semibold">
-                  {currentLang === "hi"
-                    ? "हमारे स्टोर में और भी उत्पाद जोड़े जा रहे हैं। बने रहिये!"
-                    : "More products are being added in our store. Stay tuned!"}
-                </p>
-              )}
-            </>
-          )}
-        </div>
-      <QuickLinksBanner currentType="shop" />
+            {!hasMore && products.length > 0 && (
+              <p className="text-center text-xs text-slate-400 mt-8 font-semibold">
+                {currentLang === "hi"
+                  ? "हमारे स्टोर में और भी उत्पाद जोड़े जा रहे हैं। बने रहिये!"
+                  : "More products are being added in our store. Stay tuned!"}
+              </p>
+            )}
+          </>
+        )}
+      </div>
+      {/* <QuickLinksBanner currentType="shop" /> */}
     </div>
   );
 };
