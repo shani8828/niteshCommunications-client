@@ -26,6 +26,7 @@ const Register = () => {
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState(null);
+  const [otpSendingStep, setOtpSendingStep] = useState(0);
 
   // Sync prefilled mobile if routed from login
   useEffect(() => {
@@ -112,14 +113,19 @@ const Register = () => {
   const handleSendOtp = useCallback(async (e) => {
     if (e) e.preventDefault();
     if (!name || !address) {
-      showToast.error("कृपया सभी आवश्यक फ़ील्ड भरें / Please fill all required fields");
+      showToast.error(t("auth:fill_all_fields"));
       return;
     }
     if (mobile.length !== 10) {
-      showToast.error("कृपया 10 अंकों का मोबाइल नंबर दर्ज करें / Please enter a 10-digit mobile number");
+      showToast.error(t("auth:enter_phone_error"));
       return;
     }
     setLoading(true);
+    setOtpSendingStep(1);
+    await new Promise((r) => setTimeout(r, 600));
+    setOtpSendingStep(2);
+    await new Promise((r) => setTimeout(r, 600));
+    setOtpSendingStep(3);
     try {
       setupRecaptcha();
       const appVerifier = window.recaptchaVerifier;
@@ -127,7 +133,7 @@ const Register = () => {
       const confirmation = await signInWithPhoneNumber(auth, formatPhone, appVerifier);
       setConfirmationResult(confirmation);
       setOtpSent(true);
-      showToast.success("सत्यापन कोड भेजा गया! / Verification code sent!");
+      showToast.success(t("auth:otp_sent_success"));
       try {
         await api.post("/auth/log-otp-sent", { mobile });
       } catch (err) {
@@ -135,19 +141,20 @@ const Register = () => {
       }
     } catch (error) {
       console.error("Error sending registration OTP:", error);
-      showToast.error(error.message || "Failed to send OTP. Please try again.");
+      showToast.error(error.message || t("auth:otp_failed"));
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
       }
     } finally {
       setLoading(false);
+      setOtpSendingStep(0);
     }
-  }, [name, mobile, address]);
+  }, [name, mobile, address, t]);
 
   const handleVerifyOtp = useCallback(async (e) => {
     if (e) e.preventDefault();
     if (otp.length !== 6) {
-      showToast.error("कृपया 6 अंकों का ओटीपी दर्ज करें / Please enter a 6-digit OTP");
+      showToast.error(t("auth:enter_otp"));
       return;
     }
     setLoading(true);
@@ -169,11 +176,11 @@ const Register = () => {
       }
     } catch (error) {
       console.error("Error verifying registration OTP:", error);
-      showToast.error("गलत ओटीपी! कृपया दोबारा प्रयास करें। / Invalid OTP! Please try again.");
+      showToast.error(t("auth:otp_invalid"));
     } finally {
       setLoading(false);
     }
-  }, [otp, confirmationResult, register, name, mobile, address, email, coordinates, navigate]);
+  }, [otp, confirmationResult, register, name, mobile, address, email, coordinates, navigate, t]);
 
   const handleBackToDetails = useCallback(() => {
     setOtpSent(false);
@@ -187,11 +194,12 @@ const Register = () => {
   return (
     <div className="flex justify-center items-center min-h-[85vh] px-4 py-12 bg-gradient-to-b from-slate-50 to-white relative">
       {loading && <Loader fullPage />}
-      <div className="w-full max-w-[450px] p-8 bg-white border border-slate-200/80 shadow-md rounded-2xl">
+      <div className="w-full max-w-[450px] p-8 bg-white border border-slate-200/80 shadow-md rounded">
         <RegisterForm
           t={t}
           loading={loading}
           otpSent={otpSent}
+          otpSendingStep={otpSendingStep}
           name={name}
           setName={setName}
           mobile={mobile}

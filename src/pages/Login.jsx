@@ -5,7 +5,11 @@ import { showToast } from "../utils/toast";
 import { useTranslation } from "react-i18next";
 import Loader from "../components/common/Loader";
 import LoginForm from "../components/auth/LoginForm";
-import { auth, RecaptchaVerifier, signInWithPhoneNumber } from "../config/firebase";
+import {
+  auth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+} from "../config/firebase";
 import api from "../utils/api";
 
 const Login = () => {
@@ -22,6 +26,7 @@ const Login = () => {
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState(null);
+  const [otpSendingStep, setOtpSendingStep] = useState(0);
 
   // Sync prefilled mobile if redirected
   useEffect(() => {
@@ -45,77 +50,99 @@ const Login = () => {
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
       }
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-        callback: () => {
-          // reCAPTCHA solved
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "recaptcha-container",
+        {
+          size: "invisible",
+          callback: () => {
+            // reCAPTCHA solved
+          },
+          "expired-callback": () => {
+            showToast.error("reCAPTCHA expired. Please try again.");
+          },
         },
-        'expired-callback': () => {
-          showToast.error("reCAPTCHA expired. Please try again.");
-        }
-      });
+      );
     } catch (error) {
       console.error("Error setting up Recaptcha:", error);
     }
   };
 
-  const handleSendOtp = useCallback(async (e) => {
-    if (e) e.preventDefault();
-    if (mobile.length !== 10) {
-      showToast.error("कृपया 10 अंकों का मोबाइल नंबर दर्ज करें / Please enter a 10-digit mobile number");
-      return;
-    }
-    setLoading(true);
-    try {
-      setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
-      const formatPhone = `+91${mobile}`;
-      const confirmation = await signInWithPhoneNumber(auth, formatPhone, appVerifier);
-      setConfirmationResult(confirmation);
-      setOtpSent(true);
-      showToast.success("ओटीपी भेज दिया गया है! / OTP Sent successfully!");
+  const handleSendOtp = useCallback(
+    async (e) => {
+      if (e) e.preventDefault();
+      if (mobile.length !== 10) {
+        showToast.error(t("auth:enter_phone_error"));
+        return;
+      }
+      setLoading(true);
+      setOtpSendingStep(1);
+      await new Promise((r) => setTimeout(r, 600));
+      setOtpSendingStep(2);
+      await new Promise((r) => setTimeout(r, 600));
+      setOtpSendingStep(3);
       try {
-        await api.post("/auth/log-otp-sent", { mobile });
-      } catch (err) {
-        console.error("Failed to log OTP sent status to server:", err);
+        setupRecaptcha();
+        const appVerifier = window.recaptchaVerifier;
+        const formatPhone = `+91${mobile}`;
+        const confirmation = await signInWithPhoneNumber(
+          auth,
+          formatPhone,
+          appVerifier,
+        );
+        setConfirmationResult(confirmation);
+        setOtpSent(true);
+        showToast.success(t("auth:otp_sent_success"));
+        try {
+          await api.post("/auth/log-otp-sent", { mobile });
+        } catch (err) {
+          console.error("Failed to log OTP sent status to server:", err);
+        }
+      } catch (error) {
+        console.error("Error sending OTP:", error);
+        showToast.error(
+          error.message || t("auth:otp_failed"),
+        );
+        if (window.recaptchaVerifier) {
+          window.recaptchaVerifier.clear();
+        }
+      } finally {
+        setLoading(false);
+        setOtpSendingStep(0);
       }
-    } catch (error) {
-      console.error("Error sending OTP:", error);
-      showToast.error(error.message || "Failed to send OTP. Please try again.");
-      if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [mobile]);
+    },
+    [mobile, t],
+  );
 
-  const handleVerifyOtp = useCallback(async (e) => {
-    if (e) e.preventDefault();
-    if (otp.length !== 6) {
-      showToast.error("कृपया 6 अंकों का ओटीपी दर्ज करें / Please enter a 6-digit OTP");
-      return;
-    }
-    setLoading(true);
-    try {
-      const result = await confirmationResult.confirm(otp);
-      const user = result.user;
-      const firebaseToken = await user.getIdToken();
-      
-      const loginResult = await login(firebaseToken);
-      if (loginResult.success) {
-        navigate(from, { replace: true });
-      } else if (loginResult.notRegistered) {
-        showToast.info("मोबाइल नंबर पंजीकृत नहीं है! कृपया विवरण भरें। / Number not registered! Please complete registration.");
-        navigate("/register", { state: { prefilledMobile: mobile } });
+  const handleVerifyOtp = useCallback(
+    async (e) => {
+      if (e) e.preventDefault();
+      if (otp.length !== 6) {
+        showToast.error(t("auth:enter_otp"));
+        return;
       }
-    } catch (error) {
-      console.error("Error verifying OTP:", error);
-      showToast.error("गलत ओटीपी! कृपया दोबारा प्रयास करें। / Invalid OTP! Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  }, [otp, confirmationResult, login, navigate, from, mobile]);
+      setLoading(true);
+      try {
+        const result = await confirmationResult.confirm(otp);
+        const user = result.user;
+        const firebaseToken = await user.getIdToken();
+
+        const loginResult = await login(firebaseToken);
+        if (loginResult.success) {
+          navigate(from, { replace: true });
+        } else if (loginResult.notRegistered) {
+          showToast.info(t("auth:number_not_registered"));
+          navigate("/register", { state: { prefilledMobile: mobile } });
+        }
+      } catch (error) {
+        console.error("Error verifying OTP:", error);
+        showToast.error(t("auth:otp_invalid"));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [otp, confirmationResult, login, navigate, from, mobile, t],
+  );
 
   const handleBackToMobile = useCallback(() => {
     setOtpSent(false);
@@ -129,11 +156,12 @@ const Login = () => {
   return (
     <div className="flex flex-col justify-center items-center min-h-[80vh] px-4 py-12 bg-gradient-to-b from-slate-50 to-white relative">
       {loading && <Loader fullPage />}
-      <div className="w-full max-w-[420px] bg-white border border-slate-200/80 p-8 shadow-md rounded-2xl">
+      <div className="w-full max-w-[420px] bg-white border border-slate-200/80 p-3 md:p-4 lg:p-6 shadow-md rounded">
         <LoginForm
           t={t}
           loading={loading}
           otpSent={otpSent}
+          otpSendingStep={otpSendingStep}
           mobile={mobile}
           setMobile={setMobile}
           otp={otp}
