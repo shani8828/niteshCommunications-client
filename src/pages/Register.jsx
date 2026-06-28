@@ -46,6 +46,26 @@ const Register = () => {
   const [confirmationResult, setConfirmationResult] = useState(null);
   const [otpSendingStep, setOtpSendingStep] = useState(0);
 
+  const [distance, setDistance] = useState(null);
+  const [outOfRange, setOutOfRange] = useState(false);
+
+  // Calculate distance on coordinates change
+  useEffect(() => {
+    if (coordinates) {
+      const dist = calculateDistance(
+        SHOP_LAT,
+        SHOP_LON,
+        coordinates.latitude,
+        coordinates.longitude
+      );
+      setDistance(dist);
+      setOutOfRange(dist > 15);
+    } else {
+      setDistance(null);
+      setOutOfRange(false);
+    }
+  }, [coordinates]);
+
   // Sync prefilled mobile if routed from login
   useEffect(() => {
     if (prefilledMobile) {
@@ -249,6 +269,8 @@ const Register = () => {
           onVerifyOtp={handleVerifyOtp}
           onBackToDetails={handleBackToDetails}
           handleUseCurrentLocation={handleUseCurrentLocation}
+          distance={distance}
+          outOfRange={outOfRange}
         />
       </div>
     </div>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { MapPin } from "lucide-react";
+import { MapPin, Navigation, Check, AlertTriangle } from "lucide-react";
 import RegisterMap from "./RegisterMap";
 import OtpInput from "./OtpInput";
 import OtpProgress from "./OtpProgress";
+import { AddressSkeleton } from "../xerox/XeroxSkeletons";
 
 const RegisterForm = ({
   t,
@@ -26,6 +27,8 @@ const RegisterForm = ({
   onVerifyOtp,
   onBackToDetails,
   handleUseCurrentLocation,
+  distance,
+  outOfRange,
 }) => {
   const [resendTimer, setResendTimer] = useState(60);
 
@@ -119,33 +122,99 @@ const RegisterForm = ({
             </div>
           </div>
 
-          {/* Address */}
-          <div className="flex flex-col text-left">
-            <div className="flex justify-between items-center mb-1.5">
-              <label className="text-xs font-semibold text-slate-500">
-                {t("auth:address")} *
-              </label>
+          {/* Address Geocoder aligned with Xerox UI */}
+          <div className="flex flex-col text-left gap-3.5">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              {t("auth:address")} *
+            </label>
+
+            {!coordinates && !geolocating && (
               <button
                 type="button"
                 onClick={handleUseCurrentLocation}
-                disabled={geolocating}
-                className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer font-semibold disabled:text-slate-400 transition-colors"
+                className="flex items-center justify-center gap-2 py-4 px-6 border-2 border-dashed border-blue-200 hover:border-blue-400 hover:bg-blue-50/20 text-blue-600 rounded-2xl font-semibold text-xs transition-all cursor-pointer bg-transparent"
               >
-                <MapPin
-                  size={14}
-                  className={geolocating ? "animate-bounce" : ""}
-                />
-                {geolocating ? t("auth:locating") : t("auth:use_location")}
+                <Navigation size={16} className="animate-pulse" /> Verify Location coordinates (Required)
               </button>
-            </div>
-            <textarea
-              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm font-medium"
-              rows="2"
-              placeholder={t("auth:enter_address")}
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              required
-            />
+            )}
+
+            {geolocating && <AddressSkeleton />}
+
+            {coordinates && !geolocating && (
+              <div className="flex flex-col gap-4">
+                {/* Range Banner status */}
+                <div
+                  className={`flex items-center gap-3 p-4 border rounded-2xl text-xs font-semibold ${
+                    outOfRange
+                      ? 'bg-rose-50 border-rose-200 text-rose-700'
+                      : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                  }`}
+                >
+                  {outOfRange ? (
+                    <>
+                      <AlertTriangle size={20} className="flex-shrink-0" />
+                      <div>
+                        <p className="font-bold text-sm">Out of service range ({distance} km)</p>
+                        <p className="text-[10px] opacity-90 mt-0.5">
+                          Your location is further than our maximum service limit of 15km from Ayodhya.
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Check size={20} className="bg-emerald-500 text-white rounded-full p-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-bold text-sm">Location Verified ({distance} km away)</p>
+                        <p className="text-[10px] opacity-90 mt-0.5">
+                          You are within our delivery zone.
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Address Details Output */}
+                {!outOfRange && (
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-1 p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                        <MapPin size={10} /> Geocoded Address
+                      </span>
+                      <p className="text-xs text-slate-700 leading-relaxed font-semibold mt-1">
+                        {address}
+                      </p>
+                      <p className="text-[9px] text-slate-400 mt-2 font-mono">
+                        Coords: {coordinates?.latitude.toFixed(6)}, {coordinates?.longitude.toFixed(6)}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Flat/House No, Building & Landmark (Required) *
+                      </label>
+                      <textarea
+                        rows="2"
+                        className="px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100 transition-all w-full font-semibold text-slate-850"
+                        placeholder="e.g. Near Ram Mandir Gate, House 4B"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-center">
+                  <button
+                    type="button"
+                    onClick={handleUseCurrentLocation}
+                    className="text-[10px] text-slate-400 hover:text-slate-650 font-bold transition-all border-0 bg-transparent cursor-pointer underline decoration-dotted"
+                  >
+                    Re-detect current location
+                  </button>
+                </div>
+              </div>
+            )}
             <RegisterMap coordinates={coordinates} />
           </div>
 

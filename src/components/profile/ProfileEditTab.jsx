@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Compass, Save, MapPin, Plus, Trash2, Edit2, Star } from "lucide-react";
+import { Compass, Save, MapPin, Plus, Trash2, Edit2, Star, Navigation, Check, AlertTriangle } from "lucide-react";
 import { showToast } from "../../utils/toast";
 import ProfileMap from "./ProfileMap";
 import { getCurrentPositionWithFallback, handleGeolocationError } from "../../utils/geolocation";
+import { AddressSkeleton } from "../xerox/XeroxSkeletons";
 
 const SHOP_LAT = 26.671782;
 const SHOP_LON = 82.008832;
@@ -449,57 +450,67 @@ const ProfileEditTab = ({
                 </button>
               </div>
 
-              <div className="flex flex-col gap-1.5 text-left">
-                <div className="flex justify-between items-center flex-wrap gap-2">
-                  <label className="text-[10px] font-bold text-slate-500">
-                    {t("auth:location_address")} *
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleLocateNewAddress}
-                    disabled={geolocating}
-                    className="flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer font-bold disabled:text-slate-400 transition-colors"
-                  >
-                    <Compass
-                      size={12}
-                      className={geolocating ? "animate-spin" : ""}
-                    />
-                    <span>
-                      {geolocating
-                        ? t("auth:locating")
-                        : t("auth:get_current_location")}
-                    </span>
-                  </button>
-                </div>
-                <textarea
-                  rows="2"
-                  className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded text-xs outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100 transition-all font-semibold text-slate-800"
-                  placeholder={t("auth:enter_full_address")}
-                  value={newAddressText}
-                  onChange={(e) => setNewAddressText(e.target.value)}
-                  required
-                />
-              </div>
+              {!newCoordinates && !geolocating && (
+                <button
+                  type="button"
+                  onClick={handleLocateNewAddress}
+                  className="flex items-center justify-center gap-2 py-4 px-6 border-2 border-dashed border-blue-200 hover:border-blue-400 hover:bg-blue-50/20 text-blue-600 rounded-2xl font-semibold text-xs transition-all cursor-pointer bg-transparent w-full"
+                >
+                  <Navigation size={16} className="animate-pulse" /> Verify Location coordinates (Required)
+                </button>
+              )}
 
-              <div className="flex flex-col gap-1.5 text-left">
-                <label className="text-[10px] font-bold text-slate-500">
-                  {t("auth:landmark_placeholder")}
-                </label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded text-xs outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100 transition-all font-semibold text-slate-800"
-                  placeholder="e.g. Near Shiv Temple, House 12"
-                  value={newLandmark}
-                  onChange={(e) => setNewLandmark(e.target.value)}
-                />
-              </div>
+              {geolocating && <AddressSkeleton />}
 
               {newCoordinates && (
-                <div className="flex flex-col gap-1">
-                  <span className="text-[9px] text-slate-400 font-mono text-left">
-                    Coords: {newCoordinates.latitude.toFixed(6)},{" "}
-                    {newCoordinates.longitude.toFixed(6)}
-                  </span>
+                <div className="flex flex-col gap-4 animate-fadeIn">
+                  {/* Range Banner status */}
+                  <div className="flex items-center gap-3 p-4 border rounded-2xl text-xs font-semibold bg-emerald-50 border-emerald-200 text-emerald-700">
+                    <Check size={20} className="bg-emerald-500 text-white rounded-full p-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-bold text-sm">Location Verified ({calculateDistance(SHOP_LAT, SHOP_LON, newCoordinates.latitude, newCoordinates.longitude)} km away)</p>
+                      <p className="text-[10px] opacity-90 mt-0.5">Your address is within our delivery zone.</p>
+                    </div>
+                  </div>
+
+                  {/* Address Details Output */}
+                  <div className="flex flex-col gap-1 p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                      <MapPin size={10} /> Geocoded Address
+                    </span>
+                    <p className="text-xs text-slate-700 leading-relaxed font-semibold mt-1">
+                      {newAddressText}
+                    </p>
+                    <p className="text-[9px] text-slate-400 mt-2 font-mono">
+                      Coords: {newCoordinates.latitude.toFixed(6)}, {newCoordinates.longitude.toFixed(6)}
+                    </p>
+                  </div>
+
+                  {/* Manual Landmark / House No (Editable) */}
+                  <div className="flex flex-col gap-1.5 text-left">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Flat/House No, Building & Landmark (Required) *
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100 transition-all font-semibold text-slate-800"
+                      placeholder="e.g. Near Shiv Temple, House 12"
+                      value={newLandmark}
+                      onChange={(e) => setNewLandmark(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="flex justify-center">
+                    <button
+                      type="button"
+                      onClick={handleLocateNewAddress}
+                      className="text-[10px] text-slate-400 hover:text-slate-650 font-bold transition-all border-0 bg-transparent cursor-pointer underline decoration-dotted"
+                    >
+                      Re-detect current location
+                    </button>
+                  </div>
+
                   <ProfileMap
                     latitude={newCoordinates.latitude}
                     longitude={newCoordinates.longitude}

@@ -9,12 +9,16 @@ import {
   Phone,
   ArrowLeft,
   X,
+  Navigation,
+  Check,
+  AlertTriangle,
 } from "lucide-react";
 import api from "../../utils/api";
 import { showToast } from "../../utils/toast";
 import LocationMap from "./LocationMap";
 import ShopMap from "./ShopMap";
 import { getCurrentPositionWithFallback, handleGeolocationError } from "../../utils/geolocation";
+import { AddressSkeleton } from "../xerox/XeroxSkeletons";
 
 const RepairWizardModal = ({
   selectedServiceKey,
@@ -35,6 +39,7 @@ const RepairWizardModal = ({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
+  const [landmark, setLandmark] = useState("");
   const [coordinates, setCoordinates] = useState(null);
   const [geolocating, setGeolocating] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -120,6 +125,7 @@ const RepairWizardModal = ({
     setSelectedAddrIndex(idx);
     const addr = addresses[idx];
     setAddress(addr.address || "");
+    setLandmark(addr.landmark || "");
     if (addr.coordinates) {
       setCoordinates(addr.coordinates);
     }
@@ -129,6 +135,7 @@ const RepairWizardModal = ({
     setSelectedAddrIndex(-1);
     setAddress("");
     setCoordinates(null);
+    setLandmark("");
   };
 
   // Enforce payment limit thresholds
@@ -238,6 +245,10 @@ const RepairWizardModal = ({
     setLoading(true);
 
     try {
+      const fullAddress = landmark.trim()
+        ? `${address} (Landmark: ${landmark})`
+        : address;
+
       const response = await api.post("/repairs", {
         customerName: name,
         customerPhone: phone,
@@ -245,7 +256,7 @@ const RepairWizardModal = ({
         deviceModel: selectedModel,
         problemDescription: serviceData.title.en,
         serviceCategory: serviceData.category,
-        pickupAddress: address,
+        pickupAddress: fullAddress,
         estimatedPrice: price,
         coordinates,
         paymentMethod: paymentType,
@@ -807,60 +818,110 @@ const RepairWizardModal = ({
                     </div>
                   )}
 
-                  <div className="flex justify-between items-center mb-1.5 mt-2 border-t border-slate-100 pt-3">
-                    <label className="text-xs font-semibold text-slate-500">
-                      {currentLang === "hi" ? "पिकअप का पता" : "Pickup Address"} *
-                    </label>
-                    {selectedAddrIndex === -1 && (
-                      <button
-                        type="button"
-                        onClick={handleUseCurrentLocation}
-                        disabled={geolocating}
-                        className="flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 bg-transparent border-0 cursor-pointer font-bold disabled:text-slate-400 transition-colors"
-                      >
-                        <MapPin size={12} className={geolocating ? "animate-bounce" : ""} />
-                        {geolocating ? "Locating..." : "Use Location"}
-                      </button>
-                    )}
-                  </div>
-                  <textarea
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-xs font-medium"
-                    rows="2"
-                    placeholder="Flat / Building / Area Details"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    readOnly={selectedAddrIndex !== -1}
-                    disabled={selectedAddrIndex !== -1 && !geolocating}
-                    required
-                  />
-
-                  {coordinates ? (
-                    outOfRange ? (
-                      <div className="mt-2 bg-rose-50 border border-rose-200 text-rose-800 p-3 rounded-xl text-[11px] leading-relaxed animate-fadeIn">
-                        <strong>{currentLang === "hi" ? "दूरी सीमा से बाहर:" : "Out of Pickup Range:"}</strong>{" "}
-                        {currentLang === "hi"
-                          ? `आपका पता दुकान से ${distance} किमी दूर है, जो 15 किमी पिकअप सीमा से बाहर है। होम डिलीवरी संभव नहीं है।`
-                          : `Your address is ${distance} km from our shop, which exceeds the 15km free pickup limit. Please visit our shop.`}
-                      </div>
-                    ) : (
-                      <div className="mt-2 bg-emerald-50 border border-emerald-250 text-emerald-850 p-2.5 rounded-xl text-[11px] font-semibold flex items-center gap-1.5 animate-fadeIn">
-                        <span>✓</span>
-                        <span>
-                          {currentLang === "hi"
-                            ? `लोकेशन सत्यापित: दुकान से दूरी ${distance} किमी (15 किमी सीमा के भीतर)।`
-                            : `Location Verified: ${distance} km from shop (within 15km pickup limit).`}
-                        </span>
-                      </div>
-                    )
-                  ) : (
-                    <div className="mt-2 bg-amber-50 border border-amber-200 text-amber-850 p-2.5 rounded-xl text-[11px] leading-relaxed">
-                      {currentLang === "hi"
-                        ? "📍 दूरी सीमा (15 किमी) की जांच करने के लिए कृपया 'Use Location' का उपयोग करें।"
-                        : "📍 Please use 'Use Location' to verify your distance is within the 15km boundary."}
-                    </div>
+                  {selectedAddrIndex === -1 && !coordinates && !geolocating && (
+                    <button
+                      type="button"
+                      onClick={handleUseCurrentLocation}
+                      className="flex items-center justify-center gap-2 py-4 px-6 border-2 border-dashed border-blue-200 hover:border-blue-400 hover:bg-blue-50/20 text-blue-600 rounded-2xl font-semibold text-xs transition-all cursor-pointer bg-transparent w-full mt-2"
+                    >
+                      <Navigation size={16} className="animate-pulse" /> {currentLang === "hi" ? "लोकेशन सत्यापित करें (आवश्यक)" : "Verify Location coordinates (Required)"}
+                    </button>
                   )}
 
-                  <LocationMap coordinates={coordinates} />
+                  {selectedAddrIndex === -1 && geolocating && <AddressSkeleton />}
+
+                  {coordinates && (
+                    <div className="flex flex-col gap-4 mt-2 animate-fadeIn">
+                      {/* Range Banner status */}
+                      <div
+                        className={`flex items-center gap-3 p-4 border rounded-2xl text-xs font-semibold ${
+                          outOfRange
+                            ? 'bg-rose-50 border-rose-200 text-rose-700'
+                            : 'bg-emerald-50 border-emerald-250 text-emerald-850'
+                        }`}
+                      >
+                        {outOfRange ? (
+                          <>
+                            <AlertTriangle size={20} className="flex-shrink-0" />
+                            <div>
+                              <p className="font-bold text-sm">
+                                {currentLang === "hi" ? "पिकअप सीमा से बाहर!" : `Out of Pickup Range (${distance} km)`}
+                              </p>
+                              <p className="text-[10px] opacity-90 mt-0.5">
+                                {currentLang === "hi"
+                                  ? `आपका पता दुकान से ${distance} किमी दूर है, जो 15 किमी पिकअप सीमा से बाहर है। होम पिकअप संभव नहीं है।`
+                                  : `Your address is ${distance} km from our shop, which exceeds the 15km pickup limit.`}
+                              </p>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <Check size={20} className="bg-emerald-500 text-white rounded-full p-0.5 flex-shrink-0" />
+                            <div>
+                              <p className="font-bold text-sm">
+                                {currentLang === "hi" ? `स्थान सत्यापित (${distance} किमी दूर)` : `Location Verified (${distance} km away)`}
+                              </p>
+                              <p className="text-[10px] opacity-90 mt-0.5">
+                                {currentLang === "hi" ? "स्थान पिकअप सीमा के भीतर है।" : "Your address is within the 15km pickup zone."}
+                              </p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Address Details Output */}
+                      {!outOfRange && (
+                        <div className="flex flex-col gap-4">
+                          <div className="flex flex-col gap-1 p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                              <MapPin size={10} /> {currentLang === "hi" ? "सत्यापित पिकअप स्थान" : "Geocoded Address"}
+                            </span>
+                            <p className="text-xs text-slate-700 leading-relaxed font-semibold mt-1">
+                              {address}
+                            </p>
+                            <p className="text-[9px] text-slate-400 mt-2 font-mono">
+                              Coords: {coordinates?.latitude.toFixed(6)}, {coordinates?.longitude.toFixed(6)}
+                            </p>
+                          </div>
+
+                          {/* Manual Landmark / House No (Editable) */}
+                          <div className="flex flex-col">
+                            <label className="block mb-1.5 text-xs font-semibold text-slate-500">
+                              {currentLang === "hi"
+                                ? "फ्लैट / मकान नंबर, बिल्डिंग, लैंडमार्क (आवश्यक) *"
+                                : "Flat, House No., Building, Landmark Details (Required) *"}
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100 transition-all font-semibold text-slate-800"
+                              placeholder={
+                                currentLang === "hi"
+                                  ? "उदा. फ्लैट नंबर 402, शिव मंदिर के पास..."
+                                  : "e.g. Flat 402, Near Shiv Temple..."
+                              }
+                              value={landmark}
+                              onChange={(e) => setLandmark(e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedAddrIndex === -1 && (
+                        <div className="flex justify-center">
+                          <button
+                            type="button"
+                            onClick={handleUseCurrentLocation}
+                            className="text-[10px] text-slate-400 hover:text-slate-650 font-bold transition-all border-0 bg-transparent cursor-pointer underline decoration-dotted"
+                          >
+                            {currentLang === "hi" ? "लोकेशन दोबारा खोजें" : "Re-detect current location"}
+                          </button>
+                        </div>
+                      )}
+
+                      <LocationMap coordinates={coordinates} />
+                    </div>
+                  )}
                 </div>
 
                 {/* Payment Selection */}
