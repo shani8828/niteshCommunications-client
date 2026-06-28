@@ -256,8 +256,8 @@ const ProductsTab = ({
   return (
     <div className="flex flex-col gap-6 w-full animate-fadeIn">
       {/* Search and Filters Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
-        <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 flex-grow max-w-md">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50 p-4 rounded border border-slate-200/60">
+        <div className="flex items-center gap-2 bg-white px-3 py-2 rounded border border-slate-200 flex-grow max-w-md">
           <Search size={16} className="text-slate-400" />
           <input
             type="text"
@@ -286,7 +286,7 @@ const ProductsTab = ({
                 setCategoryFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-brand-cyan"
+              className="px-3 py-2 bg-white border border-slate-200 rounded text-xs outline-none focus:border-brand-cyan"
             >
               <option value="all">
                 {currentLang === "hi" ? "सभी श्रेणियां" : "All Categories"}
@@ -300,14 +300,14 @@ const ProductsTab = ({
           </div>
           <button
             onClick={handleAddProductClick}
-            className="px-4 py-2 text-xs font-bold bg-brand-cyan hover:bg-brand-cyan/95 text-white rounded-xl shadow flex items-center gap-1.5 border-0 cursor-pointer transition-all"
+            className="px-4 py-2 text-xs font-bold bg-brand-cyan hover:bg-brand-cyan/95 text-white rounded shadow flex items-center gap-1.5 border-0 cursor-pointer transition-all"
           >
             <Plus size={14} /> {t("admin:add_product")}
           </button>
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto rounded-xl border border-slate-100 bg-white">
+      <div className="w-full overflow-x-auto rounded border border-slate-100 bg-white">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-slate-50 text-slate-500 font-semibold text-xs border-b border-slate-200">
@@ -433,7 +433,7 @@ const ProductsTab = ({
       {/* Product Save Modal */}
       {showProductModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-2xl bg-white border border-slate-100 rounded-3xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto flex flex-col gap-5 text-left">
+          <div className="relative w-full max-w-2xl bg-white border border-slate-100 rounded shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto flex flex-col gap-5 text-left">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-heading text-lg font-bold text-slate-900">
                 {editingProduct
@@ -443,7 +443,7 @@ const ProductsTab = ({
               <button
                 type="button"
                 onClick={() => !isSaving && setShowProductModal(false)}
-                className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors border-0 bg-transparent cursor-pointer"
+                className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors border-0 bg-transparent cursor-pointer"
                 disabled={isSaving}
               >
                 <X size={20} />
@@ -463,7 +463,7 @@ const ProductsTab = ({
                   <input
                     type="text"
                     required
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
                     placeholder="e.g. Realme 9 5G (Speed Blue)"
                     value={prodNameEn}
                     onChange={(e) => {
@@ -481,7 +481,7 @@ const ProductsTab = ({
                   <input
                     type="text"
                     required
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
                     placeholder="उदा. रियलमी 9 5जी (स्पीड ब्लू)"
                     value={prodNameHi}
                     onChange={(e) => {
@@ -501,7 +501,7 @@ const ProductsTab = ({
                   <textarea
                     required
                     rows="3"
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan resize-none"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan resize-none"
                     placeholder="English description details..."
                     value={prodDescEn}
                     onChange={(e) => {
@@ -519,7 +519,7 @@ const ProductsTab = ({
                   <textarea
                     required
                     rows="3"
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan resize-none"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan resize-none"
                     placeholder="हिंदी में उत्पाद की विशेषताएं..."
                     value={prodDescHi}
                     onChange={(e) => {
@@ -539,7 +539,7 @@ const ProductsTab = ({
                   <input
                     type="number"
                     required
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
                     placeholder="12999"
                     value={prodPrice}
                     onChange={(e) => setProdPrice(e.target.value)}
@@ -554,7 +554,7 @@ const ProductsTab = ({
                   <input
                     type="number"
                     required
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
                     placeholder="15999"
                     value={prodOriginalPrice}
                     onChange={(e) => setProdOriginalPrice(e.target.value)}
@@ -569,7 +569,7 @@ const ProductsTab = ({
                   <input
                     type="number"
                     required
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
                     placeholder="10"
                     value={prodStock}
                     onChange={(e) => setProdStock(e.target.value)}
@@ -586,7 +586,7 @@ const ProductsTab = ({
                   <select
                     value={prodCategory}
                     onChange={(e) => setProdCategory(e.target.value)}
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan cursor-pointer"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan cursor-pointer"
                   >
                     {categories.map((cat) => (
                       <option key={cat._id} value={cat._id}>
@@ -604,7 +604,7 @@ const ProductsTab = ({
                   <select
                     value={prodReturnPolicy}
                     onChange={(e) => setProdReturnPolicy(e.target.value)}
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan cursor-pointer"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan cursor-pointer"
                   >
                     <option value="Replace">Replacement Only (24h)</option>
                     <option value="Return">Return & Refund (24h)</option>
@@ -647,7 +647,7 @@ const ProductsTab = ({
                   </div>
                 )}
 
-                <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-brand-cyan transition-colors relative cursor-pointer">
+                <div className="border-2 border-dashed border-slate-200 rounded p-6 text-center hover:border-brand-cyan transition-colors relative cursor-pointer">
                   <input
                     type="file"
                     multiple
@@ -672,7 +672,7 @@ const ProductsTab = ({
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded-xl shadow-lg border-0 cursor-pointer transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded shadow-lg border-0 cursor-pointer transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSaving ? (
                   <>

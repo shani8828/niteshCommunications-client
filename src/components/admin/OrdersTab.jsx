@@ -378,8 +378,8 @@ const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus }) => {
   return (
     <div className="flex flex-col gap-6 w-full animate-fadeIn">
       {/* Filtering and Search Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
-        <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 flex-grow max-w-md">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded border border-slate-200/60">
+        <div className="flex items-center gap-2 bg-white px-3 py-2 rounded border border-slate-200 flex-grow max-w-md">
           <Search size={16} className="text-slate-400" />
           <input
             type="text"
@@ -401,7 +401,7 @@ const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus }) => {
               setStatusFilter(e.target.value);
               setCurrentPage(1);
             }}
-            className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-brand-cyan"
+            className="px-3 py-2 bg-white border border-slate-200 rounded text-xs outline-none focus:border-brand-cyan"
           >
             <option value="all">{currentLang === "hi" ? "सभी ऑर्डर्स" : "All Status"}</option>
             <option value="Order Placed">Order Placed</option>
@@ -420,7 +420,7 @@ const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus }) => {
         </div>
       </div>
 
-      <div className="w-full overflow-x-auto rounded-xl border border-slate-100 bg-white">
+      <div className="w-full overflow-x-auto rounded border border-slate-100 bg-white">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-slate-50 text-slate-500 font-semibold text-xs border-b border-slate-200">

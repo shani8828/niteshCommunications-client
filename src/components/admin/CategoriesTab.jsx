@@ -141,20 +141,20 @@ const CategoriesTab = ({ categories, setCategories, t, currentLang, fetchInvento
   return (
     <div className="flex flex-col gap-6 w-full animate-fadeIn">
       {/* Category Setup Header */}
-      <div className="flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-200/60 flex-wrap gap-4">
-        <div className="px-3 py-1.5 bg-brand-cyan/5 border border-brand-cyan/25 text-brand-cyan rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+      <div className="flex justify-between items-center bg-slate-50 p-4 rounded border border-slate-200/60 flex-wrap gap-4">
+        <div className="px-3 py-1.5 bg-brand-cyan/5 border border-brand-cyan/25 text-brand-cyan rounded text-xs font-semibold flex items-center gap-1.5 shadow-sm">
           <span className="w-2 h-2 rounded-full bg-brand-cyan animate-pulse"></span>
           Total Categories: <span className="font-bold text-slate-900">{categories.length}</span>
         </div>
         <button
           onClick={handleAddCategoryClick}
-          className="px-4 py-2 text-xs font-bold bg-brand-cyan hover:bg-brand-cyan/95 text-white rounded-xl shadow flex items-center gap-1.5 border-0 cursor-pointer transition-all"
+          className="px-4 py-2 text-xs font-bold bg-brand-cyan hover:bg-brand-cyan/95 text-white rounded shadow flex items-center gap-1.5 border-0 cursor-pointer transition-all"
         >
           <Plus size={14} /> {t("admin:add_category", "Add Category")}
         </button>
       </div>
 
-      <div className="w-full overflow-x-auto rounded-xl border border-slate-100 bg-white">
+      <div className="w-full overflow-x-auto rounded border border-slate-100 bg-white">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-slate-50 text-slate-500 font-semibold text-xs border-b border-slate-200">
@@ -219,7 +219,7 @@ const CategoriesTab = ({ categories, setCategories, t, currentLang, fetchInvento
       {/* Category Save Modal */}
       {showCategoryModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-lg bg-white border border-slate-100 rounded-3xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto flex flex-col gap-5 text-left animate-fadeIn">
+          <div className="relative w-full max-w-lg bg-white border border-slate-100 rounded shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto flex flex-col gap-5 text-left animate-fadeIn">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-heading text-lg font-bold text-slate-900">
                 {editingCategory ? t("admin:edit_category", "Edit Category") : t("admin:add_category", "Add Category")}
@@ -227,7 +227,7 @@ const CategoriesTab = ({ categories, setCategories, t, currentLang, fetchInvento
               <button
                 type="button"
                 onClick={() => !isSaving && setShowCategoryModal(false)}
-                className="p-1 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors border-0 bg-transparent cursor-pointer"
+                className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors border-0 bg-transparent cursor-pointer"
                 disabled={isSaving}
               >
                 <X size={20} />
@@ -241,7 +241,7 @@ const CategoriesTab = ({ categories, setCategories, t, currentLang, fetchInvento
                 <input
                   type="text"
                   required
-                  className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
+                  className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
                   placeholder="e.g. Mobile Screen"
                   value={catNameEn}
                   onChange={(e) => {
@@ -257,7 +257,7 @@ const CategoriesTab = ({ categories, setCategories, t, currentLang, fetchInvento
                 <input
                   type="text"
                   required
-                  className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
+                  className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
                   placeholder="उदा. मोबाइल स्क्रीन"
                   value={catNameHi}
                   onChange={(e) => {
@@ -284,7 +284,7 @@ const CategoriesTab = ({ categories, setCategories, t, currentLang, fetchInvento
                   </div>
                 )}
 
-                <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-brand-cyan transition-colors relative cursor-pointer">
+                <div className="border-2 border-dashed border-slate-200 rounded p-6 text-center hover:border-brand-cyan transition-colors relative cursor-pointer">
                   <input
                     type="file"
                     accept="image/*"
@@ -304,7 +304,7 @@ const CategoriesTab = ({ categories, setCategories, t, currentLang, fetchInvento
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded-xl shadow-lg border-0 cursor-pointer transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded shadow-lg border-0 cursor-pointer transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSaving ? (
                   <>

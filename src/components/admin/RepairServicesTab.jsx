@@ -434,7 +434,7 @@ const RepairServicesTab = ({
             srvDescHiManual.current = false;
             setShowServiceModal(true);
           }}
-          className="px-4 py-2.5 text-xs font-bold bg-brand-cyan hover:bg-brand-cyan/95 text-white rounded-xl flex items-center gap-1.5 shadow border-0 cursor-pointer transition-all"
+          className="px-4 py-2.5 text-xs font-bold bg-brand-cyan hover:bg-brand-cyan/95 text-white rounded flex items-center gap-1.5 shadow border-0 cursor-pointer transition-all"
         >
           <Plus size={14} /> {currentLang === "hi" ? "नई सेवा जोड़ें" : "Add New Service"}
         </button>
@@ -443,7 +443,7 @@ const RepairServicesTab = ({
       {/* 3-Column Manager Layout */}
       <div className="grid gap-1 grid-cols-1 md:grid-cols-3 items-start">
         {/* Column 1: Service Categories */}
-        <div className="glass-card p-5 rounded-2xl flex flex-col gap-4 shadow-sm h-[600px] bg-white border border-slate-200/80">
+        <div className="glass-card p-5 rounded flex flex-col gap-4 shadow-sm h-[600px] bg-white border border-slate-200/80">
           <h4 className="font-heading text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 flex justify-between items-center">
             <span>1. {currentLang === "hi" ? "सेवा श्रेणी" : "Service Category"}</span>
             <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold text-[10px]">
@@ -458,7 +458,7 @@ const RepairServicesTab = ({
                   setActiveService(service);
                   setActiveBrand("");
                 }}
-                className={`p-3.5 rounded-xl cursor-pointer transition-all border text-left ${
+                className={`p-3.5 rounded cursor-pointer transition-all border text-left ${
                   activeService?._id === service._id
                     ? "bg-brand-cyan/10 border-brand-cyan/30 text-brand-cyan font-bold"
                     : "bg-white/5 border-slate-100 hover:bg-slate-50 text-slate-700 font-normal"
@@ -501,7 +501,7 @@ const RepairServicesTab = ({
         </div>
 
         {/* Column 2: Brands */}
-        <div className="glass-card p-5 rounded-2xl flex flex-col gap-4 shadow-sm h-[600px] bg-white border border-slate-200/80">
+        <div className="glass-card p-5 rounded flex flex-col gap-4 shadow-sm h-[600px] bg-white border border-slate-200/80">
           <h4 className="font-heading text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 flex justify-between items-center">
             <span>2. {currentLang === "hi" ? "ब्रांड" : "Brands"}</span>
             {activeService && (
@@ -524,7 +524,7 @@ const RepairServicesTab = ({
               <form onSubmit={handleAddBrand} className="flex gap-2">
                 <input
                   type="text"
-                  className="flex-grow px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan text-xs"
+                  className="flex-grow px-3 py-2 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan text-xs"
                   placeholder={currentLang === "hi" ? "उदा. Apple, Samsung" : "e.g. Apple, Samsung"}
                   value={newBrandName}
                   onChange={(e) => setNewBrandName(e.target.value)}
@@ -532,7 +532,7 @@ const RepairServicesTab = ({
                 />
                 <button
                   type="submit"
-                  className="px-3 py-2 bg-brand-cyan hover:bg-brand-cyan/95 text-white rounded-xl text-xs font-bold shadow cursor-pointer transition-all border-0 flex-shrink-0"
+                  className="px-3 py-2 bg-brand-cyan hover:bg-brand-cyan/95 text-white rounded text-xs font-bold shadow cursor-pointer transition-all border-0 flex-shrink-0"
                 >
                   {currentLang === "hi" ? "जोड़ें" : "Add"}
                 </button>
@@ -547,7 +547,7 @@ const RepairServicesTab = ({
                         setActiveBrand(brandName);
                       }
                     }}
-                    className={`p-3 rounded-xl cursor-pointer transition-all border text-left flex justify-between items-center gap-2 ${
+                    className={`p-3 rounded cursor-pointer transition-all border text-left flex justify-between items-center gap-2 ${
                       activeBrand === brandName
                         ? "bg-brand-cyan/10 border-brand-cyan/30 text-brand-cyan font-bold"
                         : "bg-white/5 border-slate-100 hover:bg-slate-50 text-slate-700 font-normal"
@@ -619,7 +619,7 @@ const RepairServicesTab = ({
         </div>
 
         {/* Column 3: Models & Pricing */}
-        <div className="glass-card p-5 rounded-2xl flex flex-col gap-4 shadow-sm h-[600px] bg-white border border-slate-200/80">
+        <div className="glass-card p-5 rounded flex flex-col gap-4 shadow-sm h-[600px] bg-white border border-slate-200/80">
           <h4 className="font-heading text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 flex justify-between items-center">
             <span>3. {currentLang === "hi" ? "मॉडल और कीमतें" : "Models & Prices"}</span>
             {activeService && activeBrand && (
@@ -639,14 +639,14 @@ const RepairServicesTab = ({
             </div>
           ) : (
             <div className="flex-grow flex flex-col gap-4 min-h-0">
-              <form onSubmit={handleAddModel} className="flex flex-col gap-2 p-3 bg-slate-50/50 border border-slate-100 rounded-xl">
+              <form onSubmit={handleAddModel} className="flex flex-col gap-2 p-3 bg-slate-50/50 border border-slate-100 rounded">
                 <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider text-left">
                   {currentLang === "hi" ? "नया मॉडल जोड़ें" : "Add New Model"}
                 </p>
                 <div className="grid gap-1 grid-cols-1 sm:grid-cols-2">
                   <input
                     type="text"
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan text-xs"
+                    className="px-3 py-2 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan text-xs"
                     placeholder={currentLang === "hi" ? "मॉडल (उदा. iPhone 13)" : "Model (e.g. iPhone 13)"}
                     value={newModelName}
                     onChange={(e) => setNewModelName(e.target.value)}
@@ -654,7 +654,7 @@ const RepairServicesTab = ({
                   />
                   <input
                     type="number"
-                    className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan text-xs"
+                    className="px-3 py-2 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan text-xs"
                     placeholder={currentLang === "hi" ? "कीमत (₹)" : "Price (₹)"}
                     value={newModelPrice}
                     onChange={(e) => setNewModelPrice(e.target.value)}
@@ -663,7 +663,7 @@ const RepairServicesTab = ({
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-2 bg-brand-cyan hover:bg-brand-cyan/95 text-white rounded-xl text-xs font-bold shadow cursor-pointer transition-all border-0"
+                  className="w-full py-2 bg-brand-cyan hover:bg-brand-cyan/95 text-white rounded text-xs font-bold shadow cursor-pointer transition-all border-0"
                 >
                   {currentLang === "hi" ? "मॉडल सहेजें" : "Save Model"}
                 </button>
@@ -673,7 +673,7 @@ const RepairServicesTab = ({
                 {Object.entries(activeService.brands[activeBrand] || {}).map(([modelName, price]) => (
                   <div
                     key={modelName}
-                    className="p-3 rounded-xl border border-slate-100 bg-white/5 flex justify-between items-center gap-2"
+                    className="p-3 rounded border border-slate-100 bg-white/5 flex justify-between items-center gap-2"
                   >
                     <div className="flex-grow min-w-0 text-left">
                       {editingModelName === modelName ? (
@@ -741,7 +741,7 @@ const RepairServicesTab = ({
         </div>
       </div>
 
-      <div className="p-5 bg-blue-50/50 border border-blue-100 rounded-2xl shadow-sm text-left">
+      <div className="p-5 bg-blue-50/50 border border-blue-100 rounded shadow-sm text-left">
         <h5 className="font-heading text-xs font-bold text-blue-800 mb-2 uppercase tracking-wide">
           💡 {currentLang === "hi" ? "व्यवस्थापक मार्गदर्शिका (Directions for Admin):" : "Directions for Admin:"}
         </h5>
@@ -756,7 +756,7 @@ const RepairServicesTab = ({
       {/* Service Modal */}
       {showServiceModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-lg bg-white border border-slate-100 rounded-3xl shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto flex flex-col gap-5 text-left">
+          <div className="relative w-full max-w-lg bg-white border border-slate-100 rounded shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto flex flex-col gap-5 text-left">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <h3 className="font-heading text-lg font-bold text-slate-900">
                 {editingService ? "Edit Service Category / सेवा श्रेणी संपादित करें" : "Add Service Category / नई सेवा श्रेणी जोड़ें"}
@@ -780,7 +780,7 @@ const RepairServicesTab = ({
                     type="text"
                     required
                     disabled={!!editingService}
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan disabled:bg-slate-50 disabled:text-slate-400"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan disabled:bg-slate-50 disabled:text-slate-400"
                     placeholder="e.g. motherboard_repair"
                     value={srvKey}
                     onChange={(e) => setSrvKey(e.target.value)}
@@ -793,7 +793,7 @@ const RepairServicesTab = ({
                   <input
                     type="text"
                     required
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
                     placeholder="e.g. Hardware repair"
                     value={srvCategory}
                     onChange={(e) => setSrvCategory(e.target.value)}
@@ -808,7 +808,7 @@ const RepairServicesTab = ({
                   <input
                     type="text"
                     required
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
                     placeholder="e.g. Motherboard IC Level Repair"
                     value={srvTitleEn}
                     onChange={(e) => {
@@ -824,7 +824,7 @@ const RepairServicesTab = ({
                   <input
                     type="text"
                     required
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan"
                     placeholder="उदा. मदरबोर्ड आईसी चिप-लेवल मरम्मत"
                     value={srvTitleHi}
                     onChange={(e) => {
@@ -842,7 +842,7 @@ const RepairServicesTab = ({
                   <textarea
                     required
                     rows="3"
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan resize-none"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan resize-none"
                     placeholder="e.g. Micro-soldering, water damage recovery..."
                     value={srvDescEn}
                     onChange={(e) => {
@@ -858,7 +858,7 @@ const RepairServicesTab = ({
                   <textarea
                     required
                     rows="3"
-                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan resize-none"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 outline-none focus:border-brand-cyan resize-none"
                     placeholder="उदा. माइक्रो-सोल्डरिंग, लिक्विड डैमेज रिकवरी..."
                     value={srvDescHi}
                     onChange={(e) => {
@@ -872,7 +872,7 @@ const RepairServicesTab = ({
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded-xl shadow-lg border-0 cursor-pointer transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 bg-brand-cyan hover:bg-brand-cyan/95 text-white font-heading font-bold text-xs rounded shadow-lg border-0 cursor-pointer transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSaving ? (
                   <>
