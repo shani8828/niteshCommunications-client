@@ -96,7 +96,14 @@ const RepairsTab = ({ repairs, t, currentLang, handleUpdateRepairStatus }) => {
                   {rep.serviceCategory}
                 </td>
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-brand-cyan font-bold">
-                  ₹{rep.estimatedPrice}
+                  <div>
+                    <span>₹{rep.estimatedPrice}</span>
+                    {rep.discountAmount > 0 && (
+                      <span className="text-[10px] text-emerald-600 font-bold block">
+                        (₹{rep.discountAmount} off)
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
                   <span

@@ -336,8 +336,14 @@ const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus }) => {
           <table class="totals-table">
             <tr class="totals-row">
               <td class="totals-label">Subtotal</td>
-              <td class="totals-val">₹${ord.totalAmount}</td>
+              <td class="totals-val">₹${ord.items ? ord.items.reduce((acc, item) => acc + (item.price * item.quantity), 0) : ord.totalAmount}</td>
             </tr>
+            ${ord.discountAmount > 0 ? `
+            <tr class="totals-row">
+              <td class="totals-label" style="color: #10b981;">Online Discount</td>
+              <td class="totals-val" style="color: #10b981;">-₹${ord.discountAmount}</td>
+            </tr>
+            ` : ''}
             <tr class="totals-row">
               <td class="totals-label">Delivery Charges</td>
               <td class="totals-val" style="color: #10b981;">FREE</td>
@@ -469,7 +475,14 @@ const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus }) => {
                   {ord.customerPhone}
                 </td>
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-900 font-bold">
-                  ₹{ord.totalAmount}
+                  <div>
+                    <span>₹{ord.totalAmount}</span>
+                    {ord.discountAmount > 0 && (
+                      <span className="text-[10px] text-emerald-600 font-bold block">
+                        (₹{ord.discountAmount} off)
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
                   <div className="flex flex-col gap-0.5">

@@ -1,6 +1,10 @@
 import React from "react";
+import { getOnlineDiscount } from "../../utils/discount";
 
-const CheckoutSummary = ({ cartItems, cartSubtotal, currentLang, t }) => {
+const CheckoutSummary = ({ cartItems, cartSubtotal, currentLang, t, paymentType }) => {
+  const discount = paymentType === "Online" ? getOnlineDiscount(cartSubtotal) : 0;
+  const finalTotal = cartSubtotal - discount;
+
   return (
     <div className="p-8 bg-white border border-slate-200 rounded shadow-sm h-fit w-full">
       <h3 className="font-heading text-base font-bold text-blue-600 mb-5">
@@ -33,6 +37,12 @@ const CheckoutSummary = ({ cartItems, cartSubtotal, currentLang, t }) => {
           ₹{cartSubtotal}
         </span>
       </div>
+      {discount > 0 && (
+        <div className="flex justify-between items-center text-xs text-emerald-600 mb-3 font-semibold">
+          <span>{currentLang === "hi" ? "ऑनलाइन भुगतान छूट" : "Online Payment Discount"}</span>
+          <span>-₹{discount}</span>
+        </div>
+      )}
       <div className="flex justify-between items-center text-xs text-slate-600 mb-4">
         <span>{t("cart:delivery_charges")}</span>
         <span className="text-emerald-600 font-bold">{t("cart:free")}</span>
@@ -43,7 +53,7 @@ const CheckoutSummary = ({ cartItems, cartSubtotal, currentLang, t }) => {
       <div className="flex justify-between items-center text-sm font-bold text-slate-800">
         <span>{t("cart:total")}</span>
         <span className="text-lg text-blue-600">
-          ₹{cartSubtotal.toFixed(2)}
+          ₹{finalTotal.toFixed(2)}
         </span>
       </div>
     </div>

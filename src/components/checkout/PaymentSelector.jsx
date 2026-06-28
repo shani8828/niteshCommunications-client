@@ -1,6 +1,7 @@
 import React from "react";
 import { CreditCard, Truck } from "lucide-react";
 import { showToast } from "../../utils/toast";
+import { getOnlineDiscount } from "../../utils/discount";
 
 const PaymentSelector = ({
   paymentType,
@@ -9,6 +10,7 @@ const PaymentSelector = ({
   currentLang,
   t,
 }) => {
+  const onlineDiscount = getOnlineDiscount(cartSubtotal);
   const handleCodClick = () => {
     if (cartSubtotal <= 5000) {
       setPaymentType("COD");
@@ -101,10 +103,26 @@ const PaymentSelector = ({
             className={`mt-0.5 ${paymentType === "Online" ? "text-blue-600" : "text-slate-400"}`}
           />
           <div className="flex flex-col gap-0.5 text-slate-800">
-            <p className="text-sm font-semibold">{t("cart:online")}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold">{t("cart:online")}</p>
+              {onlineDiscount > 0 && (
+                <span className="bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
+                  {currentLang === "hi"
+                    ? `₹${onlineDiscount} छूट`
+                    : `₹${onlineDiscount} OFF`}
+                </span>
+              )}
+            </div>
             <p className="text-xs text-slate-500">
               Pay instantly via UPI, Credit/Debit cards, Net Banking.
             </p>
+            {onlineDiscount > 0 && (
+              <p className="text-[11px] text-emerald-600 font-bold mt-1">
+                {currentLang === "hi"
+                  ? `🎉 ऑनलाइन भुगतान पर ₹${onlineDiscount} की विशेष छूट पाएं!`
+                  : `🎉 Pay online to save ₹${onlineDiscount} instantly!`}
+              </p>
+            )}
           </div>
         </div>
       </div>

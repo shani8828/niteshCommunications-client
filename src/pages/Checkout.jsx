@@ -7,6 +7,7 @@ import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
 import api from "../utils/api";
 import { getCurrentPositionWithFallback, handleGeolocationError } from "../utils/geolocation";
+import { getOnlineDiscount } from "../utils/discount";
 
 // Modular Components
 import BillingForm from "../components/checkout/BillingForm";
@@ -397,8 +398,8 @@ const Checkout = () => {
             {loading
               ? t("common:submitting", "Submitting...")
               : !isWithinDeliveryHours
-                ? `${currentLang === "hi" ? "ऑर्डर दें (कल डिलीवरी)" : "Place Order (Delivery Tomorrow)"} (₹${cartSubtotal})`
-                : `${t("cart:place_order")} (₹${cartSubtotal})`}
+                ? `${currentLang === "hi" ? "ऑर्डर दें (कल डिलीवरी)" : "Place Order (Delivery Tomorrow)"} (₹${(cartSubtotal - (paymentType === "Online" ? getOnlineDiscount(cartSubtotal) : 0))})`
+                : `${t("cart:place_order")} (₹${(cartSubtotal - (paymentType === "Online" ? getOnlineDiscount(cartSubtotal) : 0))})`}
           </button>
         </form>
 
@@ -408,6 +409,7 @@ const Checkout = () => {
           cartSubtotal={cartSubtotal}
           currentLang={currentLang}
           t={t}
+          paymentType={paymentType}
         />
       </div>
     </div>

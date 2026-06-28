@@ -37,18 +37,31 @@ const TrackingItemsSummary = ({ order, currentLang }) => {
 
       <hr className="border-t border-slate-100 my-4" />
 
-      <div className="flex justify-between items-center text-xs text-slate-500 mb-2">
-        <span>Subtotal</span>
-        <span className="font-semibold text-slate-700">₹{order.totalAmount}</span>
-      </div>
-      <div className="flex justify-between items-center text-xs text-slate-500 mb-2">
-        <span>Delivery</span>
-        <span className="text-emerald-600 font-bold">FREE</span>
-      </div>
-      <div className="flex justify-between items-center text-sm font-bold text-slate-800 mt-4">
-        <span>Total</span>
-        <span className="text-base text-blue-600">₹{order.totalAmount}</span>
-      </div>
+      {(() => {
+        const itemsSubtotal = order.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+        return (
+          <>
+            <div className="flex justify-between items-center text-xs text-slate-500 mb-2">
+              <span>Subtotal</span>
+              <span className="font-semibold text-slate-700">₹{itemsSubtotal}</span>
+            </div>
+            {order.discountAmount > 0 && (
+              <div className="flex justify-between items-center text-xs text-emerald-600 mb-2 font-semibold">
+                <span>Discount (Online Payment)</span>
+                <span>-₹{order.discountAmount}</span>
+              </div>
+            )}
+            <div className="flex justify-between items-center text-xs text-slate-500 mb-2">
+              <span>Delivery</span>
+              <span className="text-emerald-600 font-bold">FREE</span>
+            </div>
+            <div className="flex justify-between items-center text-sm font-bold text-slate-800 mt-4">
+              <span>Total</span>
+              <span className="text-base text-blue-600">₹{order.totalAmount}</span>
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 };

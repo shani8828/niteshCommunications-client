@@ -122,6 +122,11 @@ const RepairBookingsTab = ({
                 <span className="font-bold text-slate-800">
                   ₹{rep.estimatedPrice}
                 </span>
+                {rep.discountAmount > 0 && (
+                  <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded">
+                    {currentLang === "hi" ? `₹${rep.discountAmount} छूट` : `₹${rep.discountAmount} off`}
+                  </span>
+                )}
                 <span className="text-slate-400 font-semibold">|</span>
                 <span className="text-slate-500 font-semibold">
                   {t("repair:payment_method")}: {rep.paymentMethod}

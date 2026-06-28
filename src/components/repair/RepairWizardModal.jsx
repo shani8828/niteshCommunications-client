@@ -19,6 +19,7 @@ import LocationMap from "./LocationMap";
 import ShopMap from "./ShopMap";
 import { getCurrentPositionWithFallback, handleGeolocationError } from "../../utils/geolocation";
 import { AddressSkeleton } from "../xerox/XeroxSkeletons";
+import { getOnlineDiscount } from "../../utils/discount";
 
 const RepairWizardModal = ({
   selectedServiceKey,
@@ -240,7 +241,8 @@ const RepairWizardModal = ({
     }
 
     const serviceData = repairPricingData[selectedServiceKey];
-    const price = serviceData.brands[selectedBrand][selectedModel];
+    const basePrice = serviceData.brands[selectedBrand][selectedModel];
+    const discount = getOnlineDiscount(basePrice);
 
     setLoading(true);
 
@@ -257,7 +259,7 @@ const RepairWizardModal = ({
         problemDescription: serviceData.title.en,
         serviceCategory: serviceData.category,
         pickupAddress: fullAddress,
-        estimatedPrice: price,
+        estimatedPrice: basePrice, // Send base price, backend will calculate discount
         coordinates,
         paymentMethod: paymentType,
       });
@@ -347,7 +349,8 @@ const RepairWizardModal = ({
                   "NC-REP-SUCCESS",
                 brand: selectedBrand,
                 model: selectedModel,
-                price,
+                price: verifyResponse.data.repair?.estimatedPrice || (basePrice - discount),
+                discountAmount: verifyResponse.data.repair?.discountAmount || discount,
                 service: serviceData.title[currentLang],
                 paymentMethod: paymentType,
               });
@@ -473,8 +476,18 @@ const RepairWizardModal = ({
 
             <div className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-left flex flex-col gap-2 max-w-sm">
               <div className="flex justify-between text-xs text-slate-500 font-semibold">
+                <span>{currentLang === "hi" ? "मूल लागत" : "Original Cost"}</span>
+                <span className="text-slate-900 font-bold">₹{bookingSuccess.discountAmount > 0 ? (bookingSuccess.price + bookingSuccess.discountAmount) : bookingSuccess.price}</span>
+              </div>
+              {bookingSuccess.discountAmount > 0 && (
+                <div className="flex justify-between text-xs text-emerald-600 font-semibold border-t border-slate-200/60 pt-2">
+                  <span>{currentLang === "hi" ? "ऑनलाइन भुगतान छूट" : "Online Payment Discount"}</span>
+                  <span className="font-bold">-₹{bookingSuccess.discountAmount}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-xs text-slate-505 font-semibold border-t border-slate-200/60 pt-2">
                 <span>{currentLang === "hi" ? "अनुमानित लागत" : "Estimated Cost"}</span>
-                <span className="text-slate-900 font-bold">₹{bookingSuccess.price}</span>
+                <span className="text-slate-900 font-extrabold text-sm">₹{bookingSuccess.price}</span>
               </div>
               <div className="flex justify-between text-xs text-slate-500 font-semibold border-t border-slate-200/60 pt-2">
                 <span>{currentLang === "hi" ? "भुगतान प्रकार" : "Payment Method"}</span>
@@ -953,9 +966,26 @@ const RepairWizardModal = ({
                         onChange={() => setPaymentType("Online")}
                         className="w-4 h-4 text-blue-600 focus:ring-blue-500"
                       />
-                      <span>{currentLang === "hi" ? "ऑनलाइन भुगतान" : "Online Payment"}</span>
+                      <span>
+                        {currentLang === "hi" ? "ऑनलाइन भुगतान" : "Online Payment"}
+                        {getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel]) > 0 && (
+                          <span className="ml-2 bg-emerald-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                            {currentLang === "hi"
+                              ? `₹${getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])} छूट`
+                              : `₹${getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])} OFF`}
+                          </span>
+                        )}
+                      </span>
                     </label>
                   </div>
+
+                  {getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel]) > 0 && (
+                    <div className="text-[11px] text-emerald-600 font-bold mt-1 bg-emerald-50 border border-emerald-100 p-2 rounded-lg text-left">
+                      {currentLang === "hi"
+                        ? `🎉 ऑनलाइन भुगतान चुनने पर आपको ₹${getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])} की विशेष छूट मिलेगी! कुल देय: ₹${serviceData.brands[selectedBrand][selectedModel] - getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])}`
+                        : `🎉 Pay online to get a discount of ₹${getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])}! Total payable: ₹${serviceData.brands[selectedBrand][selectedModel] - getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])}`}
+                    </div>
+                  )}
 
                   {serviceData.brands[selectedBrand][selectedModel] > 5000 && (
                     <p className="text-[10px] text-amber-600 font-semibold mt-1">
@@ -977,7 +1007,7 @@ const RepairWizardModal = ({
                     ? currentLang === "hi" ? "पहले स्थान सत्यापित करें" : "Verify Location First"
                     : outOfRange
                     ? currentLang === "hi" ? "दूरी सीमा से बाहर (पिकअप अवरुद्ध)" : "Out of Range (Pickup Blocked)"
-                    : `${currentLang === "hi" ? "बुक रिपेयर" : "Confirm Booking"} (₹${serviceData.brands[selectedBrand][selectedModel]})`}
+                    : `${currentLang === "hi" ? "बुक रिपेयर" : "Confirm Booking"} (₹${paymentType === "Online" ? (serviceData.brands[selectedBrand][selectedModel] - getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])) : serviceData.brands[selectedBrand][selectedModel]})`}
                 </button>
               </form>
             )}
