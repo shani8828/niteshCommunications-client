@@ -53,7 +53,9 @@ const TrackingItemsSummary = ({ order, currentLang }) => {
             )}
             <div className="flex justify-between items-center text-xs text-slate-500 mb-2">
               <span>Delivery</span>
-              <span className="text-emerald-600 font-bold">FREE</span>
+              <span className={order.deliveryCharge > 0 ? "font-semibold text-slate-700" : "text-emerald-600 font-bold"}>
+                {order.deliveryCharge > 0 ? `₹${order.deliveryCharge}` : "FREE"}
+              </span>
             </div>
             <div className="flex justify-between items-center text-sm font-bold text-slate-800 mt-4">
               <span>Total</span>

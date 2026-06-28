@@ -346,7 +346,7 @@ const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus }) => {
             ` : ''}
             <tr class="totals-row">
               <td class="totals-label">Delivery Charges</td>
-              <td class="totals-val" style="color: #10b981;">FREE</td>
+              <td class="totals-val" style="${ord.deliveryCharge > 0 ? '' : 'color: #10b981;'}">${ord.deliveryCharge > 0 ? `₹${ord.deliveryCharge}` : 'FREE'}</td>
             </tr>
             <tr class="totals-row">
               <td class="totals-label">Taxes</td>

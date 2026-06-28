@@ -8,6 +8,7 @@ import Loader from "../components/common/Loader";
 import api from "../utils/api";
 import { getCurrentPositionWithFallback, handleGeolocationError } from "../utils/geolocation";
 import { getOnlineDiscount } from "../utils/discount";
+import { getDeliveryCharge } from "../utils/delivery";
 
 // Modular Components
 import BillingForm from "../components/checkout/BillingForm";
@@ -356,6 +357,10 @@ const Checkout = () => {
     }
   };
 
+  const discount = paymentType === "Online" ? getOnlineDiscount(cartSubtotal) : 0;
+  const deliveryCharge = getDeliveryCharge(distance);
+  const finalTotal = cartSubtotal - discount + deliveryCharge;
+
   return (
     <div className="max-w-6xl mx-auto px-6 py-8 pb-20 bg-white relative">
       {loading && <Loader fullPage />}
@@ -390,7 +395,7 @@ const Checkout = () => {
             t={t}
           />
 
-          <button
+           <button
             type="submit"
             disabled={loading || outOfRange}
             className="w-full py-3.5 mt-2 font-heading font-bold text-base bg-blue-600 text-white rounded-full hover:bg-blue-700 shadow-md shadow-blue-500/10 cursor-pointer border-0 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -398,8 +403,8 @@ const Checkout = () => {
             {loading
               ? t("common:submitting", "Submitting...")
               : !isWithinDeliveryHours
-                ? `${currentLang === "hi" ? "ऑर्डर दें (कल डिलीवरी)" : "Place Order (Delivery Tomorrow)"} (₹${(cartSubtotal - (paymentType === "Online" ? getOnlineDiscount(cartSubtotal) : 0))})`
-                : `${t("cart:place_order")} (₹${(cartSubtotal - (paymentType === "Online" ? getOnlineDiscount(cartSubtotal) : 0))})`}
+                ? `${currentLang === "hi" ? "ऑर्डर दें (कल डिलीवरी)" : "Place Order (Delivery Tomorrow)"} (₹${finalTotal})`
+                : `${t("cart:place_order")} (₹${finalTotal})`}
           </button>
         </form>
 
@@ -410,6 +415,7 @@ const Checkout = () => {
           currentLang={currentLang}
           t={t}
           paymentType={paymentType}
+          distance={distance}
         />
       </div>
     </div>

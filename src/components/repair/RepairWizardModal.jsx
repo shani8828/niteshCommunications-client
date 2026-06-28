@@ -20,6 +20,7 @@ import ShopMap from "./ShopMap";
 import { getCurrentPositionWithFallback, handleGeolocationError } from "../../utils/geolocation";
 import { AddressSkeleton } from "../xerox/XeroxSkeletons";
 import { getOnlineDiscount } from "../../utils/discount";
+import { getDeliveryCharge } from "../../utils/delivery";
 
 const RepairWizardModal = ({
   selectedServiceKey,
@@ -275,7 +276,9 @@ const RepairWizardModal = ({
             "NC-REP-SUCCESS",
           brand: selectedBrand,
           model: selectedModel,
-          price,
+          price: data.repair?.estimatedPrice || basePrice,
+          discountAmount: 0,
+          deliveryCharge: data.repair?.deliveryCharge || 0,
           service: serviceData.title[currentLang],
           paymentMethod: paymentType,
         });
@@ -351,6 +354,7 @@ const RepairWizardModal = ({
                 model: selectedModel,
                 price: verifyResponse.data.repair?.estimatedPrice || (basePrice - discount),
                 discountAmount: verifyResponse.data.repair?.discountAmount || discount,
+                deliveryCharge: verifyResponse.data.repair?.deliveryCharge || 0,
                 service: serviceData.title[currentLang],
                 paymentMethod: paymentType,
               });
@@ -499,7 +503,9 @@ const RepairWizardModal = ({
               </div>
               <div className="flex justify-between text-xs text-slate-500 font-semibold border-t border-slate-200/60 pt-2">
                 <span>{currentLang === "hi" ? "पिकअप चार्ज" : "Pickup Charge"}</span>
-                <span className="text-emerald-600 font-bold">FREE</span>
+                <span className={bookingSuccess.deliveryCharge > 0 ? "text-slate-900 font-bold" : "text-emerald-600 font-bold"}>
+                  {bookingSuccess.deliveryCharge > 0 ? `₹${bookingSuccess.deliveryCharge}` : "FREE"}
+                </span>
               </div>
             </div>
 
@@ -585,6 +591,16 @@ const RepairWizardModal = ({
                 <span className="text-right border-t border-slate-200 pt-1.5 font-bold text-blue-600 text-sm">
                   ₹{serviceData.brands[selectedBrand][selectedModel]}
                 </span>
+                {getDeliveryCharge(distance) > 0 && (
+                  <>
+                    <span className="font-semibold text-slate-500 text-xs mt-1">
+                      {currentLang === "hi" ? "पिकअप चार्ज" : "Pickup Charge"}
+                    </span>
+                    <span className="text-right font-bold text-slate-800 text-xs mt-1">
+                      +₹{getDeliveryCharge(distance)}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -982,8 +998,16 @@ const RepairWizardModal = ({
                   {getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel]) > 0 && (
                     <div className="text-[11px] text-emerald-600 font-bold mt-1 bg-emerald-50 border border-emerald-100 p-2 rounded-lg text-left">
                       {currentLang === "hi"
-                        ? `🎉 ऑनलाइन भुगतान चुनने पर आपको ₹${getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])} की विशेष छूट मिलेगी! कुल देय: ₹${serviceData.brands[selectedBrand][selectedModel] - getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])}`
-                        : `🎉 Pay online to get a discount of ₹${getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])}! Total payable: ₹${serviceData.brands[selectedBrand][selectedModel] - getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])}`}
+                        ? `🎉 ऑनलाइन भुगतान चुनने पर आपको ₹${getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])} की विशेष छूट मिलेगी! कुल देय: ₹${serviceData.brands[selectedBrand][selectedModel] - getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel]) + getDeliveryCharge(distance)}`
+                        : `🎉 Pay online to get a discount of ₹${getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])}! Total payable: ₹${serviceData.brands[selectedBrand][selectedModel] - getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel]) + getDeliveryCharge(distance)}`}
+                    </div>
+                  )}
+
+                  {getDeliveryCharge(distance) > 0 && (
+                    <div className="text-[11px] text-slate-600 font-bold mt-1 bg-slate-100 border border-slate-200 p-2 rounded-lg text-left">
+                      {currentLang === "hi"
+                        ? `🚚 स्थान दूरी के अनुसार पिकअप चार्ज: ₹${getDeliveryCharge(distance)}`
+                        : `🚚 Pickup charge based on distance: ₹${getDeliveryCharge(distance)}`}
                     </div>
                   )}
 
@@ -1007,7 +1031,7 @@ const RepairWizardModal = ({
                     ? currentLang === "hi" ? "पहले स्थान सत्यापित करें" : "Verify Location First"
                     : outOfRange
                     ? currentLang === "hi" ? "दूरी सीमा से बाहर (पिकअप अवरुद्ध)" : "Out of Range (Pickup Blocked)"
-                    : `${currentLang === "hi" ? "बुक रिपेयर" : "Confirm Booking"} (₹${paymentType === "Online" ? (serviceData.brands[selectedBrand][selectedModel] - getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel])) : serviceData.brands[selectedBrand][selectedModel]})`}
+                    : `${currentLang === "hi" ? "बुक रिपेयर" : "Confirm Booking"} (₹${paymentType === "Online" ? (serviceData.brands[selectedBrand][selectedModel] - getOnlineDiscount(serviceData.brands[selectedBrand][selectedModel]) + getDeliveryCharge(distance)) : (serviceData.brands[selectedBrand][selectedModel] + getDeliveryCharge(distance))})`}
                 </button>
               </form>
             )}

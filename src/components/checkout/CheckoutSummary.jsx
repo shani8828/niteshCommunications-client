@@ -1,9 +1,11 @@
 import React from "react";
 import { getOnlineDiscount } from "../../utils/discount";
+import { getDeliveryCharge } from "../../utils/delivery";
 
-const CheckoutSummary = ({ cartItems, cartSubtotal, currentLang, t, paymentType }) => {
+const CheckoutSummary = ({ cartItems, cartSubtotal, currentLang, t, paymentType, distance }) => {
   const discount = paymentType === "Online" ? getOnlineDiscount(cartSubtotal) : 0;
-  const finalTotal = cartSubtotal - discount;
+  const deliveryCharge = getDeliveryCharge(distance);
+  const finalTotal = cartSubtotal - discount + deliveryCharge;
 
   return (
     <div className="p-8 bg-white border border-slate-200 rounded shadow-sm h-fit w-full">
@@ -45,7 +47,9 @@ const CheckoutSummary = ({ cartItems, cartSubtotal, currentLang, t, paymentType 
       )}
       <div className="flex justify-between items-center text-xs text-slate-600 mb-4">
         <span>{t("cart:delivery_charges")}</span>
-        <span className="text-emerald-600 font-bold">{t("cart:free")}</span>
+        <span className={deliveryCharge > 0 ? "font-semibold text-slate-800" : "text-emerald-600 font-bold"}>
+          {deliveryCharge > 0 ? `₹${deliveryCharge}` : t("cart:free")}
+        </span>
       </div>
 
       <hr className="border-t border-slate-100 my-4" />

@@ -262,14 +262,19 @@ const PrintoutsTab = ({
                     })}
                   </p>
                 </td>
-                <td className="p-1 text-xs font-semibold">
-                  <p className="text-slate-950 font-bold">
-                    ₹{item.totalAmount}
-                  </p>
-                  <p className="text-[10px] text-emerald-600 font-bold mt-0.5 capitalize">
-                    {item.paymentStatus}
-                  </p>
-                </td>
+                 <td className="p-1 text-xs font-semibold">
+                   <p className="text-slate-950 font-bold">
+                     ₹{item.totalAmount}
+                   </p>
+                   {item.deliveryCharge > 0 && (
+                     <p className="text-[10px] text-slate-500 font-semibold mt-0.5">
+                       (₹{item.deliveryCharge} delivery)
+                     </p>
+                   )}
+                   <p className="text-[10px] text-emerald-600 font-bold mt-0.5 capitalize">
+                     {item.paymentStatus}
+                   </p>
+                 </td>
                 <td className="p-1 text-xs">
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadgeClass(item.deliveryStatus)}`}

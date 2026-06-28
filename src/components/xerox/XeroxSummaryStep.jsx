@@ -7,6 +7,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { ReceiptSkeleton } from "./XeroxSkeletons";
+import { getDeliveryCharge } from "../../utils/delivery";
 
 const XeroxSummaryStep = ({
   documents,
@@ -20,6 +21,7 @@ const XeroxSummaryStep = ({
   onBack,
   onSubmit,
   processing,
+  distance,
 }) => {
   const [isWithinHours, setIsWithinHours] = useState(true);
   const [bypassPayment, setBypassPayment] = useState(false);
@@ -50,7 +52,8 @@ const XeroxSummaryStep = ({
     return sum + doc.pages * doc.copies * rate;
   }, 0);
   const tax = 2;
-  const total = subtotal + tax;
+  const deliveryCharge = getDeliveryCharge(distance);
+  const total = subtotal + tax + deliveryCharge;
 
   const handlePayClick = (e) => {
     e.preventDefault();
@@ -170,6 +173,12 @@ const XeroxSummaryStep = ({
                 <span>Convenience / Delivery Tax</span>
                 <span className="font-semibold text-slate-800">₹{tax}</span>
               </div>
+              {deliveryCharge > 0 && (
+                <div className="flex justify-between items-center border-b border-slate-100 pb-2.5">
+                  <span>Delivery Charge</span>
+                  <span className="font-semibold text-slate-800">₹{deliveryCharge}</span>
+                </div>
+              )}
               <div className="flex justify-between items-center pt-1 font-extrabold text-sm text-slate-800">
                 <span>Total Amount</span>
                 <span className="text-base text-slate-900 font-extrabold">
