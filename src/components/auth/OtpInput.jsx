@@ -75,7 +75,10 @@ const OtpInput = ({ value, onChange }) => {
   };
 
   return (
-    <div className="flex gap-2.5 justify-center my-4" onPaste={handlePaste}>
+    <div
+      className="flex gap-1.5 md:gap-2 lg:gap-2.5 justify-center my-4"
+      onPaste={handlePaste}
+    >
       {values.map((val, idx) => (
         <input
           key={idx}
@@ -88,7 +91,7 @@ const OtpInput = ({ value, onChange }) => {
           value={val}
           onChange={(e) => handleChange(e, idx)}
           onKeyDown={(e) => handleKeyDown(e, idx)}
-          className="w-12 h-12 text-center text-xl font-bold border border-slate-200 rounded focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all outline-none text-slate-800 bg-white"
+          className="w-8 md:w-10 lg:w-12 h-8 md:h-10 lg:h-12 text-center text-lg md:text-xl font-bold border border-slate-200 rounded focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all outline-none text-slate-800 bg-white"
         />
       ))}
     </div>
