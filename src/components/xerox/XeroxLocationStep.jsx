@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { MapPin, Navigation, ArrowLeft, Check, AlertTriangle } from 'lucide-react';
 import { showToast } from '../../utils/toast';
 import { AddressSkeleton } from './XeroxSkeletons';
+import { getCurrentPositionWithFallback, handleGeolocationError } from '../../utils/geolocation';
 
 const SHOP_LAT = 26.671782;
 const SHOP_LON = 82.008832;
@@ -89,61 +90,50 @@ const XeroxLocationStep = ({
     setCoordinates(null);
     setLandmark("");
   };
-
-  const handleDetectLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      showToast.error("Your browser does not support Geolocation / आपका ब्राउज़र लोकेशन सपोर्ट नहीं करता है");
-      return;
-    }
-
+  const handleDetectLocation = useCallback(async () => {
     setGeolocating(true);
     setLocationFetched(false);
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        setCoordinates({ latitude, longitude });
+    try {
+      const position = await getCurrentPositionWithFallback();
+      const { latitude, longitude } = position.coords;
+      setCoordinates({ latitude, longitude });
 
-        const dist = calculateDistance(SHOP_LAT, SHOP_LON, latitude, longitude);
-        setDistance(dist);
-        setOutOfRange(dist > 15);
+      const dist = calculateDistance(SHOP_LAT, SHOP_LON, latitude, longitude);
+      setDistance(dist);
+      setOutOfRange(dist > 15);
 
-        if (dist > 15) {
-          setGeolocating(false);
-          setLocationFetched(true);
-          showToast.error("We only deliver within 15km of our shop / हम केवल दुकान से 15 किमी के दायरे में डिलीवरी करते हैं");
-          return;
-        }
-
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
-          );
-          const data = await response.json();
-          if (data && data.display_name) {
-            setAddress(data.display_name);
-            showToast.success("Location detected successfully!");
-          } else {
-            setAddress(`${latitude}, ${longitude}`);
-          }
-        } catch (err) {
-          console.error(err);
-          setAddress(`${latitude}, ${longitude}`);
-          showToast.warning("Location detected, but failed to fetch address name.");
-        } finally {
-          setGeolocating(false);
-          setLocationFetched(true);
-        }
-      },
-      (error) => {
-        console.error(error);
+      if (dist > 15) {
         setGeolocating(false);
-        setLocationFetched(false);
-        showToast.error(
-          "Location permission denied or unavailable. Geolocation is required for document delivery. / डिलीवरी के लिए लोकेशन परमिशन आवश्यक है।"
+        setLocationFetched(true);
+        showToast.error("We only deliver within 15km of our shop / हम केवल दुकान से 15 किमी के दायरे में डिलीवरी करते हैं");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
         );
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+        const data = await response.json();
+        if (data && data.display_name) {
+          setAddress(data.display_name);
+          showToast.success("Location detected successfully!");
+        } else {
+          setAddress(`${latitude}, ${longitude}`);
+        }
+      } catch (err) {
+        console.error(err);
+        setAddress(`${latitude}, ${longitude}`);
+        showToast.warning("Location detected, but failed to fetch address name.");
+      } finally {
+        setGeolocating(false);
+        setLocationFetched(true);
+      }
+    } catch (error) {
+      handleGeolocationError(error);
+      setGeolocating(false);
+      setLocationFetched(false);
+      showToast.info("Geolocation is required for document delivery. / डिलीवरी के लिए लोकेशन परमिशन आवश्यक है।");
+    }
   }, [setCoordinates, setAddress]);
 
   return (

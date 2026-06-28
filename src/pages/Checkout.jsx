@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { showToast } from "../utils/toast";
 import Loader from "../components/common/Loader";
 import api from "../utils/api";
+import { getCurrentPositionWithFallback, handleGeolocationError } from "../utils/geolocation";
 
 // Modular Components
 import BillingForm from "../components/checkout/BillingForm";
@@ -138,74 +139,71 @@ const Checkout = () => {
     });
   };
 
-  const handleUseCurrentLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      showToast.error(
-        "आपका ब्राउज़र लोकेशन का समर्थन नहीं करता है / Your browser does not support geolocation",
-      );
-      return;
-    }
+  const handleUseCurrentLocation = useCallback(async () => {
     setGeolocating(true);
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        setCoordinates({ latitude, longitude });
-        try {
-          const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-          let formattedAddress = "";
+    try {
+      const position = await getCurrentPositionWithFallback();
+      const { latitude, longitude } = position.coords;
 
-          if (apiKey) {
-            const response = await fetch(
-              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}&language=${currentLang}`,
-            );
-            const data = await response.json();
-            if (data && data.results && data.results.length > 0) {
-              formattedAddress = data.results[0].formatted_address;
-            }
-          }
-
-          if (!formattedAddress) {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
-            );
-            const data = await response.json();
-            if (data && data.display_name) {
-              formattedAddress = data.display_name;
-            }
-          }
-
-          if (formattedAddress) {
-            setAddress(formattedAddress);
-            showToast.success(
-              currentLang === "hi"
-                ? "लोकेशन सफलतापूर्वक प्राप्त की गई"
-                : "Location retrieved successfully",
-            );
-          } else {
-            setAddress(`${latitude}, ${longitude}`);
-          }
-        } catch (err) {
-          console.error(err);
-          setAddress(`${latitude}, ${longitude}`);
-          showToast.warning(
-            currentLang === "hi"
-              ? "लोकेशन तो मिल गई, पर पता खोजने में समस्या हुई"
-              : "Location retrieved, but failed to fetch address name",
-          );
-        } finally {
-          setGeolocating(false);
-        }
-      },
-      (error) => {
-        console.error(error);
-        setGeolocating(false);
+      const dist = calculateDistance(SHOP_LAT, SHOP_LON, latitude, longitude);
+      if (dist > 15) {
         showToast.error(
-          "लोकेशन अनुमति अस्वीकृत या उपलब्ध नहीं है / Location permission denied or unavailable",
+          currentLang === "hi"
+            ? "क्षमा करें, आपका पता हमारी 15 किमी डिलीवरी सीमा से बाहर है।"
+            : "Sorry, your address is out of our 15km delivery range."
         );
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
-    );
-  }, [currentLang]);
+        setCoordinates(null);
+        return;
+      }
+
+      setCoordinates({ latitude, longitude });
+      try {
+        const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+        let formattedAddress = "";
+
+        if (apiKey) {
+          const response = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}&language=${currentLang}`,
+          );
+          const data = await response.json();
+          if (data && data.results && data.results.length > 0) {
+            formattedAddress = data.results[0].formatted_address;
+          }
+        }
+
+        if (!formattedAddress) {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+          );
+          const data = await response.json();
+          if (data && data.display_name) {
+            formattedAddress = data.display_name;
+          }
+        }
+
+        if (formattedAddress) {
+          setAddress(formattedAddress);
+          showToast.success(
+            t("auth:location_retrieved", "Location retrieved successfully")
+          );
+        } else {
+          setAddress(`${latitude}, ${longitude}`);
+        }
+      } catch (err) {
+        console.error(err);
+        setAddress(`${latitude}, ${longitude}`);
+        showToast.warning(
+          currentLang === "hi"
+            ? "लोकेशन तो मिल गई, पर पता खोजने में समस्या हुई"
+            : "Location retrieved, but failed to fetch address name",
+        );
+      }
+    } catch (error) {
+      handleGeolocationError(error, t);
+    } finally {
+      setGeolocating(false);
+    }
+  }, [currentLang, t]);
 
   const handleFormChange = useCallback((field, value) => {
     formValuesRef.current[field] = value;

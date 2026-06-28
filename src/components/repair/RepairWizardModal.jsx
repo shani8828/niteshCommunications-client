@@ -14,6 +14,7 @@ import api from "../../utils/api";
 import { showToast } from "../../utils/toast";
 import LocationMap from "./LocationMap";
 import ShopMap from "./ShopMap";
+import { getCurrentPositionWithFallback, handleGeolocationError } from "../../utils/geolocation";
 
 const RepairWizardModal = ({
   selectedServiceKey,
@@ -155,59 +156,53 @@ const RepairWizardModal = ({
       document.body.style.overflow = "unset";
     };
   }, []);
-
-  const handleUseCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      showToast.error(
-        currentLang === "hi"
-          ? "आपका ब्राउज़र लोकेशन का समर्थन नहीं करता है"
-          : "Your browser does not support geolocation"
-      );
-      return;
-    }
+  const handleUseCurrentLocation = async () => {
     setGeolocating(true);
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        setCoordinates({ latitude, longitude });
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
-          );
-          const data = await response.json();
-          if (data && data.display_name) {
-            setAddress(data.display_name);
-            showToast.success(
-              currentLang === "hi"
-                ? "लोकेशन सफलतापूर्वक प्राप्त की गई"
-                : "Location retrieved successfully"
-            );
-          } else {
-            setAddress(`${latitude}, ${longitude}`);
-          }
-        } catch (err) {
-          console.error(err);
-          setAddress(`${latitude}, ${longitude}`);
-          showToast.warning(
-            currentLang === "hi"
-              ? "लोकेशन मिल गई, पर पता खोजने में समस्या हुई"
-              : "Location retrieved, but failed to fetch address name"
-          );
-        } finally {
-          setGeolocating(false);
-        }
-      },
-      (error) => {
-        console.error(error);
-        setGeolocating(false);
+    try {
+      const position = await getCurrentPositionWithFallback();
+      const { latitude, longitude } = position.coords;
+
+      const dist = calculateDistance(SHOP_LAT, SHOP_LON, latitude, longitude);
+      if (dist > 15) {
         showToast.error(
           currentLang === "hi"
-            ? "लोकेशन अनुमति अस्वीकृत या उपलब्ध नहीं है"
-            : "Location permission denied or unavailable"
+            ? "क्षमा करें, आपका पता हमारी 15 किमी होम पिकअप सेवा सीमा से बाहर है।"
+            : "Sorry, your address is out of our 15km home pickup service range."
         );
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+        setCoordinates(null);
+        return;
+      }
+
+      setCoordinates({ latitude, longitude });
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+        );
+        const data = await response.json();
+        if (data && data.display_name) {
+          setAddress(data.display_name);
+          showToast.success(
+            currentLang === "hi"
+              ? "लोकेशन सफलतापूर्वक प्राप्त की गई"
+              : "Location retrieved successfully"
+          );
+        } else {
+          setAddress(`${latitude}, ${longitude}`);
+        }
+      } catch (err) {
+        console.error(err);
+        setAddress(`${latitude}, ${longitude}`);
+        showToast.warning(
+          currentLang === "hi"
+            ? "लोकेशन मिल गई, पर पता खोजने में समस्या हुई"
+            : "Location retrieved, but failed to fetch address name"
+        );
+      }
+    } catch (error) {
+      handleGeolocationError(error, null, currentLang);
+    } finally {
+      setGeolocating(false);
+    }
   };
 
   const loadRazorpayScript = () => {

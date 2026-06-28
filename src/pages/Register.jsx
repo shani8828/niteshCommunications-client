@@ -7,6 +7,24 @@ import Loader from "../components/common/Loader";
 import RegisterForm from "../components/auth/RegisterForm";
 import { auth, RecaptchaVerifier, signInWithPhoneNumber } from "../config/firebase";
 import api from "../utils/api";
+import { getCurrentPositionWithFallback, handleGeolocationError } from "../utils/geolocation";
+const SHOP_LAT = 26.671782;
+const SHOP_LON = 82.008832;
+
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Earth radius in km
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c;
+  return Number(d.toFixed(2));
+};
 
 const Register = () => {
   const { t } = useTranslation(["auth", "common", "notifications"]);
@@ -49,51 +67,48 @@ const Register = () => {
     };
   }, []);
 
-  const handleUseCurrentLocation = useCallback(() => {
-    if (!navigator.geolocation) {
-      showToast.error(
-        "आपका ब्राउज़र लोकेशन का समर्थन नहीं करता है / Your browser does not support geolocation",
-      );
-      return;
-    }
+  const handleUseCurrentLocation = useCallback(async () => {
     setGeolocating(true);
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        setCoordinates({ latitude, longitude });
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
-          );
-          const data = await response.json();
-          if (data && data.display_name) {
-            setAddress(data.display_name);
-            showToast.success(
-              "लोकेशन सफलतापूर्वक प्राप्त की गई / Location retrieved successfully",
-            );
-          } else {
-            setAddress(`${latitude}, ${longitude}`);
-          }
-        } catch (err) {
-          console.error(err);
-          setAddress(`${latitude}, ${longitude}`);
-          showToast.warning(
-            "लोकेशन तो मिल गई, पर पता खोजने में समस्या हुई / Location retrieved, but failed to fetch address name",
-          );
-        } finally {
-          setGeolocating(false);
-        }
-      },
-      (error) => {
-        console.error(error);
-        setGeolocating(false);
+    try {
+      const position = await getCurrentPositionWithFallback();
+      const { latitude, longitude } = position.coords;
+
+      const dist = calculateDistance(SHOP_LAT, SHOP_LON, latitude, longitude);
+      if (dist > 15) {
         showToast.error(
-          "लोकेशन अनुमति अस्वीकृत या उपलब्ध नहीं है / Location permission denied or unavailable",
+          "हम केवल दुकान से 15 किमी के दायरे में सेवाएं प्रदान करते हैं / We only serve within 15km of our shop"
         );
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
-    );
-  }, []);
+        setCoordinates(null);
+        return;
+      }
+
+      setCoordinates({ latitude, longitude });
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+        );
+        const data = await response.json();
+        if (data && data.display_name) {
+          setAddress(data.display_name);
+          showToast.success(
+            t("auth:location_retrieved", "Location retrieved successfully")
+          );
+        } else {
+          setAddress(`${latitude}, ${longitude}`);
+        }
+      } catch (err) {
+        console.error(err);
+        setAddress(`${latitude}, ${longitude}`);
+        showToast.warning(
+          "लोकेशन तो मिल गई, पर पता खोजने में समस्या हुई / Location retrieved, but failed to fetch address name",
+        );
+      }
+    } catch (error) {
+      handleGeolocationError(error, t);
+    } finally {
+      setGeolocating(false);
+    }
+  }, [t]);
 
   const setupRecaptcha = () => {
     if (window.recaptchaVerifier) {
