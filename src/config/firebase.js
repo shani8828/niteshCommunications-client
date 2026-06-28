@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, useDeviceLanguage } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -12,6 +12,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-auth.useDeviceLanguage(); // Set to use device default language for SMS/Recaptcha
+useDeviceLanguage(auth); // Set to use device default language for SMS/Recaptcha
 
 export { RecaptchaVerifier, signInWithPhoneNumber };

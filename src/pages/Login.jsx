@@ -39,17 +39,26 @@ const Login = () => {
   useEffect(() => {
     return () => {
       if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
+        try {
+          window.recaptchaVerifier.clear();
+        } catch (error) {
+          console.error("Error clearing recaptcha verifier on unmount:", error);
+        }
         window.recaptchaVerifier = null;
       }
     };
   }, []);
 
   const setupRecaptcha = () => {
-    try {
-      if (window.recaptchaVerifier) {
+    if (window.recaptchaVerifier) {
+      try {
         window.recaptchaVerifier.clear();
+      } catch (error) {
+        console.error("Error clearing old Recaptcha:", error);
       }
+      window.recaptchaVerifier = null;
+    }
+    try {
       window.recaptchaVerifier = new RecaptchaVerifier(
         auth,
         "recaptcha-container",
@@ -104,7 +113,12 @@ const Login = () => {
           error.message || t("auth:otp_failed"),
         );
         if (window.recaptchaVerifier) {
-          window.recaptchaVerifier.clear();
+          try {
+            window.recaptchaVerifier.clear();
+          } catch (error) {
+            console.error("Error clearing recaptcha verifier after error:", error);
+          }
+          window.recaptchaVerifier = null;
         }
       } finally {
         setLoading(false);
@@ -148,7 +162,11 @@ const Login = () => {
     setOtpSent(false);
     setOtp("");
     if (window.recaptchaVerifier) {
-      window.recaptchaVerifier.clear();
+      try {
+        window.recaptchaVerifier.clear();
+      } catch (error) {
+        console.error("Error clearing recaptcha verifier on back:", error);
+      }
       window.recaptchaVerifier = null;
     }
   }, []);

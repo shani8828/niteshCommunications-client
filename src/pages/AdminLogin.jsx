@@ -34,7 +34,11 @@ const AdminLogin = () => {
   useEffect(() => {
     return () => {
       if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.clear();
+        try {
+          window.recaptchaVerifier.clear();
+        } catch (error) {
+          console.error("Error clearing recaptcha verifier on unmount:", error);
+        }
         window.recaptchaVerifier = null;
       }
     };
@@ -54,10 +58,15 @@ const AdminLogin = () => {
   }, [otpSent, resendTimer]);
 
   const setupRecaptcha = () => {
-    try {
-      if (window.recaptchaVerifier) {
+    if (window.recaptchaVerifier) {
+      try {
         window.recaptchaVerifier.clear();
+      } catch (error) {
+        console.error("Error clearing old Recaptcha:", error);
       }
+      window.recaptchaVerifier = null;
+    }
+    try {
       window.recaptchaVerifier = new RecaptchaVerifier(
         auth,
         "admin-recaptcha-container",
@@ -215,7 +224,7 @@ const AdminLogin = () => {
         </p>
 
         {showProgress ? (
-          <OtpProgress step={progressStep} />
+          <OtpProgress step={progressStep} t={t} />
         ) : !otpSent ? (
           <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
             <div className="flex flex-col text-left">
@@ -265,7 +274,7 @@ const AdminLogin = () => {
                   {t("auth:change_number")}
                 </button>
               </div>
-              <OtpInput length={6} onChangeOtp={setOtp} />
+              <OtpInput value={otp} onChange={setOtp} />
             </div>
 
             <div className="text-center text-xs text-slate-500 my-1 font-semibold">
