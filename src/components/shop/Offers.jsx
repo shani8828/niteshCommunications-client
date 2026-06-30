@@ -2,21 +2,35 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import api from "../../utils/api";
+import { getCachedData, setCachedData } from "../../utils/cache";
 
 const Offers = () => {
   const [slides, setSlides] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchOffers = async () => {
+      const cacheKey = "active_offers";
+      const cached = getCachedData(cacheKey);
+      if (cached) {
+        setSlides(cached);
+        setLoading(false);
+        return;
+      }
+
       try {
+        setLoading(true);
         const response = await api.get("/offers");
         if (response.data && response.data.length > 0) {
           setSlides(response.data);
+          setCachedData(cacheKey, response.data, 5 * 60 * 1000); // Cache for 5 minutes
         }
       } catch (error) {
         console.error("Failed to fetch active offers.", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchOffers();
@@ -39,6 +53,12 @@ const Offers = () => {
     }, 5000);
     return () => clearInterval(timer);
   }, [nextSlide, isHovered, slides.length]);
+
+  if (loading) {
+    return (
+      <div className="w-full h-[160px] sm:h-[200px] md:h-[360px] lg:h-[490px] xl:h-[710px] rounded overflow-hidden relative shadow-sm border border-slate-100 bg-slate-50 mb-6 shimmer-bg" />
+    );
+  }
 
   if (slides.length === 0) return null;
 

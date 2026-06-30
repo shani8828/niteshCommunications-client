@@ -258,6 +258,8 @@ const Shop = () => {
     </div>
   );
 
+  const showOffers = !selectedCategory && !search && Array.from(searchParams.keys()).length === 0;
+
   return (
     <div className="w-full px-4 md:px-8 pt-0 pb-20 bg-white">
       <ShopFiltersHeader
@@ -279,7 +281,7 @@ const Shop = () => {
 
       {/* Products Grid */}
       <div className="w-full">
-        <Offers />
+        {showOffers && <Offers />}
         {loading ? (
           renderSkeletons(16)
         ) : products.length === 0 ? (
