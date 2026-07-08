@@ -16,6 +16,7 @@ import {
   Wrench,
 } from "lucide-react";
 import GlobalSearch from "./GlobalSearch";
+import InstallAppButton from "./InstallDownloadBtn";
 
 const Navbar = () => {
   const { t, i18n } = useTranslation();
@@ -422,6 +423,9 @@ const Navbar = () => {
               </div>
             </>
           )}
+          <div className="w-full flex justify-center items-center border-t pt-3">
+            <InstallAppButton />
+          </div>
         </div>
       )}
       {/* Mobile Search Overlay */}

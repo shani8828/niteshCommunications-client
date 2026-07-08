@@ -13,6 +13,7 @@ import HomeFaq from "../components/home/HomeFaq";
 import HomeContact from "../components/home/HomeContact";
 import HomeMap from "../components/home/HomeMap";
 import HomeSocials from "../components/home/HomeSocials";
+import InstallAppButton from "../components/common/InstallDownloadBtn";
 
 const Home = () => {
   const { t, i18n } = useTranslation();
@@ -30,7 +31,7 @@ const Home = () => {
     }
     metaDesc.setAttribute(
       "content",
-      "Nitesh Communications Ayodhya - A leading store providing brand new mobile phones, quality repair services, and digital CSC solutions. नितेश कम्युनिकेशन्स - मोबाइल शॉप, रिपेयरिंग सेवाएं और जन सेवा केंद्र।"
+      "Nitesh Communications Ayodhya - A leading store providing brand new mobile phones, quality repair services, and digital CSC solutions. नितेश कम्युनिकेशन्स - मोबाइल शॉप, रिपेयरिंग सेवाएं और जन सेवा केंद्र।",
     );
 
     let canonicalLink = document.querySelector("link[rel='canonical']");
@@ -104,6 +105,9 @@ const Home = () => {
   return (
     <div className="w-full bg-white">
       <HomeHero t={t} currentLang={currentLang} />
+      <div className="w-full flex justify-center items-center my-2">
+        <InstallAppButton />
+      </div>
       <HomeCategories currentLang={currentLang} />
       <HomePromoBanner t={t} currentLang={currentLang} />
       <HomeCscServices currentLang={currentLang} />

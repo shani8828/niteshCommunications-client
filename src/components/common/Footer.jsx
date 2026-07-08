@@ -11,6 +11,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
+import InstallAppButton from "./InstallDownloadBtn";
 
 const Footer = () => {
   const { t, i18n } = useTranslation();
@@ -64,6 +65,9 @@ const Footer = () => {
           >
             {currentLang == "hi" ? "जन सेवा केंद्र" : "CSC Services"}
           </Link>
+          <div>
+            <InstallAppButton />
+          </div>
         </div>
 
         {/* Quick Contacts (3rd col) */}
