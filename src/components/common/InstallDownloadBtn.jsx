@@ -61,7 +61,7 @@ export default function InstallAppButton() {
       );
     } else {
       alert(
-        "Installation isn't available right now.\n\nOpen your browser menu (⋮) and choose 'Install App' or 'Add to Home Screen' if available.",
+        "Open your browser menu (⋮) and choose 'Install App' or 'Add to Home Screen' if available.",
       );
     }
   };
