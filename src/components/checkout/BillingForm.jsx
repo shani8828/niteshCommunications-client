@@ -303,14 +303,7 @@ const BillingForm = ({
           </div>
         )}
 
-        {/* Timing Alert */}
-        {!isWithinDeliveryHours && (
-          <div className="p-3.5 bg-amber-50 border border-amber-200 rounded text-amber-700 text-xs font-semibold">
-            {currentLang === "hi"
-              ? "🚚 डिलीवरी शेड्यूल: हमारे डिलीवरी ऑपरेशंस का समय सुबह 9 बजे से शाम 6 बजे तक है। आपका आदेश कल वितरित किया जाएगा।"
-              : "🚚 Delivery Schedule: Delivery hours are 9:00 AM - 6:00 PM. Since it is currently outside these hours, your order will be delivered tomorrow."}
-          </div>
-        )}
+
       </div>
     </div>
   );

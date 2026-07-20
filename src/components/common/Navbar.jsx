@@ -267,15 +267,9 @@ const Navbar = () => {
               <div className="hidden md:flex gap-3">
                 <Link
                   to="/login"
-                  className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
-                >
-                  {t("login")}
-                </Link>
-                <Link
-                  to="/register"
                   className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-600/10"
                 >
-                  {t("register")}
+                  {t("login")}
                 </Link>
               </div>
             )}
@@ -405,20 +399,13 @@ const Navbar = () => {
           {!user && (
             <>
               <hr className="border-t border-slate-100" />
-              <div className="grid gap-1 grid-cols-2 mt-1">
+              <div className="mt-1">
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-2.5 text-center text-sm font-semibold rounded-xl bg-slate-100 text-slate-700 border border-slate-200"
+                  className="block py-2.5 text-center text-sm font-semibold rounded-xl bg-blue-600 text-white shadow-md shadow-blue-600/10"
                 >
                   {t("login")}
-                </Link>
-                <Link
-                  to="/register"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-2.5 text-center text-sm font-semibold rounded-xl bg-blue-600 text-white"
-                >
-                  {t("register")}
                 </Link>
               </div>
             </>

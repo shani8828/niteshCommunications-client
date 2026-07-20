@@ -26,7 +26,6 @@ const OrderTracking = lazy(() => import('./pages/OrderTracking'));
 const RepairService = lazy(() => import('./pages/RepairService'));
 const CscService = lazy(() => import('./pages/CscService'));
 const Login = lazy(() => import('./pages/Login'));
-const Register = lazy(() => import('./pages/Register'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const TermsConditions = lazy(() => import('./pages/TermsConditions'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
@@ -137,7 +136,7 @@ function App() {
                   <Route path="/repairs" element={<RepairService />} />
                   <Route path="/csc" element={<CscService />} />
                   <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
+                  <Route path="/register" element={<Navigate to="/login" replace />} />
                   <Route path="/terms-conditions" element={<TermsConditions />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                   <Route path="/refund-policy" element={<RefundPolicy />} />

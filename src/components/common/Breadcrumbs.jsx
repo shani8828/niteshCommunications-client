@@ -31,8 +31,6 @@ const Breadcrumbs = () => {
         return t("common:csc");
       case "login":
         return t("common:login");
-      case "register":
-        return t("common:register");
       case "profile":
         return t("common:profile");
       case "terms-conditions":

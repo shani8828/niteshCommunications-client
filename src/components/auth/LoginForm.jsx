@@ -156,16 +156,6 @@ const LoginForm = ({
 
       {/* Invisible ReCaptcha Container */}
       <div id="recaptcha-container" className="flex justify-center mt-2"></div>
-
-      <p className="text-center mt-6 text-xs text-slate-500">
-        {t("auth:new_to_shop")}{" "}
-        <Link
-          to="/register"
-          className="text-blue-600 hover:underline font-semibold"
-        >
-          {t("common:register")}
-        </Link>
-      </p>
     </>
   );
 };

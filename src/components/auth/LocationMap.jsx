@@ -1,6 +1,6 @@
 import React from "react";
 
-const RegisterMap = ({ coordinates }) => {
+const LocationMap = ({ coordinates }) => {
   if (!coordinates) return null;
   return (
     <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 shadow-inner h-32 w-full relative">
@@ -16,4 +16,4 @@ const RegisterMap = ({ coordinates }) => {
   );
 };
 
-export default React.memo(RegisterMap);
+export default React.memo(LocationMap);
