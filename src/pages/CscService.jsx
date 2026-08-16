@@ -76,18 +76,15 @@ const CscService = () => {
       <div className="bg-blue-100 text-blue-500 rounded-3xl p-6 md:p-8 shadow-xl flex flex-col md:flex-row justify-between items-center gap-6 border border-slate-700/50 relative overflow-hidden">
         <div className="absolute right-0 bottom-0 top-0 w-1/3 bg-radial-gradient from-blue-500/10 to-transparent pointer-events-none" />
         <div className="flex flex-col gap-2 max-w-xl text-center md:text-left">
-          <span className="text-[10px] bg-transparent text-blue-400 font-bold p-1 rounded-full border-b border-blue-500 w-fit mx-auto md:mx-0 uppercase tracking-widest">
-            Doorstep Delivery
-          </span>
           <h2 className="font-heading text-xl md:text-2xl font-extrabold tracking-tight mt-1">
-            Online Document Printing & Xerox
+            Online PhotoCopy/Printing
           </h2>
           <p className="text-xs   leading-relaxed mt-1">
             Need documents printed quickly? Upload files (PDF, images, docx)
             online, select copies and color preferences, and get them delivered
             to your home.
             <span className="block mt-1 font-semibold text-brand-cyan">
-              ✓ Black & White at ₹5/page | ✓ Coloured at ₹7/page
+              ✓ Black/White at ₹5/page | ✓ Coloured at ₹7/page
             </span>
           </p>
         </div>
@@ -96,7 +93,7 @@ const CscService = () => {
           onClick={() => setIsXeroxOpen(true)}
           className="flex items-center gap-2 px-6 py-3.5 bg-brand-cyan hover:bg-brand-cyan-dark text-white rounded-2xl font-bold text-xs transition-all shadow-md shadow-brand-cyan/20 cursor-pointer border-0 flex-shrink-0"
         >
-          <Printer size={16} /> Print / Xerox Documents Now
+          <Printer size={16} /> Print Documents Now
         </button>
       </div>
 
