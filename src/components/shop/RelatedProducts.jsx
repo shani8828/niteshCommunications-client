@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { cldUrl, cldSrcSet } from "../../utils/image";
 
 const RelatedProducts = ({ related, currentLang, t, loading }) => {
   if (loading) {
@@ -38,7 +39,8 @@ const RelatedProducts = ({ related, currentLang, t, loading }) => {
             <Link to={`/products/${item.slug || item._id}`} state={{ product: item }}>
               <div className="h-[110px] flex justify-center items-center overflow-hidden bg-slate-50 border border-slate-100 rounded mb-2">
                 <img
-                  src={item.images[0]}
+                  src={cldUrl(item.images[0], 160)}
+                  srcSet={cldSrcSet(item.images[0], 160)}
                   alt={item.name.en}
                   className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply"
                   loading="lazy"

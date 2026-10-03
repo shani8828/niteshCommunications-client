@@ -1,41 +1,27 @@
 import React, { useState } from "react";
+import AdminPagination from "./AdminPagination";
 import { Link } from "react-router-dom";
 import { X, Search } from "lucide-react";
 import api from "../../utils/api";
 import { showToast } from "../../utils/toast";
 
-const UsersTab = ({ users, t, currentLang, fetchUsers }) => {
-  const [userSearchPhone, setUserSearchPhone] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
-  // User details modal state
+const UsersTab = ({ users, t, currentLang, query, meta, onQueryChange }) => {
+  // Search and pagination run on the server (see AdminDashboard)
+  const [userSearchPhone, setUserSearchPhone] = useState(query.search || "");
   const [selectedUserForDetail, setSelectedUserForDetail] = useState(null);
   const [showUserActivityModal, setShowUserActivityModal] = useState(false);
   const [activeDetailTab, setActiveDetailTab] = useState("orders");
   const [userActivityDetail, setUserActivityDetail] = useState(null);
   const [loadingUserActivityDetail, setLoadingUserActivityDetail] = useState(false);
 
-  // Pagination
-  const totalPages = Math.ceil(users.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = users.slice(indexOfFirstItem, indexOfLastItem);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    fetchUsers(userSearchPhone);
-    setCurrentPage(1);
+    onQueryChange({ search: userSearchPhone.trim(), page: 1 });
   };
 
   const handleClearSearch = () => {
     setUserSearchPhone("");
-    fetchUsers("");
-    setCurrentPage(1);
+    onQueryChange({ search: "", page: 1 });
   };
 
   const handleViewUserActivity = async (user) => {
@@ -111,7 +97,7 @@ const UsersTab = ({ users, t, currentLang, fetchUsers }) => {
             </tr>
           </thead>
           <tbody>
-            {currentUsers.map((user) => (
+            {users.map((user) => (
               <tr key={user._id} className="hover:bg-slate-50/50 transition-colors">
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700 font-semibold">
                   {user.name}
@@ -166,38 +152,14 @@ const UsersTab = ({ users, t, currentLang, fetchUsers }) => {
         </table>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-1.5 mt-4">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-          >
-            {currentLang === "hi" ? "पिछला" : "Prev"}
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                currentPage === page
-                  ? "bg-brand-cyan border-brand-cyan text-white"
-                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-          >
-            {currentLang === "hi" ? "अगला" : "Next"}
-          </button>
-        </div>
-      )}
+      {/* Pagination (server-side) */}
+      <AdminPagination
+        page={query.page}
+        pages={meta.pages}
+        total={meta.total}
+        onPageChange={(page) => onQueryChange({ page })}
+        currentLang={currentLang}
+      />
 
       {/* MODAL 3: Detailed Activity Logs for a single User */}
       {showUserActivityModal && selectedUserForDetail && (

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Plus, Edit, Trash2, X, Sliders } from "lucide-react";
-import * as LucideIcons from "lucide-react";
+import { Plus, Edit, Trash2, X } from "lucide-react";
 import api from "../../utils/api";
 import { showToast } from "../../utils/toast";
 import { clearCache } from "../../utils/cache";

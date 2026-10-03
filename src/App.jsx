@@ -14,43 +14,63 @@ import Breadcrumbs from './components/common/Breadcrumbs';
 import Loader from './components/common/Loader';
 import CookieConsent from './components/common/CookieConsent';
 import LanguageToggle from './components/common/LanguageToggle';
+import { loadPageTranslations } from './i18n';
+
+// Load a page's code and its translations in parallel, so a page never
+// renders before its text is ready and there is no extra round-trip.
+const lazyPage = (importPage) =>
+  lazy(() => Promise.all([importPage(), loadPageTranslations()]).then(([page]) => page));
 
 // Pages (Lazy Loaded for maximum performance)
-const Home = lazy(() => import('./pages/Home'));
-const Shop = lazy(() => import('./pages/Shop'));
-const ProductDetails = lazy(() => import('./pages/ProductDetails'));
-const ProductRedirect = lazy(() => import('./components/common/ProductRedirect'));
-const Cart = lazy(() => import('./pages/Cart'));
-const Checkout = lazy(() => import('./pages/Checkout'));
-const OrderTracking = lazy(() => import('./pages/OrderTracking'));
-const RepairService = lazy(() => import('./pages/RepairService'));
-const CscService = lazy(() => import('./pages/CscService'));
-const Login = lazy(() => import('./pages/Login'));
-const NotFound = lazy(() => import('./pages/NotFound'));
-const TermsConditions = lazy(() => import('./pages/TermsConditions'));
-const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
-const RefundPolicy = lazy(() => import('./pages/RefundPolicy'));
-const ShippingPolicy = lazy(() => import('./pages/ShippingPolicy'));
-const Profile = lazy(() => import('./pages/Profile'));
-const Orders = lazy(() => import('./pages/Orders'));
-const Wishlist = lazy(() => import('./pages/Wishlist'));
-const RepairBookings = lazy(() => import('./pages/RepairBookings'));
-const AdminLogin = lazy(() => import('./pages/AdminLogin'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
-const OrderReturn = lazy(() => import('./pages/OrderReturn'));
-const OrderReplace = lazy(() => import('./pages/OrderReplace'));
-const RepairCancel = lazy(() => import('./components/repair/RepairCancel'));
+const Home = lazyPage(() => import('./pages/Home'));
+const Shop = lazyPage(() => import('./pages/Shop'));
+const ProductDetails = lazyPage(() => import('./pages/ProductDetails'));
+const ProductRedirect = lazyPage(() => import('./components/common/ProductRedirect'));
+const Cart = lazyPage(() => import('./pages/Cart'));
+const Checkout = lazyPage(() => import('./pages/Checkout'));
+const OrderTracking = lazyPage(() => import('./pages/OrderTracking'));
+const RepairService = lazyPage(() => import('./pages/RepairService'));
+const CscService = lazyPage(() => import('./pages/CscService'));
+const Login = lazyPage(() => import('./pages/Login'));
+const NotFound = lazyPage(() => import('./pages/NotFound'));
+const TermsConditions = lazyPage(() => import('./pages/TermsConditions'));
+const PrivacyPolicy = lazyPage(() => import('./pages/PrivacyPolicy'));
+const RefundPolicy = lazyPage(() => import('./pages/RefundPolicy'));
+const ShippingPolicy = lazyPage(() => import('./pages/ShippingPolicy'));
+const Profile = lazyPage(() => import('./pages/Profile'));
+const Orders = lazyPage(() => import('./pages/Orders'));
+const Wishlist = lazyPage(() => import('./pages/Wishlist'));
+const RepairBookings = lazyPage(() => import('./pages/RepairBookings'));
+const AdminLogin = lazyPage(() => import('./pages/AdminLogin'));
+const AdminDashboard = lazyPage(() => import('./pages/AdminDashboard'));
+const OrderReturn = lazyPage(() => import('./pages/OrderReturn'));
+const OrderReplace = lazyPage(() => import('./pages/OrderReplace'));
+const RepairCancel = lazyPage(() => import('./components/repair/RepairCancel'));
 // import Loader from './components/common/Loader';
 
 function App() {
+  // Once the browser is idle, warm up the pages shoppers usually open next
+  useEffect(() => {
+    const warmUp = () => {
+      import('./pages/ProductDetails');
+      import('./pages/Cart');
+    };
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(warmUp, { timeout: 5000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const timer = setTimeout(warmUp, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     // 1. Inject global Organization schema
     const orgSchema = {
       "@context": "https://schema.org",
       "@type": "Store",
       "name": "Nitesh Communications",
-      "url": "https://niteshcom.in",
-      "logo": "https://niteshcom.in/logo.png",
+      "url": "https://www.niteshcom.in",
+      "logo": "https://www.niteshcom.in/branding/logo.png",
       "description": "E-Commerce, Mobile Repairing, and Common Service Centre in Ayodhya",
       "address": {
         "@type": "PostalAddress",
@@ -67,12 +87,12 @@ function App() {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Nitesh Communications",
-      "url": "https://niteshcom.in",
+      "url": "https://www.niteshcom.in",
       "potentialAction": {
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": "https://niteshcom.in/shop?search={search_term_string}"
+          "urlTemplate": "https://www.niteshcom.in/shop?search={search_term_string}"
         },
         "query-input": "required name=search_term_string"
       }
@@ -103,7 +123,9 @@ function App() {
   }, []);
 
   return (
-    <Router>
+    // v7_startTransition keeps the current page on screen while the next page's
+    // code loads, instead of flashing the full-page loader on every navigation.
+    <Router future={{ v7_startTransition: true }}>
       <ScrollToTop />
       <AuthProvider>
         <CartProvider>

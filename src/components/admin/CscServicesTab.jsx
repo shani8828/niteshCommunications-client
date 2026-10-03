@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Plus, Edit, Trash2, X } from "lucide-react";
-import * as LucideIcons from "lucide-react";
+import { getCscIcon } from "./cscIcons";
 import api from "../../utils/api";
 import { showToast } from "../../utils/toast";
 import { clearCache } from "../../utils/cache";
@@ -229,7 +229,7 @@ const CscServicesTab = ({
       {/* CSC Services Grid */}
       <div className="grid gap-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {cscServicesList.map((service) => {
-          const IconComponent = LucideIcons[service.icon] || LucideIcons.FileText;
+          const IconComponent = getCscIcon(service.icon);
           return (
             <div
               key={service._id}
@@ -449,7 +449,7 @@ const CscServicesTab = ({
                 <label className="font-semibold text-slate-500">Service Icon *</label>
                 <div className="grid gap-1 grid-cols-5 max-h-[100px] overflow-y-auto p-1.5 bg-slate-50 border border-slate-100 rounded-xl">
                   {cscIconList.map((ic) => {
-                    const TempIcon = LucideIcons[ic] || LucideIcons.FileText;
+                    const TempIcon = getCscIcon(ic);
                     return (
                       <button
                         key={ic}

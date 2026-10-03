@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Plus, Edit, Trash2, X, Upload } from "lucide-react";
 import api from "../../utils/api";
 import { showToast } from "../../utils/toast";
+import { cldUrl, cldSrcSet } from "../../utils/image";
 
 const translateToHindi = async (text) => {
   if (!text || !text.trim()) return "";
@@ -170,7 +171,8 @@ const CategoriesTab = ({ categories, setCategories, t, currentLang, fetchInvento
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
                   {cat.image ? (
                     <img
-                      src={cat.image}
+                      src={cldUrl(cat.image, 48)}
+                      srcSet={cldSrcSet(cat.image, 48)}
                       alt={cat.name.en}
                       className="w-9 h-9 rounded object-contain bg-slate-100 border border-slate-200"
                     />

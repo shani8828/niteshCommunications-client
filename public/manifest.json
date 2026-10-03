@@ -3,13 +3,13 @@
   "name": "Nitesh Communications - E-Commerce, Repairing & CSC",
   "icons": [
     {
-      "src": "/branding/logo.png",
+      "src": "/branding/icon-192.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "/branding/logo.png",
+      "src": "/branding/icon-512.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any"

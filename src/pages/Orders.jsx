@@ -7,8 +7,8 @@ import Loader from "../components/common/Loader";
 import api from "../utils/api";
 
 // Modular components
-import ProfileSidebar from "../components/profile/ProfileSidebar";
 import OrdersHistoryTab from "../components/profile/OrdersHistoryTab";
+import useVisiblePolling from "../utils/useVisiblePolling";
 
 const Orders = () => {
   const { t, i18n } = useTranslation(["cart", "common"]);
@@ -46,26 +46,28 @@ const Orders = () => {
   useEffect(() => {
     if (user) {
       fetchMyOrders();
-
-      // Poll user orders silently in the background every 30 seconds
-      const pollInterval = setInterval(() => {
-        api
-          .get("/orders/my-orders")
-          .then((response) => {
-            setOrders(response.data || []);
-            localStorage.setItem(
-              "my_orders_cache",
-              JSON.stringify(response.data || []),
-            );
-          })
-          .catch((err) =>
-            console.error("Silent background orders refresh failed:", err),
-          );
-      }, 30000);
-
-      return () => clearInterval(pollInterval);
     }
   }, [user, fetchMyOrders]);
+
+  // Refresh user orders silently every 30 seconds while the tab is visible
+  useVisiblePolling(
+    () => {
+      api
+        .get("/orders/my-orders")
+        .then((response) => {
+          setOrders(response.data || []);
+          localStorage.setItem(
+            "my_orders_cache",
+            JSON.stringify(response.data || []),
+          );
+        })
+        .catch((err) =>
+          console.error("Silent background orders refresh failed:", err),
+        );
+    },
+    30000,
+    !!user,
+  );
 
   const handleCancelClick = useCallback(
     async (ord) => {

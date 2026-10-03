@@ -5,6 +5,7 @@ const LocationMap = ({ coordinates }) => {
   return (
     <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 shadow-inner h-32 w-full relative">
       <iframe
+        loading="lazy"
         title="Location Map"
         width="100%"
         height="100%"

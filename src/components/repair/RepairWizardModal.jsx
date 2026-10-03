@@ -21,6 +21,7 @@ import { getCurrentPositionWithFallback, handleGeolocationError } from "../../ut
 import { AddressSkeleton } from "../xerox/XeroxSkeletons";
 import { getOnlineDiscount } from "../../utils/discount";
 import { getDeliveryCharge } from "../../utils/delivery";
+import { loadRazorpay } from "../../utils/razorpay";
 
 const RepairWizardModal = ({
   selectedServiceKey,
@@ -31,6 +32,11 @@ const RepairWizardModal = ({
   currentLang,
   t,
 }) => {
+
+  // Start loading Razorpay now so it's ready when the customer taps Pay
+  useEffect(() => {
+    loadRazorpay();
+  }, []);
   // Modal states
   const [selectedBrand, setSelectedBrand] = useState(null);
   const [selectedModel, setSelectedModel] = useState(null);
@@ -214,15 +220,6 @@ const RepairWizardModal = ({
     }
   };
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
 
   const handleRepairSubmit = async (e) => {
     e.preventDefault();
@@ -307,7 +304,7 @@ const RepairWizardModal = ({
         }
         setPaymentType("COD");
       } else {
-        const scriptLoaded = await loadRazorpayScript();
+        const scriptLoaded = await loadRazorpay();
         if (!scriptLoaded) {
           showToast.error("Razorpay SDK failed to load. Are you offline?");
           setLoading(false);

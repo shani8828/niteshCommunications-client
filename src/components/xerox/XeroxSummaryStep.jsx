@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  ArrowLeft,
-  CreditCard,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-} from "lucide-react";
+import { ArrowLeft, CreditCard, CheckCircle2, AlertCircle } from "lucide-react";
 import { ReceiptSkeleton } from "./XeroxSkeletons";
 import { getDeliveryCharge } from "../../utils/delivery";
 

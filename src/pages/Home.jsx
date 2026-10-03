@@ -1,7 +1,11 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { getCachedData, setCachedData } from "../utils/cache";
-import api from "../utils/api";
+import {
+  DEFAULT_MAX_PRICE,
+  DEFAULT_MIN_PRICE,
+  fetchShopCategories,
+  fetchShopProducts,
+} from "../utils/shopData";
 
 // Modular Components
 import HomeHero from "../components/home/HomeHero";
@@ -45,52 +49,24 @@ const Home = () => {
 
   useEffect(() => {
     // Prefetch Shop page data in the background after home renders
-    const prefetchShopData = async () => {
-      // 1. Categories prefetch
-      const catCacheKey = "shop_categories";
-      if (!getCachedData(catCacheKey)) {
-        try {
-          const response = await api.get("/products/categories");
-          setCachedData(catCacheKey, response.data, 10 * 60 * 1000);
-        } catch (err) {
-          console.error("Prefetch categories failed:", err);
-        }
-      }
+    // Uses the same helpers (and cache keys) as the Shop page, so these
+    // results are what the Shop shows instantly when the visitor goes there.
+    const prefetchShopData = () => {
+      const ignore = () => {};
+      const firstPage = {
+        page: 1,
+        sort: "newest",
+        minPrice: DEFAULT_MIN_PRICE,
+        maxPrice: DEFAULT_MAX_PRICE,
+        search: "",
+      };
 
-      // 2. Products prefetch
-      const prodCacheKey =
-        "shop_products_p_1_s_newest_min_0_max_100000_k__c__b_";
-      if (!getCachedData(prodCacheKey)) {
-        try {
-          const url = "/products?page=1&sort=newest&minPrice=0&maxPrice=100000";
-          const response = await api.get(url);
-          setCachedData(
-            prodCacheKey,
-            { products: response.data.products, pages: response.data.pages },
-            5 * 60 * 1000,
-          );
-        } catch (err) {
-          console.error("Prefetch products failed:", err);
-        }
-      }
+      fetchShopCategories().catch(ignore);
+      fetchShopProducts({ ...firstPage, category: "" }).catch(ignore);
 
-      // 3. Category-specific prefetch for the 4 featured categories
-      const targetCategories = ["phones", "earphone", "tshirt", "stationary"];
-      for (const cat of targetCategories) {
-        const catProdCacheKey = `shop_products_p_1_s_newest_min_0_max_100000_k__c_${cat}_b_`;
-        if (!getCachedData(catProdCacheKey)) {
-          try {
-            const url = `/products?page=1&sort=newest&minPrice=0&maxPrice=100000&category=${cat}`;
-            const response = await api.get(url);
-            setCachedData(
-              catProdCacheKey,
-              { products: response.data.products, pages: response.data.pages },
-              5 * 60 * 1000,
-            );
-          } catch (err) {
-            console.error(`Prefetch products for category ${cat} failed:`, err);
-          }
-        }
+      // The 4 featured categories linked from the home page
+      for (const category of ["phones", "earphone", "tshirt", "stationary"]) {
+        fetchShopProducts({ ...firstPage, category }).catch(ignore);
       }
     };
 

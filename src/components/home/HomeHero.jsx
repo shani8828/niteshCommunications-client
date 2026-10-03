@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { ShoppingBag, Wrench, FileText } from "lucide-react";
 
 const HomeHero = ({ t, currentLang }) => {
@@ -10,104 +9,56 @@ const HomeHero = ({ t, currentLang }) => {
       <div className="absolute inset-0 z-0 overflow-hidden">
         {/* Faded Watermark Logo in Background */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[550px] md:h-[550px] lg:w-[1100px] lg:h-[1100px] opacity-[0.2] pointer-events-none">
-          <motion.div
-            animate={{
-              rotate: [0, 0],
-            }}
-            transition={{
-              duration: 90,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-            className="w-full h-full"
-          >
+          <div className="w-full h-full">
             <img
-              src="/branding/logo.png"
+              src="/branding/logo-500.webp"
               alt="Background Watermark Logo"
               className="w-full h-full object-contain"
             />
-          </motion.div>
+          </div>
         </div>
 
         {/* Smoke Cloud 1 (Drifting Blue) */}
-        <motion.div
-          animate={{
-            x: [-120, 120, -120],
-            y: [-50, 50, -50],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute top-1/4 left-1/12 w-[400px] h-[400px] rounded-full bg-blue-300/20 blur-[90px]"
+        <div
+          className="animate-drift-1 absolute top-1/4 left-1/12 w-[400px] h-[400px] rounded-full bg-blue-300/20 blur-[90px]"
         />
 
         {/* Smoke Cloud 2 (Drifting Blue) */}
-        <motion.div
-          animate={{
-            x: [120, -120, 120],
-            y: [50, -50, 50],
-            scale: [1.2, 0.95, 1.2],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute bottom-1/4 right-1/12 w-[450px] h-[450px] rounded-full bg-blue-300/15 blur-[100px]"
+        <div
+          className="animate-drift-2 absolute bottom-1/4 right-1/12 w-[450px] h-[450px] rounded-full bg-blue-300/15 blur-[100px]"
         />
 
         {/* Floating White Cloud */}
-        <motion.div
-          animate={{
-            x: [-40, 40, -40],
-            y: [40, -40, 40],
-            scale: [0.95, 1.1, 0.95],
-          }}
-          transition={{
-            duration: 18,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute top-1/3 left-1/3 w-[550px] h-[350px] rounded-full bg-white/60 blur-[90px]"
+        <div
+          className="animate-drift-3 absolute top-1/3 left-1/3 w-[550px] h-[350px] rounded-full bg-white/60 blur-[90px]"
         />
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center text-center gap-8 md:gap-10">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="font-heading text-3xl sm:text-6xl md:text-7xl font-extrabold leading-tight tracking-tight text-blue-600"
+        <h1
+          style={{ "--fade-up-distance": "20px", animationDelay: "0.1s" }}
+          className="animate-fade-up font-heading text-3xl sm:text-6xl md:text-7xl font-extrabold leading-tight tracking-tight text-blue-600"
         >
           {t("brand")}
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-xl sm:text-3xl text-blue-600 font-bold font-heading tracking-wide"
+        <p
+          style={{ "--fade-up-distance": "20px", animationDelay: "0.2s" }}
+          className="animate-fade-up text-xl sm:text-3xl text-blue-600 font-bold font-heading tracking-wide"
         >
           {t("tagline")}
-        </motion.p>
+        </p>
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-slate-600 max-w-2xl mx-auto leading-relaxed text-sm sm:text-lg"
+        <p
+          style={{ "--fade-up-distance": "20px", animationDelay: "0.3s" }}
+          className="animate-fade-up text-slate-600 max-w-2xl mx-auto leading-relaxed text-sm sm:text-lg"
         >
           {t("desc_banner_1")}
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 25 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex gap-4 sm:gap-6 mt-4 flex-wrap justify-center"
+        <div
+          style={{ "--fade-up-distance": "25px", animationDelay: "0.4s" }}
+          className="animate-fade-up flex gap-4 sm:gap-6 mt-4 flex-wrap justify-center"
         >
           <Link
             to="/shop"
@@ -130,7 +81,7 @@ const HomeHero = ({ t, currentLang }) => {
             <FileText size={16} />
             {t("csc")}
           </Link>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, ShoppingCart } from "lucide-react";
+import { cldUrl, cldSrcSet } from "../../utils/image";
 
 const ProductCard = ({
   product,
@@ -10,6 +11,7 @@ const ProductCard = ({
   currentLang,
   t,
   isInCart,
+  priority = false,
 }) => {
   const navigate = useNavigate();
   const hasDiscount = product.originalPrice > product.price;
@@ -54,10 +56,13 @@ const ProductCard = ({
         className="bg-slate-50 rounded h-[120px] md:h-[140px] flex justify-center items-center overflow-hidden border border-slate-100"
       >
         <img
-          src={product.images[0]}
+          src={cldUrl(product.images[0], 200)}
+          srcSet={cldSrcSet(product.images[0], 200)}
           alt={product.name.en}
           className="max-w-[80%] max-h-[80%] object-contain mix-blend-multiply"
-          loading="lazy"
+          // First row is above the fold on the landing page: load it right away
+          loading={priority ? "eager" : "lazy"}
+          fetchpriority={priority ? "high" : undefined}
         />
       </Link>
 

@@ -100,15 +100,20 @@ const Navbar = () => {
     }`;
 
   return (
-    <header className="sticky top-0 z-[100] bg-white/90 backdrop-blur-md border-b border-slate-100 px-6 py-3 shadow-sm">
+    <header className="sticky top-0 z-[100] bg-white border-b border-slate-100 px-6 py-3 shadow-sm">
       <div className="w-full flex justify-between items-center gap-4">
         {/* Branding Logo */}
         <Link to="/" className="flex items-center gap-3 pl-0">
           <img
-            src="/branding/logo-full.png"
+            src="/branding/logo-full-80.webp"
+            srcSet="/branding/logo-full-80.webp 2x, /branding/logo-full-120.webp 3x"
             alt="Nitesh Communications"
+            width="40"
+            height="40"
             className="h-10 w-10 object-contain"
             onError={(e) => {
+              e.target.onerror = null;
+              e.target.srcset = "";
               e.target.src = "/branding/logo.png";
             }}
           />

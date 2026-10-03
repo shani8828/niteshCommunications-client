@@ -5,7 +5,6 @@ import { useCart } from "../context/CartContext";
 import Loader from "../components/common/Loader";
 
 // Modular components
-import ProfileSidebar from "../components/profile/ProfileSidebar";
 import WishlistTab from "../components/profile/WishlistTab";
 
 const Wishlist = () => {

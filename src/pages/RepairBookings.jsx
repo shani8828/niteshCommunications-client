@@ -7,8 +7,8 @@ import Loader from "../components/common/Loader";
 import api from "../utils/api";
 
 // Modular components
-import ProfileSidebar from "../components/profile/ProfileSidebar";
 import RepairBookingsTab from "../components/profile/RepairBookingsTab";
+import useVisiblePolling from "../utils/useVisiblePolling";
 
 const RepairBookings = () => {
   const { t, i18n } = useTranslation(["cart", "common", "repair"]);
@@ -52,29 +52,31 @@ const RepairBookings = () => {
   useEffect(() => {
     if (user) {
       fetchMyRepairs();
-
-      // Poll user repairs silently in the background every 30 seconds
-      const pollInterval = setInterval(() => {
-        const userPhone = user.mobile || user.phone;
-        if (userPhone) {
-          api
-            .get(`/repairs/my/${userPhone}`)
-            .then((response) => {
-              setRepairs(response.data || []);
-              localStorage.setItem(
-                "my_repairs_cache",
-                JSON.stringify(response.data || []),
-              );
-            })
-            .catch((err) =>
-              console.error("Silent background repairs refresh failed:", err),
-            );
-        }
-      }, 30000);
-
-      return () => clearInterval(pollInterval);
     }
   }, [user, fetchMyRepairs]);
+
+  // Refresh user repairs silently every 30 seconds while the tab is visible
+  useVisiblePolling(
+    () => {
+      const userPhone = user?.mobile || user?.phone;
+      if (userPhone) {
+        api
+          .get(`/repairs/my/${userPhone}`)
+          .then((response) => {
+            setRepairs(response.data || []);
+            localStorage.setItem(
+              "my_repairs_cache",
+              JSON.stringify(response.data || []),
+            );
+          })
+          .catch((err) =>
+            console.error("Silent background repairs refresh failed:", err),
+          );
+      }
+    },
+    30000,
+    !!user,
+  );
 
   const handleCancelRepair = useCallback(
     async (rep) => {

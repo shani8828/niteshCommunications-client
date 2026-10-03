@@ -1,11 +1,10 @@
 <!doctype html>
 <html lang="hi">
   <head>
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-F2TD573EK9"
-    ></script>
+    <meta charset="UTF-8" />
+    <!-- Google tag (gtag.js): calls queue in dataLayer right away; the ~100 KB
+         script itself loads after the page has finished loading so it doesn't
+         compete with the site's own code. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -14,16 +13,24 @@
       gtag("js", new Date());
 
       gtag("config", "G-F2TD573EK9");
+
+      window.addEventListener("load", function () {
+        setTimeout(function () {
+          var tag = document.createElement("script");
+          tag.async = true;
+          tag.src = "https://www.googletagmanager.com/gtag/js?id=G-F2TD573EK9";
+          document.head.appendChild(tag);
+        }, 0);
+      });
     </script>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/branding/logo.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/branding/favicon-32.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- PWA settings -->
     <link rel="manifest" href="/manifest.json" />
     <!-- <meta name="theme-color" content="#0f172a" /> -->
     <meta name="theme-color" content="#2563eb" />
-    <link rel="apple-touch-icon" href="/branding/logo.png" />
+    <link rel="apple-touch-icon" href="/branding/apple-touch-icon.png" />
 
     <!-- SEO Meta Tags -->
     <title>Nitesh Communications | E-Commerce, Mobile Repair & CSC Ayodhya | नितेश कम्युनिकेशन्स</title>
@@ -39,7 +46,7 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://niteshcom.in/" />
+    <meta property="og:url" content="https://www.niteshcom.in/" />
     <meta
       property="og:title"
       content="Nitesh Communications | Mobile Repair, E-Commerce & CSC | नितेश कम्युनिकेशन्स"
@@ -48,11 +55,11 @@
       property="og:description"
       content="Mobile sales, hardware & software repairing, Aadhaar and government online services in Ayodhya. नितेश कम्युनिकेशन्स - मोबाइल शॉप, रिपेयरिंग और जन सेवा केंद्र।"
     />
-    <meta property="og:image" content="/branding/Poster-1_1.png" />
+    <meta property="og:image" content="https://www.niteshcom.in/branding/Poster-1_1.png" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://niteshcom.in/" />
+    <meta name="twitter:url" content="https://www.niteshcom.in/" />
     <meta
       name="twitter:title"
       content="Nitesh Communications | Mobile Repair, E-Commerce & CSC | नितेश कम्युनिकेशन्स"
@@ -61,15 +68,24 @@
       name="twitter:description"
       content="Mobile sales, hardware & software repairing, Aadhaar and government online services in Ayodhya. नितेश कम्युनिकेशन्स - मोबाइल शॉप, रिपेयरिंग और जन सेवा केंद्र।"
     />
-    <meta property="twitter:image" content="/branding/Poster-16_9.png" />
+    <meta property="twitter:image" content="https://www.niteshcom.in/branding/Poster-16_9.png" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Loaded without blocking the first paint; text shows in the fallback font until it arrives -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+      />
+    </noscript>
     <meta
       name="google-site-verification"
       content="nQ-bQ8P8U6ZPeJmZLet_JIWxlq2IMjABJscXkZX4les"

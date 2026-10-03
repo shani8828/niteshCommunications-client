@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://niteshcom.in/</loc>
+    <loc>https://www.niteshcom.in/</loc>
     <image:image>
-      <image:loc>https://niteshcom.in/branding/logo.png</image:loc>
+      <image:loc>https://www.niteshcom.in/branding/logo.png</image:loc>
       <image:title>Nitesh Communications Logo</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://niteshcom.in/branding/logo-full.png</image:loc>
+      <image:loc>https://www.niteshcom.in/branding/logo-full.png</image:loc>
       <image:title>Nitesh Communications Logo - Full</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://niteshcom.in/branding/Poster-1_1.png</image:loc>
+      <image:loc>https://www.niteshcom.in/branding/Poster-1_1.png</image:loc>
       <image:title>Nitesh Communications Services Poster</image:title>
     </image:image>
     <image:image>
-      <image:loc>https://niteshcom.in/branding/Poster-16_9.png</image:loc>
+      <image:loc>https://www.niteshcom.in/branding/Poster-16_9.png</image:loc>
       <image:title>Nitesh Communications Services Poster - Full</image:title>
     </image:image>
   </url>

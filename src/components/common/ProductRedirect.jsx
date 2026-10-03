@@ -10,7 +10,7 @@ const ProductRedirect = () => {
   useEffect(() => {
     const getProductSlugAndRedirect = async () => {
       try {
-        const response = await api.get(`/products/${id}`);
+        const response = await api.get(`/products/${id}`, { skipAuth: true });
         const product = response.data?.product;
         if (product && product.slug) {
           // Perform 301-equivalent client redirect by replacing state

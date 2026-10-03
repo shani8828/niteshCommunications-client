@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, Trash2, ShoppingBag } from "lucide-react";
+import { cldUrl, cldSrcSet } from "../../utils/image";
 
 const WishlistTab = ({
   wishlist,
@@ -93,9 +94,10 @@ const WishlistTab = ({
                 <img
                   src={
                     prod.images && prod.images[0]
-                      ? prod.images[0]
+                      ? cldUrl(prod.images[0], 300)
                       : "/placeholder-product.png"
                   }
+                  srcSet={cldSrcSet(prod.images?.[0], 300)}
                   alt={prod.name[currentLang] || prod.name["en"]}
                   className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300 mix-blend-multiply"
                   loading="lazy"
@@ -127,9 +129,11 @@ const WishlistTab = ({
                       {prod.name[currentLang] || prod.name["en"]}
                     </h4>
                   </Link>
-                  <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                    {prod.description[currentLang] || prod.description["en"]}
-                  </p>
+                  {prod.description && (
+                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                      {prod.description[currentLang] || prod.description["en"]}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-3 mt-1">

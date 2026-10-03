@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { cldUrl, cldSrcSet } from "../../utils/image";
 
 const categoriesList = [
   {
@@ -80,7 +81,8 @@ const HomeCategories = ({ currentLang }) => {
             >
               <div className="bg-slate-50 rounded h-[100px] sm:h-[120px] md:h-[150px] lg:h-[180px] flex justify-center items-center overflow-hidden border border-slate-100 relative">
                 <img
-                  src={cat.image}
+                  src={cldUrl(cat.image, 200)}
+                  srcSet={cldSrcSet(cat.image, 200)}
                   alt={cat.name.en}
                   className="max-w-[90%] max-h-[90%] object-contain group-hover:scale-105 transition-transform duration-300 rounded"
                   loading="lazy"

@@ -53,7 +53,7 @@ const CscService = () => {
         return;
       }
       try {
-        const res = await api.get("/csc/services");
+        const res = await api.get("/csc/services", { skipAuth: true });
         setServicesList(res.data || []);
         setCachedData(cacheKey, res.data || [], 10 * 60 * 1000); // Cache for 10 minutes
       } catch (err) {

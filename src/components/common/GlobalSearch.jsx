@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Search, X, ShoppingBag, Grid, Wrench, FileText, Loader2 } from "lucide-react";
 import api from "../../utils/api";
+import { cldUrl, cldSrcSet } from "../../utils/image";
 
 const GlobalSearch = () => {
   const { i18n } = useTranslation();
@@ -67,7 +68,8 @@ const GlobalSearch = () => {
 
       try {
         const response = await api.get(`/search?q=${encodeURIComponent(trimmed)}`, {
-          signal: controller.signal
+          signal: controller.signal,
+          skipAuth: true,
         });
         const data = response.data || {
           products: [],
@@ -297,7 +299,8 @@ const GlobalSearch = () => {
                           <div className="flex items-center gap-2.5 min-w-0">
                             {item.images?.[0] ? (
                               <img
-                                src={item.images[0]}
+                                src={cldUrl(item.images[0], 32)}
+                                srcSet={cldSrcSet(item.images[0], 32)}
                                 alt=""
                                 className="h-7 w-7 rounded-lg object-cover border border-slate-100 flex-shrink-0"
                               />

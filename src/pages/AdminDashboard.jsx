@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import Loader from "../components/common/Loader";
 import api from "../utils/api";
 import { getCachedData, setCachedData } from "../utils/cache";
 import { RefreshCw } from "lucide-react";
@@ -24,6 +23,30 @@ import AdminSidebar from "../components/admin/layout/AdminSidebar";
 import AdminAnalyticsWidgets from "../components/admin/layout/AdminAnalyticsWidgets";
 
 import { showToast } from "../utils/toast";
+import useVisiblePolling from "../utils/useVisiblePolling";
+
+// Admin lists are paginated, searched and filtered on the server.
+const ADMIN_PAGE_SIZE = 10;
+const LIST_CONFIG = {
+  orders: { url: "/orders", params: (q) => ({ search: q.search, status: q.status }) },
+  products: { url: "/products/admin/list", params: (q) => ({ search: q.search, category: q.category }) },
+  repairs: { url: "/repairs", params: (q) => ({ search: q.search, status: q.status }) },
+  csc: { url: "/csc", params: (q) => ({ search: q.search, status: q.status }) },
+  printouts: { url: "/printouts", params: (q) => ({ search: q.search, status: q.status }) },
+  users: { url: "/dashboard/admin/users", params: (q) => ({ phone: q.search }) },
+};
+const DEFAULT_LIST_QUERIES = {
+  orders: { page: 1, search: "", status: "all" },
+  products: { page: 1, search: "", category: "all" },
+  repairs: { page: 1, search: "", status: "all" },
+  csc: { page: 1, search: "", status: "all" },
+  printouts: { page: 1, search: "", status: "all" },
+  users: { page: 1, search: "" },
+};
+const DEFAULT_LIST_META = Object.fromEntries(
+  Object.keys(DEFAULT_LIST_QUERIES).map((list) => [list, { total: 0, pages: 1 }]),
+);
+const listCacheKey = (list, query) => `admin_${list}:${JSON.stringify(query)}`;
 
 const AdminDashboard = () => {
   const { t, i18n } = useTranslation();
@@ -42,6 +65,10 @@ const AdminDashboard = () => {
   const [printouts, setPrintouts] = useState([]);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [listQueries, setListQueries] = useState(DEFAULT_LIST_QUERIES);
+  const [listMeta, setListMeta] = useState(DEFAULT_LIST_META);
+  const listQueriesRef = useRef(DEFAULT_LIST_QUERIES);
+  const listRequestSeq = useRef({});
 
   const activeTabRef = useRef(activeTab);
 
@@ -59,66 +86,97 @@ const AdminDashboard = () => {
     }
   }, []);
 
+  const listSetters = {
+    orders: setOrders,
+    products: setProducts,
+    repairs: setRepairs,
+    csc: setCscQueries,
+    printouts: setPrintouts,
+    users: setUsers,
+  };
+
+  // Fetch the current page of one admin list using its saved search/filter query
+  const fetchList = useCallback(async (list) => {
+    const seq = (listRequestSeq.current[list] || 0) + 1;
+    listRequestSeq.current[list] = seq;
+
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const query = listQueriesRef.current[list];
+      const params = { page: query.page, limit: ADMIN_PAGE_SIZE };
+      Object.entries(LIST_CONFIG[list].params(query)).forEach(([key, value]) => {
+        if (value && value !== "all") params[key] = value;
+      });
+
+      const { data } = await api.get(LIST_CONFIG[list].url, { params });
+      // A newer request for this list (e.g. a quick page click) replaced this one
+      if (listRequestSeq.current[list] !== seq) return;
+
+      // The page no longer exists (e.g. its last item was deleted): show the last page
+      if (query.page > data.pages && attempt === 0) {
+        listQueriesRef.current = {
+          ...listQueriesRef.current,
+          [list]: { ...query, page: data.pages },
+        };
+        setListQueries(listQueriesRef.current);
+        continue;
+      }
+
+      const meta = { total: data.total, pages: data.pages };
+      listSetters[list](data.items || []);
+      setListMeta((prev) => ({ ...prev, [list]: meta }));
+      setCachedData(listCacheKey(list, query), { items: data.items || [], meta }, 5 * 60 * 1000);
+      return;
+    }
+  }, []);
+
+  // Show a cached page instantly (if any) while the fresh one loads
+  const restoreCachedList = (list) => {
+    const cached = getCachedData(listCacheKey(list, listQueriesRef.current[list]));
+    if (!cached) return false;
+    listSetters[list](cached.items);
+    setListMeta((prev) => ({ ...prev, [list]: cached.meta }));
+    return true;
+  };
+
+  const fetchCategories = useCallback(async () => {
+    const cRes = await api.get("/products/categories");
+    const categoriesData = cRes.data || [];
+    setCategories(categoriesData);
+    setCachedData("admin_categories", categoriesData, 5 * 60 * 1000);
+  }, []);
+
   const fetchInventory = useCallback(async () => {
     try {
-      const pRes = await api.get("/products?limit=100");
-      const productsData = pRes.data.products || [];
-      setProducts(productsData);
-      setCachedData("admin_products", productsData, 5 * 60 * 1000);
-
-      const cRes = await api.get("/products/categories");
-      const categoriesData = cRes.data || [];
-      setCategories(categoriesData);
-      setCachedData("admin_categories", categoriesData, 5 * 60 * 1000);
+      await Promise.all([fetchList("products"), fetchCategories()]);
     } catch (err) {
       console.error(err);
     }
-  }, []);
+  }, [fetchList, fetchCategories]);
 
   const fetchRepairsAndCsc = useCallback(async () => {
     try {
-      const repRes = await api.get("/repairs");
-      const repairsData = repRes.data || [];
-      setRepairs(repairsData);
-      setCachedData("admin_repairs", repairsData, 5 * 60 * 1000);
-
-      const cscRes = await api.get("/csc");
-      const cscData = cscRes.data || [];
-      setCscQueries(cscData);
-      setCachedData("admin_csc", cscData, 5 * 60 * 1000);
+      await Promise.all([fetchList("repairs"), fetchList("csc")]);
     } catch (err) {
       console.error(err);
     }
-  }, []);
+  }, [fetchList]);
 
   const fetchOrders = useCallback(async () => {
     try {
-      const response = await api.get("/orders");
-      const ordersData = response.data || [];
-      setOrders(ordersData);
-      setCachedData("admin_orders", ordersData, 5 * 60 * 1000);
+      await fetchList("orders");
     } catch (err) {
       console.error(err);
     }
-  }, []);
+  }, [fetchList]);
 
-  const fetchUsers = useCallback(async (searchVal = "") => {
+  const fetchUsers = useCallback(async () => {
     try {
-      const isSearch = searchVal.trim() !== "";
-      const url = isSearch
-        ? `/dashboard/admin/users?phone=${searchVal.trim()}`
-        : "/dashboard/admin/users";
-      const response = await api.get(url);
-      const usersData = response.data || [];
-      setUsers(usersData);
-      if (!isSearch) {
-        setCachedData("admin_users", usersData, 5 * 60 * 1000);
-      }
+      await fetchList("users");
     } catch (err) {
       console.error(err);
       showToast.error(t("admin:error_users_fetch", "Failed to fetch users"));
     }
-  }, [t]);
+  }, [fetchList, t]);
 
   const fetchRepairPricing = useCallback(async () => {
     try {
@@ -146,15 +204,12 @@ const AdminDashboard = () => {
 
   const fetchPrintouts = useCallback(async () => {
     try {
-      const response = await api.get("/printouts");
-      const printoutsData = response.data || [];
-      setPrintouts(printoutsData);
-      setCachedData("admin_printouts", printoutsData, 5 * 60 * 1000);
+      await fetchList("printouts");
     } catch (err) {
       console.error(err);
       showToast.error("Failed to fetch printouts");
     }
-  }, []);
+  }, [fetchList]);
 
   const fetchOffers = useCallback(async () => {
     try {
@@ -179,33 +234,17 @@ const AdminDashboard = () => {
           hasCache = true;
         }
       } else if (tab === "orders") {
-        const cached = getCachedData("admin_orders");
-        if (cached) {
-          setOrders(cached);
-          hasCache = true;
-        }
+        hasCache = restoreCachedList("orders");
       } else if (tab === "products" || tab === "categories") {
-        const cachedP = getCachedData("admin_products");
         const cachedC = getCachedData("admin_categories");
-        if (cachedP && cachedC) {
-          setProducts(cachedP);
-          setCategories(cachedC);
-          hasCache = true;
-        }
+        if (cachedC) setCategories(cachedC);
+        hasCache = restoreCachedList("products") && !!cachedC;
       } else if (tab === "repairs" || tab === "csc") {
-        const cachedRep = getCachedData("admin_repairs");
-        const cachedCsc = getCachedData("admin_csc");
-        if (cachedRep && cachedCsc) {
-          setRepairs(cachedRep);
-          setCscQueries(cachedCsc);
-          hasCache = true;
-        }
+        const hasRepairs = restoreCachedList("repairs");
+        const hasCsc = restoreCachedList("csc");
+        hasCache = hasRepairs && hasCsc;
       } else if (tab === "users") {
-        const cached = getCachedData("admin_users");
-        if (cached) {
-          setUsers(cached);
-          hasCache = true;
-        }
+        hasCache = restoreCachedList("users");
       } else if (tab === "repair-services") {
         const cached = getCachedData("admin_repair_pricing");
         if (cached) {
@@ -219,11 +258,7 @@ const AdminDashboard = () => {
           hasCache = true;
         }
       } else if (tab === "printouts") {
-        const cached = getCachedData("admin_printouts");
-        if (cached) {
-          setPrintouts(cached);
-          hasCache = true;
-        }
+        hasCache = restoreCachedList("printouts");
       } else if (tab === "offers") {
         const cached = getCachedData("admin_offers");
         if (cached) {
@@ -247,7 +282,7 @@ const AdminDashboard = () => {
       } else if (tab === "repairs" || tab === "csc") {
         await fetchRepairsAndCsc();
       } else if (tab === "users") {
-        await fetchUsers("");
+        await fetchUsers();
       } else if (tab === "repair-services") {
         await fetchRepairPricing();
       } else if (tab === "csc-services") {
@@ -275,6 +310,43 @@ const AdminDashboard = () => {
     fetchPrintouts,
     fetchOffers,
   ]);
+
+  const listFetchers = {
+    orders: fetchOrders,
+    products: fetchInventory,
+    repairs: fetchRepairsAndCsc,
+    csc: fetchRepairsAndCsc,
+    printouts: fetchPrintouts,
+    users: fetchUsers,
+  };
+  const listFetchersRef = useRef(listFetchers);
+  listFetchersRef.current = listFetchers;
+
+  const updateListQuery = useCallback(async (list, patch) => {
+    listQueriesRef.current = {
+      ...listQueriesRef.current,
+      [list]: { ...listQueriesRef.current[list], ...patch },
+    };
+    setListQueries(listQueriesRef.current);
+    setLoading(true);
+    try {
+      await listFetchersRef.current[list]();
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Stable per-list callbacks so memoised tabs don't re-render needlessly
+  const queryHandlers = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.keys(DEFAULT_LIST_QUERIES).map((list) => [
+          list,
+          (patch) => updateListQuery(list, patch),
+        ]),
+      ),
+    [updateListQuery],
+  );
 
   const handleUpdateOrderStatus = useCallback(async (id, status) => {
     let rollbackOrders;
@@ -358,15 +430,14 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     loadTabData("overview");
-
-    const pollInterval = setInterval(() => {
-      loadTabData(activeTabRef.current, true, true).catch((err) =>
-        console.error("Silent background dashboard data refresh failed:", err)
-      );
-    }, 30000);
-
-    return () => clearInterval(pollInterval);
   }, [loadTabData]);
+
+  // Silently refresh the open tab every 30 seconds while the browser tab is visible
+  useVisiblePolling(() => {
+    loadTabData(activeTabRef.current, true, true).catch((err) =>
+      console.error("Silent background dashboard data refresh failed:", err)
+    );
+  }, 30000);
 
   const isTabEmpty = useCallback((tab) => {
     if (tab === "overview") return !analytics;
@@ -417,6 +488,9 @@ const AdminDashboard = () => {
         return (
           <OrdersTab
             orders={orders}
+            query={listQueries.orders}
+            meta={listMeta.orders}
+            onQueryChange={queryHandlers.orders}
             t={t}
             currentLang={currentLang}
             handleUpdateOrderStatus={handleUpdateOrderStatus}
@@ -426,6 +500,9 @@ const AdminDashboard = () => {
         return (
           <ProductsTab
             products={products}
+            query={listQueries.products}
+            meta={listMeta.products}
+            onQueryChange={queryHandlers.products}
             setProducts={setProducts}
             categories={categories}
             t={t}
@@ -449,6 +526,9 @@ const AdminDashboard = () => {
         return (
           <RepairsTab
             repairs={repairs}
+            query={listQueries.repairs}
+            meta={listMeta.repairs}
+            onQueryChange={queryHandlers.repairs}
             t={t}
             currentLang={currentLang}
             handleUpdateRepairStatus={handleUpdateRepairStatus}
@@ -469,6 +549,9 @@ const AdminDashboard = () => {
         return (
           <CscQueriesTab
             cscQueries={cscQueries}
+            query={listQueries.csc}
+            meta={listMeta.csc}
+            onQueryChange={queryHandlers.csc}
             t={t}
             currentLang={currentLang}
             handleUpdateCscStatus={handleUpdateCscStatus}
@@ -489,6 +572,9 @@ const AdminDashboard = () => {
         return (
           <UsersTab
             users={users}
+            query={listQueries.users}
+            meta={listMeta.users}
+            onQueryChange={queryHandlers.users}
             t={t}
             currentLang={currentLang}
             fetchUsers={fetchUsers}
@@ -498,6 +584,9 @@ const AdminDashboard = () => {
         return (
           <PrintoutsTab
             printouts={printouts}
+            query={listQueries.printouts}
+            meta={listMeta.printouts}
+            onQueryChange={queryHandlers.printouts}
             t={t}
             currentLang={currentLang}
             handleUpdatePrintoutStatus={handleUpdatePrintoutStatus}

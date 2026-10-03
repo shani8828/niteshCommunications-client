@@ -1,16 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import {
-  Phone,
-  MapPin,
-  Mail,
-  ShieldCheck,
-  Instagram,
-  Facebook,
-  MessageCircle,
-} from "lucide-react";
-import { FaWhatsapp } from "react-icons/fa";
+import { Phone, MapPin, Mail, ShieldCheck, Instagram, Facebook } from "lucide-react";
+import WhatsAppIcon from "./WhatsAppIcon";
 import InstallAppButton from "./InstallDownloadBtn";
 
 const Footer = () => {
@@ -128,7 +120,7 @@ const Footer = () => {
               className="text-blue-600 hover:text-blue-700 transition-colors p-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg flex items-center justify-center"
               title="WhatsApp Channel"
             >
-              <FaWhatsapp size={18} />
+              <WhatsAppIcon size={18} />
             </a>
           </div>
         </div>

@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
+import AdminPagination from "./AdminPagination";
+import useDebouncedSearch from "./useDebouncedSearch";
 import { Plus, Edit, Trash2, X, Upload, Search } from "lucide-react";
 import api from "../../utils/api";
 import { showToast } from "../../utils/toast";
+import { cldUrl, cldSrcSet } from "../../utils/image";
 
 const translateToHindi = async (text) => {
   if (!text || !text.trim()) return "";
@@ -22,6 +25,9 @@ const translateToHindi = async (text) => {
 };
 
 const ProductsTab = ({
+  query,
+  meta,
+  onQueryChange,
   products,
   setProducts,
   categories,
@@ -30,10 +36,6 @@ const ProductsTab = ({
   fetchInventory,
   setLoading,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
 
   const [showProductModal, setShowProductModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -90,28 +92,10 @@ const ProductsTab = ({
     return () => clearTimeout(delayDebounce);
   }, [prodDescEn]);
 
-  // Filters
-  const filteredProducts = products.filter((prod) => {
-    const nameMatch =
-      prod.name?.en?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      prod.name?.hi?.toLowerCase().includes(searchTerm.toLowerCase());
-    const catMatch =
-      categoryFilter === "all" || prod.category?._id === categoryFilter;
-    return nameMatch && catMatch;
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProducts = filteredProducts.slice(
-    indexOfFirstItem,
-    indexOfLastItem,
+  // Search, filter and pagination run on the server (see AdminDashboard)
+  const [searchInput, setSearchInput] = useDebouncedSearch(query.search, (search) =>
+    onQueryChange({ search, page: 1 }),
   );
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
 
   const handleAddProductClick = () => {
     setEditingProduct(null);
@@ -267,10 +251,9 @@ const ProductsTab = ({
                 : "Search by product name..."
             }
             className="border-0 outline-none text-xs w-full bg-transparent"
-            value={searchTerm}
+            value={searchInput}
             onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
+              setSearchInput(e.target.value);
             }}
           />
         </div>
@@ -281,10 +264,9 @@ const ProductsTab = ({
               Category:
             </span>
             <select
-              value={categoryFilter}
+              value={query.category}
               onChange={(e) => {
-                setCategoryFilter(e.target.value);
-                setCurrentPage(1);
+                onQueryChange({ category: e.target.value, page: 1 });
               }}
               className="px-3 py-2 bg-white border border-slate-200 rounded text-xs outline-none focus:border-brand-cyan"
             >
@@ -332,14 +314,16 @@ const ProductsTab = ({
             </tr>
           </thead>
           <tbody>
-            {currentProducts.map((prod) => (
+            {products.map((prod) => (
               <tr
                 key={prod._id}
                 className="hover:bg-slate-50/50 transition-colors"
               >
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
                   <img
-                    src={prod.images?.[0] || ""}
+                    src={cldUrl(prod.images?.[0], 48) || ""}
+                    srcSet={cldSrcSet(prod.images?.[0], 48)}
+                    loading="lazy"
                     alt={prod.name?.en}
                     className="w-9 h-9 rounded object-contain bg-slate-100 border border-slate-200"
                   />
@@ -383,7 +367,7 @@ const ProductsTab = ({
                 </td>
               </tr>
             ))}
-            {filteredProducts.length === 0 && (
+            {products.length === 0 && (
               <tr>
                 <td
                   colSpan="6"
@@ -397,38 +381,14 @@ const ProductsTab = ({
         </table>
       </div>
 
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-1.5 mt-4">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-          >
-            {currentLang === "hi" ? "पिछला" : "Prev"}
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                currentPage === page
-                  ? "bg-brand-cyan border-brand-cyan text-white"
-                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-          >
-            {currentLang === "hi" ? "अगला" : "Next"}
-          </button>
-        </div>
-      )}
+      {/* Pagination (server-side) */}
+      <AdminPagination
+        page={query.page}
+        pages={meta.pages}
+        total={meta.total}
+        onPageChange={(page) => onQueryChange({ page })}
+        currentLang={currentLang}
+      />
 
       {/* Product Save Modal */}
       {showProductModal && (

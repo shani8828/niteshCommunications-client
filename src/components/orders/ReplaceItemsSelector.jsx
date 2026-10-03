@@ -1,5 +1,6 @@
 import React from "react";
 import { CheckSquare, Square } from "lucide-react";
+import { cldUrl, cldSrcSet } from "../../utils/image";
 
 const ReplaceItemsSelector = ({
   replaceableItems,
@@ -37,7 +38,8 @@ const ReplaceItemsSelector = ({
                   )}
                 </button>
                 <img
-                  src={item.product?.images[0]}
+                  src={cldUrl(item.product?.images[0], 64)}
+                  srcSet={cldSrcSet(item.product?.images[0], 64)}
                   alt={item.product?.name.en}
                   className="w-12 h-12 rounded bg-slate-50 border border-slate-100 object-contain flex-shrink-0 mix-blend-multiply"
                 />

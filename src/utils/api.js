@@ -7,11 +7,14 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to automatically add the Authorization header if token exists
+// Request interceptor to automatically add the Authorization header if token exists.
+// Pass `{ skipAuth: true }` for public catalogue requests: the CDN never caches
+// requests that carry an Authorization header, so omitting it lets logged-in
+// customers get the edge-cached response too.
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-    if (token) {
+    if (token && !config.skipAuth) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;

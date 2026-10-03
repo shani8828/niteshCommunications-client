@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Plus, Edit, Trash2, X, Upload, Eye, EyeOff } from "lucide-react";
 import api from "../../utils/api";
 import { showToast } from "../../utils/toast";
+import { cldUrl, cldSrcSet } from "../../utils/image";
 
 const OffersTab = ({ offers, setOffers, t, currentLang, fetchOffers, setLoading }) => {
   const [showOfferModal, setShowOfferModal] = useState(false);
@@ -161,7 +162,8 @@ const OffersTab = ({ offers, setOffers, t, currentLang, fetchOffers, setLoading 
                 <td className="px-3 py-2 text-xs text-slate-700">
                   {offer.image ? (
                     <img
-                      src={offer.image}
+                      src={cldUrl(offer.image, 96)}
+                      srcSet={cldSrcSet(offer.image, 96)}
                       alt={offer.title || "Offer"}
                       className="w-20 h-10 rounded object-cover bg-slate-50 border border-slate-200"
                     />

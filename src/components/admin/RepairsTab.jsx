@@ -1,32 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
+import AdminPagination from "./AdminPagination";
+import useDebouncedSearch from "./useDebouncedSearch";
 import { Search } from "lucide-react";
 
-const RepairsTab = ({ repairs, t, currentLang, handleUpdateRepairStatus }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
-  // Filter
-  const filteredRepairs = repairs.filter((rep) => {
-    const nameMatch = rep.customerName?.toLowerCase().includes(searchTerm.toLowerCase());
-    const phoneMatch = rep.customerPhone?.toLowerCase().includes(searchTerm.toLowerCase());
-    const deviceMatch = `${rep.deviceBrand} ${rep.deviceModel}`.toLowerCase().includes(searchTerm.toLowerCase());
-    const searchMatch = nameMatch || phoneMatch || deviceMatch;
-
-    const statusMatch = statusFilter === "all" || rep.status === statusFilter;
-    return searchMatch && statusMatch;
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(filteredRepairs.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentRepairs = filteredRepairs.slice(indexOfFirstItem, indexOfLastItem);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+const RepairsTab = ({ repairs, t, currentLang, handleUpdateRepairStatus, query, meta, onQueryChange }) => {
+  // Search, filter and pagination run on the server (see AdminDashboard)
+  const [searchInput, setSearchInput] = useDebouncedSearch(query.search, (search) =>
+    onQueryChange({ search, page: 1 }),
+  );
 
   return (
     <div className="flex flex-col gap-6 w-full animate-fadeIn">
@@ -38,10 +19,9 @@ const RepairsTab = ({ repairs, t, currentLang, handleUpdateRepairStatus }) => {
             type="text"
             placeholder={currentLang === "hi" ? "ग्राहक, फ़ोन या डिवाइस नाम से खोजें..." : "Search by customer, phone or device..."}
             className="border-0 outline-none text-xs w-full bg-transparent"
-            value={searchTerm}
+            value={searchInput}
             onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
+              setSearchInput(e.target.value);
             }}
           />
         </div>
@@ -49,10 +29,9 @@ const RepairsTab = ({ repairs, t, currentLang, handleUpdateRepairStatus }) => {
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-500 font-semibold">Status:</span>
           <select
-            value={statusFilter}
+            value={query.status}
             onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setCurrentPage(1);
+              onQueryChange({ status: e.target.value, page: 1 });
             }}
             className="px-3 py-2 bg-white border border-slate-200 rounded text-xs outline-none focus:border-brand-cyan"
           >
@@ -81,7 +60,7 @@ const RepairsTab = ({ repairs, t, currentLang, handleUpdateRepairStatus }) => {
             </tr>
           </thead>
           <tbody>
-            {currentRepairs.map((rep) => (
+            {repairs.map((rep) => (
               <tr key={rep._id} className="hover:bg-slate-50/50 transition-colors">
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700 font-semibold">
                   {rep.customerName}
@@ -141,7 +120,7 @@ const RepairsTab = ({ repairs, t, currentLang, handleUpdateRepairStatus }) => {
                 </td>
               </tr>
             ))}
-            {filteredRepairs.length === 0 && (
+            {repairs.length === 0 && (
               <tr>
                 <td
                   colSpan="7"
@@ -155,38 +134,14 @@ const RepairsTab = ({ repairs, t, currentLang, handleUpdateRepairStatus }) => {
         </table>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-1.5 mt-4">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-          >
-            {currentLang === "hi" ? "पिछला" : "Prev"}
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                currentPage === page
-                  ? "bg-brand-cyan border-brand-cyan text-white"
-                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-          >
-            {currentLang === "hi" ? "अगला" : "Next"}
-          </button>
-        </div>
-      )}
+      {/* Pagination (server-side) */}
+      <AdminPagination
+        page={query.page}
+        pages={meta.pages}
+        total={meta.total}
+        onPageChange={(page) => onQueryChange({ page })}
+        currentLang={currentLang}
+      />
     </div>
   );
 };

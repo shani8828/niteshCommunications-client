@@ -1,37 +1,17 @@
 import React, { useState } from "react";
+import AdminPagination from "./AdminPagination";
+import useDebouncedSearch from "./useDebouncedSearch";
 import { Link } from "react-router-dom";
 import { FileText, Search } from "lucide-react";
 import api from "../../utils/api";
 import { showToast } from "../../utils/toast";
 
-const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
+const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus, query, meta, onQueryChange }) => {
+  // Search, filter and pagination run on the server (see AdminDashboard)
+  const [searchInput, setSearchInput] = useDebouncedSearch(query.search, (search) =>
+    onQueryChange({ search, page: 1 }),
+  );
   const [downloadingReceiptId, setDownloadingReceiptId] = useState(null);
-  const itemsPerPage = 10;
-
-  // Filter logic
-  const filteredOrders = orders.filter((ord) => {
-    const orderIdMatch = ord.orderId?.toLowerCase().includes(searchTerm.toLowerCase());
-    const nameMatch = ord.user?.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const phoneMatch = ord.customerPhone?.toLowerCase().includes(searchTerm.toLowerCase());
-    const searchMatch = orderIdMatch || nameMatch || phoneMatch;
-
-    const statusMatch = statusFilter === "all" || ord.deliveryStatus === statusFilter;
-
-    return searchMatch && statusMatch;
-  });
-
-  // Pagination logic
-  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentOrders = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
 
   const handleDownloadReceipt = async (ord) => {
     setDownloadingReceiptId(ord._id);
@@ -391,10 +371,9 @@ const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus }) => {
             type="text"
             placeholder={currentLang === "hi" ? "ऑर्डर आईडी, ग्राहक का नाम या फ़ोन से खोजें..." : "Search by Order ID, name or phone..."}
             className="border-0 outline-none text-xs w-full bg-transparent"
-            value={searchTerm}
+            value={searchInput}
             onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
+              setSearchInput(e.target.value);
             }}
           />
         </div>
@@ -402,10 +381,9 @@ const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus }) => {
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-500 font-semibold">Status:</span>
           <select
-            value={statusFilter}
+            value={query.status}
             onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setCurrentPage(1);
+              onQueryChange({ status: e.target.value, page: 1 });
             }}
             className="px-3 py-2 bg-white border border-slate-200 rounded text-xs outline-none focus:border-brand-cyan"
           >
@@ -455,7 +433,7 @@ const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus }) => {
             </tr>
           </thead>
           <tbody>
-            {currentOrders.map((ord) => (
+            {orders.map((ord) => (
               <tr
                 key={ord._id}
                 className="hover:bg-slate-50/50 transition-colors"
@@ -556,7 +534,7 @@ const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus }) => {
                 </td>
               </tr>
             ))}
-            {filteredOrders.length === 0 && (
+            {orders.length === 0 && (
               <tr>
                 <td
                   colSpan="8"
@@ -570,38 +548,14 @@ const OrdersTab = ({ orders, t, currentLang, handleUpdateOrderStatus }) => {
         </table>
       </div>
 
-      {/* Pagination controls */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-1.5 mt-4">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-          >
-            {currentLang === "hi" ? "पिछला" : "Prev"}
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                currentPage === page
-                  ? "bg-brand-cyan border-brand-cyan text-white"
-                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-          >
-            {currentLang === "hi" ? "अगला" : "Next"}
-          </button>
-        </div>
-      )}
+      {/* Pagination (server-side) */}
+      <AdminPagination
+        page={query.page}
+        pages={meta.pages}
+        total={meta.total}
+        onPageChange={(page) => onQueryChange({ page })}
+        currentLang={currentLang}
+      />
     </div>
   );
 };

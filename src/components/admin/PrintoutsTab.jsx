@@ -1,56 +1,21 @@
-import React, { useState } from "react";
-import {
-  Search,
-  MapPin,
-  ExternalLink,
-  FileText,
-  CheckCircle2,
-  Clock,
-  Eye,
-  Download,
-} from "lucide-react";
+import React from "react";
+import AdminPagination from "./AdminPagination";
+import useDebouncedSearch from "./useDebouncedSearch";
+import { Search, MapPin, FileText, CheckCircle2, Clock, Eye, Download } from "lucide-react";
 
 const PrintoutsTab = ({
+  query,
+  meta,
+  onQueryChange,
   printouts,
   t,
   currentLang,
   handleUpdatePrintoutStatus,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
-  // Filter logic
-  const filteredPrintouts = printouts.filter((item) => {
-    const nameMatch = item.name
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const phoneMatch = item.phone
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const addressMatch = item.address
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const searchMatch = nameMatch || phoneMatch || addressMatch;
-
-    const statusMatch =
-      statusFilter === "all" || item.deliveryStatus === statusFilter;
-    return searchMatch && statusMatch;
-  });
-
-  // Pagination logic
-  const totalPages = Math.ceil(filteredPrintouts.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredPrintouts.slice(
-    indexOfFirstItem,
-    indexOfLastItem,
+  // Search, filter and pagination run on the server (see AdminDashboard)
+  const [searchInput, setSearchInput] = useDebouncedSearch(query.search, (search) =>
+    onQueryChange({ search, page: 1 }),
   );
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -120,10 +85,9 @@ const PrintoutsTab = ({
                 : "Search by name, phone or address..."
             }
             className="border-0 outline-none text-xs w-full bg-transparent font-semibold text-slate-700"
-            value={searchTerm}
+            value={searchInput}
             onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
+              setSearchInput(e.target.value);
             }}
           />
         </div>
@@ -131,10 +95,9 @@ const PrintoutsTab = ({
         <div className="flex items-center gap-2 flex-shrink-0">
           <span className="text-xs text-slate-500 font-semibold">Status:</span>
           <select
-            value={statusFilter}
+            value={query.status}
             onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setCurrentPage(1);
+              onQueryChange({ status: e.target.value, page: 1 });
             }}
             className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-brand-cyan font-semibold text-slate-700 cursor-pointer"
           >
@@ -165,7 +128,7 @@ const PrintoutsTab = ({
             </tr>
           </thead>
           <tbody>
-            {currentItems.map((item) => (
+            {printouts.map((item) => (
               <tr
                 key={item._id}
                 className="hover:bg-slate-50/50 transition-colors text-slate-700 border-b border-slate-100"
@@ -299,7 +262,7 @@ const PrintoutsTab = ({
                 </td>
               </tr>
             ))}
-            {filteredPrintouts.length === 0 && (
+            {printouts.length === 0 && (
               <tr>
                 <td
                   colSpan="8"
@@ -313,38 +276,14 @@ const PrintoutsTab = ({
         </table>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-1 mt-4">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-          >
-            {currentLang === "hi" ? "पिछला" : "Prev"}
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                currentPage === page
-                  ? "bg-brand-cyan border-brand-cyan text-white"
-                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-          >
-            {currentLang === "hi" ? "अगला" : "Next"}
-          </button>
-        </div>
-      )}
+      {/* Pagination (server-side) */}
+      <AdminPagination
+        page={query.page}
+        pages={meta.pages}
+        total={meta.total}
+        onPageChange={(page) => onQueryChange({ page })}
+        currentLang={currentLang}
+      />
     </div>
   );
 };

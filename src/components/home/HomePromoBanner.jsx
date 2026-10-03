@@ -29,12 +29,13 @@ const HomePromoBanner = ({ t, currentLang }) => {
           </div>
           <div className="flex-shrink-0 w-full md:w-[200px] h-[200px] flex justify-center items-center">
             <img
-              src="/branding/logo-full.png"
+              src="/branding/logo-full-400.webp"
               alt="Promo Logo"
               className="w-full h-full object-contain rounded-xl"
               loading="lazy"
               onError={(e) => {
-                e.target.src = "/branding/app-icon.png";
+                e.target.onerror = null;
+                e.target.src = "/branding/logo-full.png";
               }}
             />
           </div>

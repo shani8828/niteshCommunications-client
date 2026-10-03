@@ -14,6 +14,7 @@ import { getDeliveryCharge } from "../utils/delivery";
 import BillingForm from "../components/checkout/BillingForm";
 import PaymentSelector from "../components/checkout/PaymentSelector";
 import CheckoutSummary from "../components/checkout/CheckoutSummary";
+import { loadRazorpay } from "../utils/razorpay";
 
 const SHOP_LAT = 26.671782;
 const SHOP_LON = 82.008832;
@@ -34,6 +35,11 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 const Checkout = () => {
+
+  // Start loading Razorpay now so it's ready when the customer taps Pay
+  useEffect(() => {
+    loadRazorpay();
+  }, []);
   const { t, i18n } = useTranslation(["cart", "common", "notifications"]);
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -131,15 +137,6 @@ const Checkout = () => {
     }
   }, []);
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
 
   const handleUseCurrentLocation = useCallback(async () => {
     setGeolocating(true);
@@ -281,7 +278,7 @@ const Checkout = () => {
         setLoading(false);
         navigate(`/order-tracking/${data.order._id}`);
       } else {
-        const scriptLoaded = await loadRazorpayScript();
+        const scriptLoaded = await loadRazorpay();
         if (!scriptLoaded) {
           showToast.error("Razorpay SDK failed to load. Are you offline?");
           setLoading(false);

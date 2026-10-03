@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
-import Loader from "../components/common/Loader";
 import api from "../utils/api";
 import { showToast } from "../utils/toast";
 import { getCachedData, setCachedData } from "../utils/cache";
@@ -137,7 +136,7 @@ const ProductDetails = () => {
       }
 
       try {
-        const response = await api.get(`/products/slug/${slug}`);
+        const response = await api.get(`/products/slug/${slug}`, { skipAuth: true });
         const data = response.data;
 
         setProduct(data.product);
@@ -347,7 +346,7 @@ const ProductDetails = () => {
     const shareUrl = window.location.href;
     const shareTitle = product.name[currentLang] || product.name.en;
     const fullDesc =
-      product.description[currentLang] || product.description.en || "";
+      product.description?.[currentLang] || product.description?.en || "";
     const shareText =
       fullDesc.length > 150 ? `${fullDesc.slice(0, 150)}...` : fullDesc;
 

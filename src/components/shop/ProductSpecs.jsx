@@ -62,7 +62,7 @@ const ProductSpecs = ({
       </div>
 
       <p className="text-sm text-slate-600 leading-relaxed">
-        {product.description[currentLang]}
+        {product.description?.[currentLang] || product.description?.en}
       </p>
 
       {/* Stock Availability */}

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Trash2, Plus, Minus } from "lucide-react";
+import { cldUrl, cldSrcSet } from "../../utils/image";
 
 const CartItemCard = ({
   item,
@@ -15,9 +16,10 @@ const CartItemCard = ({
         <img
           src={
             item.product.images && item.product.images[0]
-              ? item.product.images[0]
+              ? cldUrl(item.product.images[0], 80)
               : "/placeholder-product.png"
           }
+          srcSet={cldSrcSet(item.product.images?.[0], 80)}
           alt={item.product.name.en}
           className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply"
           loading="lazy"

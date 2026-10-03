@@ -1,33 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
+import AdminPagination from "./AdminPagination";
+import useDebouncedSearch from "./useDebouncedSearch";
 import { Search } from "lucide-react";
 
-const CscQueriesTab = ({ cscQueries, t, currentLang, handleUpdateCscStatus }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-
-  // Filter
-  const filteredQueries = cscQueries.filter((query) => {
-    const nameMatch = query.name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const phoneMatch = query.phone?.toLowerCase().includes(searchTerm.toLowerCase());
-    const serviceMatch = query.serviceName?.toLowerCase().includes(searchTerm.toLowerCase());
-    const detailMatch = query.queryDetails?.toLowerCase().includes(searchTerm.toLowerCase());
-    const searchMatch = nameMatch || phoneMatch || serviceMatch || detailMatch;
-
-    const statusMatch = statusFilter === "all" || query.status === statusFilter;
-    return searchMatch && statusMatch;
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(filteredQueries.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentQueries = filteredQueries.slice(indexOfFirstItem, indexOfLastItem);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
+const CscQueriesTab = ({ cscQueries, t, currentLang, handleUpdateCscStatus, query, meta, onQueryChange }) => {
+  // Search, filter and pagination run on the server (see AdminDashboard)
+  const [searchInput, setSearchInput] = useDebouncedSearch(query.search, (search) =>
+    onQueryChange({ search, page: 1 }),
+  );
 
   return (
     <div className="flex flex-col gap-6 w-full animate-fadeIn">
@@ -39,10 +19,9 @@ const CscQueriesTab = ({ cscQueries, t, currentLang, handleUpdateCscStatus }) =>
             type="text"
             placeholder={currentLang === "hi" ? "ग्राहक, फ़ोन या सेवा के नाम से खोजें..." : "Search by customer, phone or service..."}
             className="border-0 outline-none text-xs w-full bg-transparent"
-            value={searchTerm}
+            value={searchInput}
             onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
+              setSearchInput(e.target.value);
             }}
           />
         </div>
@@ -50,10 +29,9 @@ const CscQueriesTab = ({ cscQueries, t, currentLang, handleUpdateCscStatus }) =>
         <div className="flex items-center gap-2">
           <span className="text-xs text-slate-500 font-semibold">Status:</span>
           <select
-            value={statusFilter}
+            value={query.status}
             onChange={(e) => {
-              setStatusFilter(e.target.value);
-              setCurrentPage(1);
+              onQueryChange({ status: e.target.value, page: 1 });
             }}
             className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-brand-cyan"
           >
@@ -79,38 +57,38 @@ const CscQueriesTab = ({ cscQueries, t, currentLang, handleUpdateCscStatus }) =>
             </tr>
           </thead>
           <tbody>
-            {currentQueries.map((query) => (
-              <tr key={query._id} className="hover:bg-slate-50/50 transition-colors">
+            {cscQueries.map((inquiry) => (
+              <tr key={inquiry._id} className="hover:bg-slate-50/50 transition-colors">
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700 font-semibold">
-                  {query.name}
+                  {inquiry.name}
                 </td>
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
-                  {query.phone}
+                  {inquiry.phone}
                 </td>
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
-                  {query.serviceName}
+                  {inquiry.serviceName}
                 </td>
-                <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-600 max-w-[200px] truncate" title={query.queryDetails}>
-                  {query.queryDetails}
+                <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-600 max-w-[200px] truncate" title={inquiry.queryDetails}>
+                  {inquiry.queryDetails}
                 </td>
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      query.status === "Completed"
+                      inquiry.status === "Completed"
                         ? "bg-emerald-100 text-emerald-700"
-                        : query.status === "Pending"
+                        : inquiry.status === "Pending"
                         ? "bg-amber-100 text-amber-700"
                         : "bg-blue-100 text-blue-700"
                     }`}
                   >
-                    {query.status}
+                    {inquiry.status}
                   </span>
                 </td>
                 <td className="border-b border-slate-100 px-4 py-3 text-xs text-slate-700">
                   <select
-                    value={query.status}
+                    value={inquiry.status}
                     onChange={(e) =>
-                      handleUpdateCscStatus(query._id, e.target.value)
+                      handleUpdateCscStatus(inquiry._id, e.target.value)
                     }
                     className="px-2 py-1 bg-white border border-slate-200 rounded text-slate-700 outline-none cursor-pointer text-xs focus:border-brand-cyan"
                   >
@@ -122,7 +100,7 @@ const CscQueriesTab = ({ cscQueries, t, currentLang, handleUpdateCscStatus }) =>
                 </td>
               </tr>
             ))}
-            {filteredQueries.length === 0 && (
+            {cscQueries.length === 0 && (
               <tr>
                 <td
                   colSpan="6"
@@ -136,38 +114,14 @@ const CscQueriesTab = ({ cscQueries, t, currentLang, handleUpdateCscStatus }) =>
         </table>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-1.5 mt-4">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-          >
-            {currentLang === "hi" ? "पिछला" : "Prev"}
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                currentPage === page
-                  ? "bg-brand-cyan border-brand-cyan text-white"
-                  : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
-          >
-            {currentLang === "hi" ? "अगला" : "Next"}
-          </button>
-        </div>
-      )}
+      {/* Pagination (server-side) */}
+      <AdminPagination
+        page={query.page}
+        pages={meta.pages}
+        total={meta.total}
+        onPageChange={(page) => onQueryChange({ page })}
+        currentLang={currentLang}
+      />
     </div>
   );
 };

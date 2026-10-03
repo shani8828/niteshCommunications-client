@@ -1,23 +1,38 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import { showToast } from '../utils/toast';
 import api from '../utils/api';
 
 const AuthContext = createContext();
 
+// The last known profile is kept locally so logged-in pages can render right away
+// instead of waiting for /auth/me. It only drives the UI: the server still checks
+// the token on every request, and /auth/me re-validates it in the background.
+const USER_CACHE_KEY = 'auth_user';
+const readCachedUser = () => {
+  try {
+    return localStorage.getItem('token') ? JSON.parse(localStorage.getItem(USER_CACHE_KEY)) : null;
+  } catch {
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUserState] = useState(readCachedUser);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
-  const [loading, setLoading] = useState(true);
+  // Only block protected pages when there is a token but no cached profile yet
+  const [loading, setLoading] = useState(() => !!localStorage.getItem('token') && !readCachedUser());
 
-  // Set auth header helper (kept for backward compatibility if referenced elsewhere)
-  const getHeaders = (customToken = token) => {
-    return {
-      'Content-Type': 'application/json',
-      Authorization: customToken ? `Bearer ${customToken}` : '',
-    };
-  };
+  const setUser = useCallback((nextUser) => {
+    setUserState(nextUser);
+    try {
+      if (nextUser) localStorage.setItem(USER_CACHE_KEY, JSON.stringify(nextUser));
+      else localStorage.removeItem(USER_CACHE_KEY);
+    } catch {
+      // Storage unavailable: the app still works, just without the instant start
+    }
+  }, []);
 
-  // Verify and fetch profile on load if token exists
+  // Verify and refresh the profile on load if a token exists
   useEffect(() => {
     const fetchProfile = async () => {
       if (!token) {
@@ -44,7 +59,7 @@ export const AuthProvider = ({ children }) => {
   /**
    * Log into account (User) using Firebase Token
    */
-  const login = async (firebaseToken) => {
+  const login = useCallback(async (firebaseToken) => {
     try {
       const response = await api.post('/auth/login', { firebaseToken });
       const data = response.data;
@@ -62,12 +77,12 @@ export const AuthProvider = ({ children }) => {
       showToast.error(errorMessage);
       return { success: false, error: errorMessage };
     }
-  };
+  }, [setUser]);
 
   /**
    * Log into account (Admin) using Firebase Token
    */
-  const adminLogin = async (firebaseToken) => {
+  const adminLogin = useCallback(async (firebaseToken) => {
     try {
       const response = await api.post('/auth/admin-login', { firebaseToken });
       const data = response.data;
@@ -82,12 +97,12 @@ export const AuthProvider = ({ children }) => {
       showToast.error(errorMessage);
       return { success: false, error: errorMessage };
     }
-  };
+  }, [setUser]);
 
   /**
    * Register customer account using Firebase Token
    */
-  const register = async (name, mobile, address, email, coordinates, firebaseToken) => {
+  const register = useCallback(async (name, mobile, address, email, coordinates, firebaseToken) => {
     try {
       const response = await api.post('/auth/register', { name, mobile, address, email, coordinates, firebaseToken });
       const data = response.data;
@@ -104,12 +119,12 @@ export const AuthProvider = ({ children }) => {
       showToast.error(errorMessage);
       return { success: false, error: errorMessage };
     }
-  };
+  }, [setUser]);
 
   /**
    * Close session
    */
-  const logout = async (showToastMessage = true) => {
+  const logout = useCallback(async (showToastMessage = true) => {
     try {
       await api.post('/auth/logout');
     } catch (error) {
@@ -121,22 +136,25 @@ export const AuthProvider = ({ children }) => {
     if (showToastMessage) {
       showToast.success('Logged out successfully');
     }
-  };
+  }, [setUser]);
+
+  // Memoised so consumers only re-render when auth state actually changes
+  const value = useMemo(
+    () => ({
+      user,
+      token,
+      loading,
+      login,
+      adminLogin,
+      register,
+      logout,
+      updateUserProfile: setUser,
+    }),
+    [user, token, loading, login, adminLogin, register, logout, setUser],
+  );
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        loading,
-        login,
-        adminLogin,
-        register,
-        logout,
-        getHeaders,
-        updateUserProfile: (updatedData) => setUser(updatedData),
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

@@ -8,6 +8,7 @@ import api from '../../utils/api';
 import XeroxSetupStep from './XeroxSetupStep';
 import XeroxLocationStep from './XeroxLocationStep';
 import XeroxSummaryStep from './XeroxSummaryStep';
+import { loadRazorpay } from '../../utils/razorpay';
 
 const SHOP_LAT = 26.671782;
 const SHOP_LON = 82.008832;
@@ -28,6 +29,11 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 const Xerox = ({ isOpen, onClose }) => {
+
+  // Start loading Razorpay when the booking dialog opens, before the customer pays
+  useEffect(() => {
+    if (isOpen) loadRazorpay();
+  }, [isOpen]);
   const { user } = useAuth();
   const [step, setStep] = useState(1);
 
@@ -85,20 +91,6 @@ const Xerox = ({ isOpen, onClose }) => {
     }
   }, [user]);
 
-  // Load Razorpay checkout script
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      if (window.Razorpay) {
-        resolve(true);
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
 
   const handleCreateOrder = async (isBypassed = false) => {
     if (!name.trim() || !phone.trim()) {
@@ -147,7 +139,7 @@ const Xerox = ({ isOpen, onClose }) => {
       }
 
       // 2. Load Razorpay script
-      const scriptLoaded = await loadRazorpayScript();
+      const scriptLoaded = await loadRazorpay();
       if (!scriptLoaded) {
         showToast.error('Failed to load payment checkout. Please try again.');
         setProcessing(false);

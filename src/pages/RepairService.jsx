@@ -49,7 +49,7 @@ const RepairService = () => {
         return;
       }
       try {
-        const response = await api.get("/repairs/pricing-data");
+        const response = await api.get("/repairs/pricing-data", { skipAuth: true });
         setRepairPricingData(response.data);
         setCachedData(cacheKey, response.data, 10 * 60 * 1000); // Cache for 10 minutes
       } catch (err) {

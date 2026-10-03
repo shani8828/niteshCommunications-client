@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Search, ShoppingCart, SlidersHorizontal, X } from "lucide-react";
+import { cldUrl, cldSrcSet } from "../../utils/image";
 
 const ShopFiltersHeader = ({
   categories,
@@ -107,7 +108,7 @@ const ShopFiltersHeader = ({
 
   return (
     <div
-      className={`sticky top-[64px] z-40 bg-white/95 backdrop-blur-md transition-all duration-300 -mx-4 md:-mx-8 px-4 md:px-8 border-b border-slate-100 ${
+      className={`sticky top-[64px] z-40 bg-white transition-all duration-300 -mx-4 md:-mx-8 px-4 md:px-8 border-b border-slate-100 ${
         isScrolled ? "py-1.5 shadow-md shadow-slate-100/50 mb-3" : "py-1.5 mb-3"
       }`}
     >
@@ -281,7 +282,8 @@ const ShopFiltersHeader = ({
                       }`}
                     >
                       <img
-                        src={cat.image}
+                        src={cldUrl(cat.image, 48)}
+                        srcSet={cldSrcSet(cat.image, 48)}
                         alt={cat.name[currentLang] || cat.name.en}
                         className="w-full h-full object-cover rounded"
                         loading="lazy"

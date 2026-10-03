@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Info, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const CookieConsent = () => {
   const { i18n } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
   const currentLang = i18n.language || 'en';
   const isHindi = currentLang === 'hi';
 
@@ -21,20 +21,22 @@ const CookieConsent = () => {
     }
   }, []);
 
-  const handleAccept = () => {
-    localStorage.setItem('nitesh_consent_accepted', 'true');
-    setIsVisible(false);
+  // Play the exit transition, then unmount
+  const hide = () => {
+    setIsLeaving(true);
+    setTimeout(() => setIsVisible(false), 200);
   };
 
+  const handleAccept = () => {
+    localStorage.setItem('nitesh_consent_accepted', 'true');
+    hide();
+  };
+
+  if (!isVisible) return null;
+
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ opacity: 0, y: 50, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 25 }}
-          className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:max-w-md bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-2xl rounded-2xl p-5 z-[99999] flex flex-col gap-4 text-slate-700"
+        <div
+          className={`${isLeaving ? 'consent-leaving' : 'animate-consent-in'} fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:max-w-md bg-white border border-slate-200/90 shadow-2xl rounded-2xl p-5 z-[99999] flex flex-col gap-4 text-slate-700`}
         >
           <div className="flex gap-3 items-start">
             <div className="bg-blue-50 border border-blue-100 p-2 rounded-xl flex justify-center items-center text-blue-600 flex-shrink-0">
@@ -64,7 +66,7 @@ const CookieConsent = () => {
               </p>
             </div>
             <button 
-              onClick={() => setIsVisible(false)}
+              onClick={hide}
               className="bg-transparent border-0 text-slate-400 hover:text-slate-600 cursor-pointer flex transition-colors p-0.5"
             >
               <X size={16} />
@@ -78,9 +80,7 @@ const CookieConsent = () => {
               {isHindi ? 'स्वीकार करें / Accept' : 'Accept & Continue'}
             </button>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        </div>
   );
 };
 

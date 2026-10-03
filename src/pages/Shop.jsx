@@ -1,11 +1,14 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useCart } from "../context/CartContext";
-import Loader from "../components/common/Loader";
-import api from "../utils/api";
-import { getCachedData, setCachedData } from "../utils/cache";
+import { getCachedData } from "../utils/cache";
 import { useSearchParams } from "react-router-dom";
-import QuickLinksBanner from "../components/common/QuickLinksBanner";
+import {
+  DEFAULT_MAX_PRICE,
+  DEFAULT_MIN_PRICE,
+  fetchShopCategories,
+  fetchShopProducts,
+} from "../utils/shopData";
 import ProductCard from "../components/shop/ProductCard";
 import ShopFiltersHeader from "../components/shop/ShopFiltersHeader";
 import Offers from "../components/shop/Offers";
@@ -20,13 +23,13 @@ const Shop = () => {
   const sortParam = searchParams.get("sort") || "newest";
 
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categories, setCategories] = useState(() => getCachedData("shop_categories") || []);
+  const [categoriesLoading, setCategoriesLoading] = useState(() => !getCachedData("shop_categories"));
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(searchParam);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam);
-  const [maxPrice, setMaxPrice] = useState(100000);
-  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(DEFAULT_MAX_PRICE);
+  const [minPrice, setMinPrice] = useState(DEFAULT_MIN_PRICE);
   const [sort, setSort] = useState(sortParam);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -34,6 +37,10 @@ const Shop = () => {
   const observerTarget = useRef(null);
 
   const currentLang = i18n.language || "en";
+
+  // O(1) lookups for each product card instead of scanning both lists per card
+  const wishlistIds = useMemo(() => new Set(wishlist.map((p) => p._id)), [wishlist]);
+  const cartIds = useMemo(() => new Set(cartItems.map((item) => item.product._id)), [cartItems]);
 
   // Sync SearchParams with local states
   useEffect(() => {
@@ -76,48 +83,45 @@ const Shop = () => {
     canonicalLink.setAttribute("href", `${window.location.origin}/shop`);
   }, [currentLang]);
 
-  // Fetch product categories
+  // Fetch product categories (shared with the boot-time prefetch, cached 10 minutes)
   useEffect(() => {
-    const fetchCats = async () => {
-      const cacheKey = "shop_categories";
-      const cached = getCachedData(cacheKey);
-      if (cached) {
-        setCategories(cached);
-        setCategoriesLoading(false);
-        return;
-      }
-      try {
-        setCategoriesLoading(true);
-        const response = await api.get("/products/categories");
-        setCategories(response.data);
-        setCachedData(cacheKey, response.data, 10 * 60 * 1000); // Cache categories for 10 minutes
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setCategoriesLoading(false);
-      }
+    let cancelled = false;
+    fetchShopCategories()
+      .then((data) => {
+        if (!cancelled) setCategories(data);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => {
+        if (!cancelled) setCategoriesLoading(false);
+      });
+    return () => {
+      cancelled = true;
     };
-    fetchCats();
   }, []);
 
-  // Fetch Products
+  // Fetch Products (shared with the boot-time prefetch, cached 5 minutes)
   useEffect(() => {
-    const fetchProds = async () => {
-      const isFirstPage = page === 1;
-      const cacheKey = `shop_products_l16_p_${page}_s_${sort}_min_${minPrice}_max_${maxPrice}_k_${search}_c_${selectedCategory}`;
-      const cached = getCachedData(cacheKey);
+    let cancelled = false;
+    const isFirstPage = page === 1;
+    const request = fetchShopProducts({
+      page,
+      sort,
+      minPrice,
+      maxPrice,
+      search,
+      category: selectedCategory,
+    });
 
-      if (isFirstPage) {
-        setProducts([]);
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
-      }
+    if (isFirstPage) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
 
-      if (cached) {
-        const newProducts = cached.products || [];
-        const totalPages = cached.pages || 1;
-
+    request
+      .then(({ products: newProducts, pages: totalPages }) => {
+        // Ignore results for filters the user has already changed away from
+        if (cancelled) return;
         if (isFirstPage) {
           setProducts(newProducts);
         } else {
@@ -130,46 +134,17 @@ const Shop = () => {
           });
         }
         setHasMore(page < totalPages && newProducts.length > 0);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => {
+        if (cancelled) return;
         setLoading(false);
         setLoadingMore(false);
-        return;
-      }
+      });
 
-      try {
-        let url = `/products?page=${page}&limit=16&sort=${sort}&minPrice=${minPrice}&maxPrice=${maxPrice}`;
-        if (search) url += `&keyword=${search}`;
-        if (selectedCategory) url += `&category=${selectedCategory}`;
-
-        const response = await api.get(url);
-        const newProducts = response.data.products || [];
-        const totalPages = response.data.pages || 1;
-
-        setCachedData(
-          cacheKey,
-          { products: newProducts, pages: totalPages },
-          5 * 60 * 1000,
-        );
-
-        if (isFirstPage) {
-          setProducts(newProducts);
-        } else {
-          setProducts((prev) => {
-            const existingIds = new Set(prev.map((p) => p._id));
-            const filteredNew = newProducts.filter(
-              (p) => !existingIds.has(p._id),
-            );
-            return [...prev, ...filteredNew];
-          });
-        }
-        setHasMore(page < totalPages && newProducts.length > 0);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
-      }
+    return () => {
+      cancelled = true;
     };
-    fetchProds();
   }, [page, search, selectedCategory, maxPrice, minPrice, sort]);
 
   // Infinite scroll IntersectionObserver
@@ -220,8 +195,8 @@ const Shop = () => {
   const handleResetFilters = useCallback(() => {
     setSearch("");
     setSelectedCategory("");
-    setMinPrice(0);
-    setMaxPrice(100000);
+    setMinPrice(DEFAULT_MIN_PRICE);
+    setMaxPrice(DEFAULT_MAX_PRICE);
     setSort("newest");
     setPage(1);
   }, []);
@@ -298,13 +273,9 @@ const Shop = () => {
         ) : (
           <>
             <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-              {products.map((product) => {
-                const isWishlisted = wishlist.some(
-                  (p) => p._id === product._id,
-                );
-                const isInCart = cartItems.some(
-                  (item) => item.product._id === product._id,
-                );
+              {products.map((product, index) => {
+                const isWishlisted = wishlistIds.has(product._id);
+                const isInCart = cartIds.has(product._id);
                 return (
                   <ProductCard
                     key={product._id}
@@ -315,6 +286,7 @@ const Shop = () => {
                     toggleWishlist={toggleWishlist}
                     currentLang={currentLang}
                     t={t}
+                    priority={index < 6}
                   />
                 );
               })}

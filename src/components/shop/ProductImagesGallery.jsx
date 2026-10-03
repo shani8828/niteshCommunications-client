@@ -1,5 +1,6 @@
 import React from "react";
 import { Share2 } from "lucide-react";
+import { cldUrl, cldSrcSet } from "../../utils/image";
 
 const ProductImagesGallery = ({
   images,
@@ -13,10 +14,11 @@ const ProductImagesGallery = ({
     <div className="flex flex-col gap-4 text-left">
       <div className="relative bg-slate-50 border border-slate-200 rounded h-[350px] flex justify-center items-center overflow-hidden">
         <img
-          src={activeImage}
+          src={cldUrl(activeImage, 600)}
+          srcSet={cldSrcSet(activeImage, 600)}
           alt={name.en || name}
           className="max-w-[90%] max-h-[90%] object-contain mix-blend-multiply rounded"
-          loading="lazy"
+          fetchpriority="high"
         />
 
         <button
@@ -40,7 +42,8 @@ const ProductImagesGallery = ({
               type="button"
             >
               <img
-                src={img}
+                src={cldUrl(img, 80)}
+                srcSet={cldSrcSet(img, 80)}
                 alt="Thumbnail"
                 className="max-w-full max-h-full object-contain mix-blend-multiply"
                 loading="lazy"

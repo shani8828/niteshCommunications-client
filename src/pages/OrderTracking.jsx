@@ -14,6 +14,8 @@ import TrackingItemsSummary from "../components/orders/TrackingItemsSummary";
 import TrackingCustomerInfo from "../components/orders/TrackingCustomerInfo";
 import TrackingPaymentDetails from "../components/orders/TrackingPaymentDetails";
 import TrackingActions from "../components/orders/TrackingActions";
+import useVisiblePolling from "../utils/useVisiblePolling";
+import { loadRazorpay } from "../utils/razorpay";
 
 const OrderTracking = () => {
   const { id } = useParams();
@@ -44,17 +46,13 @@ const OrderTracking = () => {
   useEffect(() => {
     if (id && id !== "history") {
       fetchOrderDetails();
-
-      // Poll order tracking details every 15 seconds to sync with MongoDB status
-      const pollInterval = setInterval(() => {
-        fetchOrderDetails();
-      }, 15000);
-
-      return () => clearInterval(pollInterval);
     } else {
       setLoading(false);
     }
   }, [id, fetchOrderDetails]);
+
+  // Refresh tracking details every 15 seconds while the tab is visible
+  useVisiblePolling(fetchOrderDetails, 15000, !!id && id !== "history");
 
   useEffect(() => {
     if (order) {
@@ -72,15 +70,6 @@ const OrderTracking = () => {
     }
   }, [order, id, currentLang, setCrumbs, t]);
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
 
   const handleRetryPayment = useCallback(async () => {
     if (!order) return;
@@ -89,7 +78,7 @@ const OrderTracking = () => {
       const response = await api.post(`/orders/retry-payment/${id}`);
       const data = response.data;
 
-      const scriptLoaded = await loadRazorpayScript();
+      const scriptLoaded = await loadRazorpay();
       if (!scriptLoaded) {
         showToast.error("Razorpay SDK failed to load");
         setRetrying(false);

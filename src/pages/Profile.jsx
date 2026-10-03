@@ -5,7 +5,6 @@ import { showToast } from '../utils/toast';
 import api from '../utils/api';
 
 // Modular components
-import ProfileSidebar from '../components/profile/ProfileSidebar';
 import ProfileEditTab from '../components/profile/ProfileEditTab';
 
 const Profile = () => {

@@ -1,6 +1,6 @@
 import React from "react";
 import { Instagram, Facebook } from "lucide-react";
-import { FaWhatsapp } from "react-icons/fa";
+import WhatsAppIcon from "../common/WhatsAppIcon";
 
 const HomeSocials = ({ currentLang }) => {
   return (
@@ -60,7 +60,7 @@ const HomeSocials = ({ currentLang }) => {
             className="flex flex-col items-center gap-4 p-6 bg-white border border-slate-200/80 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-md hover:border-emerald-200 group text-center"
           >
             <div className="p-4 bg-emerald-50 text-emerald-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
-              <FaWhatsapp size={28} />
+              <WhatsAppIcon size={28} />
             </div>
             <div className="flex flex-col gap-1">
               <span className="font-heading font-bold text-slate-800 text-sm">WhatsApp</span>

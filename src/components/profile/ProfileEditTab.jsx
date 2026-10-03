@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Compass, Save, MapPin, Plus, Trash2, Edit2, Star, Navigation, Check, AlertTriangle } from "lucide-react";
+import { Save, MapPin, Plus, Trash2, Edit2, Star, Navigation, Check } from "lucide-react";
 import { showToast } from "../../utils/toast";
 import ProfileMap from "./ProfileMap";
 import { getCurrentPositionWithFallback, handleGeolocationError } from "../../utils/geolocation";
