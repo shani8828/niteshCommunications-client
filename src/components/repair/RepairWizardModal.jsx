@@ -256,6 +256,7 @@ const RepairWizardModal = ({
         deviceModel: selectedModel,
         problemDescription: serviceData.title.en,
         serviceCategory: serviceData.category,
+        serviceKey: selectedServiceKey, // lets the server price this exact service
         pickupAddress: fullAddress,
         estimatedPrice: basePrice, // Send base price, backend will calculate discount
         coordinates,

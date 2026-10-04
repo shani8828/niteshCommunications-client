@@ -307,10 +307,12 @@ const ProfileEditTab = ({
             <input
               type="tel"
               maxLength="10"
-              disabled={!isEditMode}
+              // The verified login number: changing it needs a new OTP login, not a profile edit
+              disabled
+              title="Your verified login number"
               className="w-full px-4 py-2.5 bg-white disabled:bg-slate-50/50 disabled:text-slate-500 disabled:border-slate-100 border border-slate-200 rounded text-slate-800 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all text-sm font-medium"
               value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+              readOnly
               required
             />
           </div>
